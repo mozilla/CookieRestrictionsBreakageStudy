@@ -34,7 +34,7 @@ describe("setup and teardown", function() {
     const SETUP_DELAY = 500;
 
     it("sets the correct prefs for variation TPL0", async () => {
-      await utils.setPreference(driver, "extensions.fastblock-shield_mozilla_org.test.variationName", "TPL0");
+      await utils.setPreference(driver, "extensions.cookie-restrictions-shield_mozilla.org.test.variationName", "TPL0");
       const addonId = await utils.setupWebdriver.installAddon(driver);
       await driver.sleep(SETUP_DELAY);
 
@@ -55,11 +55,11 @@ describe("setup and teardown", function() {
         ["network.http.tailing.enabled", true],
       ]);
 
-      await utils.clearPreference(driver, "extensions.fastblock-shield_mozilla_org.test.variationName");
+      await utils.clearPreference(driver, "extensions.cookie-restrictions-shield_mozilla.org.test.variationName");
     });
 
     it("sets the correct prefs for variation TPL1", async () => {
-      await utils.setPreference(driver, "extensions.fastblock-shield_mozilla_org.test.variationName", "TPL1");
+      await utils.setPreference(driver, "extensions.cookie-restrictions-shield_mozilla.org.test.variationName", "TPL1");
       const addonId = await utils.setupWebdriver.installAddon(driver);
       await driver.sleep(SETUP_DELAY);
 
@@ -80,11 +80,11 @@ describe("setup and teardown", function() {
         ["network.http.tailing.enabled", true],
       ]);
 
-      await utils.clearPreference(driver, "extensions.fastblock-shield_mozilla_org.test.variationName");
+      await utils.clearPreference(driver, "extensions.cookie-restrictions-shield_mozilla.org.test.variationName");
     });
 
     it("sets the correct prefs for variation TPL2", async () => {
-      await utils.setPreference(driver, "extensions.fastblock-shield_mozilla_org.test.variationName", "TPL2");
+      await utils.setPreference(driver, "extensions.cookie-restrictions-shield_mozilla.org.test.variationName", "TPL2");
       const addonId = await utils.setupWebdriver.installAddon(driver);
       await driver.sleep(SETUP_DELAY);
 
@@ -105,11 +105,11 @@ describe("setup and teardown", function() {
         ["network.http.tailing.enabled", true],
       ]);
 
-      await utils.clearPreference(driver, "extensions.fastblock-shield_mozilla_org.test.variationName");
+      await utils.clearPreference(driver, "extensions.cookie-restrictions-shield_mozilla.org.test.variationName");
     });
 
     it("sets the correct prefs for variation TPL3", async () => {
-      await utils.setPreference(driver, "extensions.fastblock-shield_mozilla_org.test.variationName", "TPL3");
+      await utils.setPreference(driver, "extensions.cookie-restrictions-shield_mozilla.org.test.variationName", "TPL3");
       const addonId = await utils.setupWebdriver.installAddon(driver);
       await driver.sleep(SETUP_DELAY);
 
@@ -130,11 +130,11 @@ describe("setup and teardown", function() {
         ["network.http.tailing.enabled", true],
       ]);
 
-      await utils.clearPreference(driver, "extensions.fastblock-shield_mozilla_org.test.variationName");
+      await utils.clearPreference(driver, "extensions.cookie-restrictions-shield_mozilla.org.test.variationName");
     });
 
     it("sets the correct prefs for variation FB2L0", async () => {
-      await utils.setPreference(driver, "extensions.fastblock-shield_mozilla_org.test.variationName", "FB2L0");
+      await utils.setPreference(driver, "extensions.cookie-restrictions-shield_mozilla.org.test.variationName", "FB2L0");
       const addonId = await utils.setupWebdriver.installAddon(driver);
       await driver.sleep(SETUP_DELAY);
 
@@ -156,11 +156,11 @@ describe("setup and teardown", function() {
         ["network.http.tailing.enabled", true],
       ]);
 
-      await utils.clearPreference(driver, "extensions.fastblock-shield_mozilla_org.test.variationName");
+      await utils.clearPreference(driver, "extensions.cookie-restrictions-shield_mozilla.org.test.variationName");
     });
 
     it("sets the correct prefs for variation FB2L1", async () => {
-      await utils.setPreference(driver, "extensions.fastblock-shield_mozilla_org.test.variationName", "FB2L1");
+      await utils.setPreference(driver, "extensions.cookie-restrictions-shield_mozilla.org.test.variationName", "FB2L1");
       const addonId = await utils.setupWebdriver.installAddon(driver);
       await driver.sleep(SETUP_DELAY);
 
@@ -182,11 +182,11 @@ describe("setup and teardown", function() {
         ["network.http.tailing.enabled", true],
       ]);
 
-      await utils.clearPreference(driver, "extensions.fastblock-shield_mozilla_org.test.variationName");
+      await utils.clearPreference(driver, "extensions.cookie-restrictions-shield_mozilla.org.test.variationName");
     });
 
     it("sets the correct prefs for variation FB2L2", async () => {
-      await utils.setPreference(driver, "extensions.fastblock-shield_mozilla_org.test.variationName", "FB2L2");
+      await utils.setPreference(driver, "extensions.cookie-restrictions-shield_mozilla.org.test.variationName", "FB2L2");
       const addonId = await utils.setupWebdriver.installAddon(driver);
       await driver.sleep(SETUP_DELAY);
 
@@ -208,11 +208,11 @@ describe("setup and teardown", function() {
         ["network.http.tailing.enabled", true],
       ]);
 
-      await utils.clearPreference(driver, "extensions.fastblock-shield_mozilla_org.test.variationName");
+      await utils.clearPreference(driver, "extensions.cookie-restrictions-shield_mozilla.org.test.variationName");
     });
 
     it("sets the correct prefs for variation FB2L3", async () => {
-      await utils.setPreference(driver, "extensions.fastblock-shield_mozilla_org.test.variationName", "FB2L3");
+      await utils.setPreference(driver, "extensions.cookie-restrictions-shield_mozilla.org.test.variationName", "FB2L3");
       const addonId = await utils.setupWebdriver.installAddon(driver);
       await driver.sleep(SETUP_DELAY);
 
@@ -234,11 +234,11 @@ describe("setup and teardown", function() {
         ["network.http.tailing.enabled", true],
       ]);
 
-      await utils.clearPreference(driver, "extensions.fastblock-shield_mozilla_org.test.variationName");
+      await utils.clearPreference(driver, "extensions.cookie-restrictions-shield_mozilla.org.test.variationName");
     });
 
     it("sets the correct prefs for variation FB5L0", async () => {
-      await utils.setPreference(driver, "extensions.fastblock-shield_mozilla_org.test.variationName", "FB5L0");
+      await utils.setPreference(driver, "extensions.cookie-restrictions-shield_mozilla.org.test.variationName", "FB5L0");
       const addonId = await utils.setupWebdriver.installAddon(driver);
       await driver.sleep(SETUP_DELAY);
 
@@ -260,11 +260,11 @@ describe("setup and teardown", function() {
         ["network.http.tailing.enabled", true],
       ]);
 
-      await utils.clearPreference(driver, "extensions.fastblock-shield_mozilla_org.test.variationName");
+      await utils.clearPreference(driver, "extensions.cookie-restrictions-shield_mozilla.org.test.variationName");
     });
 
     it("sets the correct prefs for variation FB5L1", async () => {
-      await utils.setPreference(driver, "extensions.fastblock-shield_mozilla_org.test.variationName", "FB5L1");
+      await utils.setPreference(driver, "extensions.cookie-restrictions-shield_mozilla.org.test.variationName", "FB5L1");
       const addonId = await utils.setupWebdriver.installAddon(driver);
       await driver.sleep(SETUP_DELAY);
 
@@ -286,11 +286,11 @@ describe("setup and teardown", function() {
         ["network.http.tailing.enabled", true],
       ]);
 
-      await utils.clearPreference(driver, "extensions.fastblock-shield_mozilla_org.test.variationName");
+      await utils.clearPreference(driver, "extensions.cookie-restrictions-shield_mozilla.org.test.variationName");
     });
 
     it("sets the correct prefs for variation FB5L2", async () => {
-      await utils.setPreference(driver, "extensions.fastblock-shield_mozilla_org.test.variationName", "FB5L2");
+      await utils.setPreference(driver, "extensions.cookie-restrictions-shield_mozilla.org.test.variationName", "FB5L2");
       const addonId = await utils.setupWebdriver.installAddon(driver);
       await driver.sleep(SETUP_DELAY);
 
@@ -312,11 +312,11 @@ describe("setup and teardown", function() {
         ["network.http.tailing.enabled", true],
       ]);
 
-      await utils.clearPreference(driver, "extensions.fastblock-shield_mozilla_org.test.variationName");
+      await utils.clearPreference(driver, "extensions.cookie-restrictions-shield_mozilla.org.test.variationName");
     });
 
     it("sets the correct prefs for variation FB5L3", async () => {
-      await utils.setPreference(driver, "extensions.fastblock-shield_mozilla_org.test.variationName", "FB5L3");
+      await utils.setPreference(driver, "extensions.cookie-restrictions-shield_mozilla.org.test.variationName", "FB5L3");
       const addonId = await utils.setupWebdriver.installAddon(driver);
       await driver.sleep(SETUP_DELAY);
 
@@ -338,11 +338,11 @@ describe("setup and teardown", function() {
         ["network.http.tailing.enabled", true],
       ]);
 
-      await utils.clearPreference(driver, "extensions.fastblock-shield_mozilla_org.test.variationName");
+      await utils.clearPreference(driver, "extensions.cookie-restrictions-shield_mozilla.org.test.variationName");
     });
 
     it("sets the correct prefs for variation Control", async () => {
-      await utils.setPreference(driver, "extensions.fastblock-shield_mozilla_org.test.variationName", "Control");
+      await utils.setPreference(driver, "extensions.cookie-restrictions-shield_mozilla.org.test.variationName", "Control");
       const addonId = await utils.setupWebdriver.installAddon(driver);
       await driver.sleep(SETUP_DELAY);
 
@@ -360,11 +360,11 @@ describe("setup and teardown", function() {
         ["network.http.tailing.enabled", true],
       ]);
 
-      await utils.clearPreference(driver, "extensions.fastblock-shield_mozilla_org.test.variationName");
+      await utils.clearPreference(driver, "extensions.cookie-restrictions-shield_mozilla.org.test.variationName");
     });
 
     it("sets the correct prefs for variation TT", async () => {
-      await utils.setPreference(driver, "extensions.fastblock-shield_mozilla_org.test.variationName", "TT");
+      await utils.setPreference(driver, "extensions.cookie-restrictions-shield_mozilla.org.test.variationName", "TT");
       const addonId = await utils.setupWebdriver.installAddon(driver);
       await driver.sleep(SETUP_DELAY);
 
@@ -385,7 +385,7 @@ describe("setup and teardown", function() {
         ["network.http.tailing.enabled", true],
       ]);
 
-      await utils.clearPreference(driver, "extensions.fastblock-shield_mozilla_org.test.variationName");
+      await utils.clearPreference(driver, "extensions.cookie-restrictions-shield_mozilla.org.test.variationName");
     });
 
   });

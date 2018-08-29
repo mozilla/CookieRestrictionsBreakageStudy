@@ -29,27 +29,21 @@
 * (Create profile: <https://developer.mozilla.org/Firefox/Multiple_profiles>, or via some other method)
 * Navigate to _about:config_ and set the following preferences. (If a preference does not exist, create it by right-clicking in the white area and selecting New -> String)
 * Set `shieldStudy.logLevel` to `All`. This permits shield-add-on log output in browser console.
-* Set `extensions.fastblock-shield_mozilla_org.test.variationName` to `FB2L0` (or any other study variation/branch to test specifically)
+* Set `extensions.cookie-restrictions-shield_mozilla.org.test.variationName` to `FB2L0` (or any other study variation/branch to test specifically)
 <!-- TODO: create a zip file with this add-on  -->
 * Go to [this study's tracking bug](tbd: replace with your study's launch bug link in bugzilla) and install the latest add-on zip file
 
 ### Variations
 
-There are a number of variations to study features and heuristics:
+There are a 2 variations to study features and heuristics:
 
   * `Control`
-    * 4 control branches - denoted by `[0-3]`
-  * Tracking Protection - denoted by `TP`
-  * Fastblock - denoted by `FB`
-    * 2 timeouts - denoted by `[2|5]`
-    * 4 separate block-lists - denoted by `L[0-3]`
+  * `CookiesBlocked`
 
-All the variations are listed in
-[`variations.js`](https://github.com/mozilla/FastBlockShield/blob/master/src/variations.js).
-You can run any of them like so:
+You can run a specific variation like so:
 
 ```
-npm start -- -f Nightly --pref=extensions.fastblock-shield_mozilla_org.test.variationName=FB2L0
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-shield_mozilla.org.test.variationName=CookiesBlocked
 ```
 
 ## Expected User Experience / Functionality
@@ -79,14 +73,14 @@ In a Control [variation](#variations):
 
 ```
 npm start -- -f Nightly --pref=extensions.button-icon-preference_shield_mozilla_org.
-test.variationName=Control0
+test.variationName=Control
 ```
 
 ### Tracking Protection
 
  ```
  npm start -- -f Nightly --pref=extensions.button-icon-preference_shield_mozilla_org.
- test.variationName=TP
+ test.variationName=
  ```
 
  In a Tracking Protection [variation](#variations):
@@ -97,25 +91,12 @@ test.variationName=Control0
      "Slow-loading Trackers: Add blocking...", and "Disable Blocking for This
      Site"
 
-### Fastblock
-
- ```
- npm start -- -f Nightly --pref=extensions.button-icon-preference_shield_mozilla_org.
- test.variationName=FB2L0
- ```
-
- In a Fastblock [variation](#variations):
-
-   * The user will not receive any Fastblock onboarding
-   * The "Content Blocking" panel should show "Slow-loading Trackers: Blocked",
-     "Trackers: Add blocking...", and "Disable Blocking for This Site"
-
 ### Testing Guide
 
 In combination with the above instructions, add the pref `shieldStudy.logLevel=all` to the command to see extra logging. The logging will show the contents of the Telemetry ping, and the variation.
 
 ```
-npm start -- -f Nightly --pref=extensions.fastblock-shield_mozilla_org.test.variationName=TPL0 --pref=shieldStudy.logLevel=all
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-shield_mozilla.org.test.variationName=Control --pref=shieldStudy.logLevel=all
 ```
 
 ### Websites to test
@@ -124,7 +105,7 @@ You can find a good a assortment of test sites with trackers on the [Tracking Pr
 
 Here is a [test page](https://mozilla.github.io/FastBlockShield/) that causes various Javascript Errors when buttons are clicked. The page also contains a GA tracker, resulting in a telemetry ping. The errors should be reported in the telemetry ping.
 
-Of course there is a large variety of sites on the internet that employ trackers and cause errors. This study should generally work the same for all of them, though there may be specific exceptions. In general please be aware of the sensitivity of FastBlock to network speed and that sites can also intermittently differ in how they load trackers or throw errors.
+Of course there is a large variety of sites on the internet that employ trackers and cause errors. This study should generally work the same for all of them, though there may be specific exceptions. In general please be aware of the sensitivity of Cookie Restrictions to network speed and that sites can also intermittently differ in how they load trackers or throw errors.
 
 ### Design
 

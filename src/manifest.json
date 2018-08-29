@@ -1,11 +1,11 @@
 {
-  "name": "Mozilla FastBlock User Study",
+  "name": "Mozilla Cookie Restrictions User Study",
   "description": "__MSG_extensionDescription__",
-  "version": "2.0.0",
+  "version": "1.0.0",
   "manifest_version": 2,
   "applications": {
     "gecko": {
-      "id": "fastblock-shield@mozilla.org",
+      "id": "cookie-restrictions-shield@mozilla.org",
       "strict_min_version": "62.0"
     }
   },

@@ -1,10 +1,12 @@
-# Fast Block Shield Study
+# Cookie Restrictions Shield Study
 
 This repository is a [Shield Study](https://wiki.mozilla.org/Firefox/Shield/Shield_Studies) based on the [Shield Studies Add-on Template](https://github.com/mozilla/shield-studies-addon-template). 
 
 ### About This Add-on
 
-The sole focus of the Fastblock feature is to restrict the loading of trackers. It monitors trackers waiting for the first byte of data since the start of navigation of the current tab's top level document. If this is not received within a timeout, the request is canceled. If any bytes are received, the timeout is stopped. In some of the experimental branches, a few tracker requests are whitelisted, and do not have this monitoring. These include resources known to cause breakage, such essential audio/video, and commenting platforms.
+By default, cookies and site data can be set by all websites.  We would like to change this default to instead block cookies and site data when they are accessed or set by third parties that are identified as trackers by Disconnect’s Tracking Protection List.
+
+Cookie Restrictions make it difficult for trackers to track users across different websites.  A third party resource identified as a tracker on a first party page will not get to read any cookies or site data from their site stored in Firefox.  They will not get to set any cookies or site data, and document.cookie will not return any data.  If the third party is opened with a window.open in a new tab that the user interacts with, the third party will get exempted from the restriction on the previous tab.  If the user opens Control Center and “Disables protection for this site”, the first party website will get whitelisted and all trackers within it will get full cookie and site data access when embedded by that whitelisted first party.
 
 ## Development
 
@@ -12,7 +14,7 @@ You must run the study with [Firefox
 Nightly](https://www.mozilla.org/en-US/firefox/channel/desktop/#nightly)
 
 See [Getting
-Started](https://github.com/mozilla/FastBlockShield/blob/master/docs/DEV.md#getting-started) for instructions to install, run, lint, and build the add-on.
+Started](https://github.com/mozilla/CookieRestrictionsShield/blob/master/docs/DEV.md#getting-started) for instructions to install, run, lint, and build the add-on.
 
 You should be able to `npm start -- -f Nightly`
 
@@ -40,26 +42,20 @@ command with `--pref`.
 
 ### Variations
 
-There are a number of variations to study features and heuristics:
+There are a 2 variations to study features and heuristics:
 
   * `Control`
-    * 4 control branches - denoted by `[0-3]`
-  * Tracking Protection - denoted by `TP`
-  * Fastblock - denoted by `FB`
-    * 2 timeouts - denoted by `[2|5]`
-    * 4 separate block-lists - denoted by `L[0-3]`
+  * `CookiesBlocked`
 
-All the variations are listed in
-[`variations.js`](https://github.com/mozilla/FastBlockShield/blob/master/src/variations.js).
-You can run any of them like so:
+You can run a specific variation like so:
 
 ```
-npm start -- -f Nightly --pref=extensions.fastblock-shield_mozilla_org.test.variationName=FB2L0
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-shield_mozilla.org.test.variationName=CookiesBlocked
 ```
 
 ## User Scenarios
 
-In all variations:
+In both variations:
 
   * Nothing different should happen in Private Browsing or Safe Mode operation.
   * Nothing different should happen on a page without trackers.
@@ -83,43 +79,25 @@ In a Control [variation](#variations):
 
 ```
 npm start -- -f Nightly --pref=extensions.button-icon-preference_shield_mozilla_org.
-test.variationName=Control0
+test.variationName=Control
 ```
 
-### Tracking Protection
-
-```
-npm start -- -f Nightly --pref=extensions.button-icon-preference_shield_mozilla_org.
-test.variationName=TP
-```
-
-In a Tracking Protection [variation](#variations):
-
-  * The user should see the "How Tracking Protection works" onboarding experience
-    when they first visit a site with trackers detected.
-  * The "Content Blocking" panel should show "Trackers: Blocked",
-    "Slow-loading Trackers: Add blocking...", and "Disable Blocking for This
-    Site"
-
-### Fastblock
+### Cookie Restrictions
 
 ```
 npm start -- -f Nightly --pref=extensions.button-icon-preference_shield_mozilla_org.
-test.variationName=FB2L0
+test.variationName=CookiesBlocked
 ```
 
-In a Fastblock [variation](#variations):
-
-  * The user will not receive any Fastblock onboarding
-  * The "Content Blocking" panel should show "Slow-loading Trackers: Blocked",
-    "Trackers: Add blocking...", and "Disable Blocking for This Site"
+In a Cookies Blocked [variation](#variations):
+<!-- TODO -->
 
 ### Testing Guide
 
 In combination with the above instructions, add the pref `shieldStudy.logLevel=all` to the command to see extra logging. The logging will show the contents of the Telemetry ping, and the variation.
 
 ```
-npm start -- -f Nightly --pref=extensions.fastblock-shield_mozilla_org.test.variationName=TPL0 --pref=shieldStudy.logLevel=all
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-shield_mozilla.org.test.variationName=Control --pref=shieldStudy.logLevel=all
 ```
 
 ### Websites to test
@@ -128,4 +106,4 @@ You can find a good a assortment of test sites with trackers on the [Tracking Pr
 
 Here is a [test page](https://mozilla.github.io/FastBlockShield/) that causes various Javascript Errors when buttons are clicked. The page also contains a GA tracker, resulting in a telemetry ping. The errors should be reported in the telemetry ping.
 
-Of course there is a large variety of sites on the internet that employ trackers and cause errors. This study should generally work the same for all of them, though there may be specific exceptions. In general please be aware of the sensitivity of FastBlock to network speed and that sites can also intermittently differ in how they load trackers or throw errors.
+Of course there is a large variety of sites on the internet that employ trackers and cause errors. This study should generally work the same for all of them, though there may be specific exceptions. In general please be aware of the sensitivity of Cookie Restrictions to network speed and that sites can also intermittently differ in how they load trackers or throw errors.
