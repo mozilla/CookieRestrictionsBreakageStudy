@@ -20,7 +20,7 @@ describe("telemetry", function() {
     driver = await utils.setupWebdriver.promiseSetupDriver(
       utils.FIREFOX_PREFERENCES,
     );
-    await utils.setPreference(driver, "extensions.cookie-restrictions-shield_mozilla_org.test.variationName", "TPL0");
+    await utils.setPreference(driver, "extensions.cookie-restrictions-shield_mozilla_org.test.variationName", "CookiesBlocked");
     await utils.setupWebdriver.installAddon(driver);
   });
 

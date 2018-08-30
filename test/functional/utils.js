@@ -23,11 +23,7 @@ const FIREFOX_PREFERENCES = {
   "general.warnOnAboutConfig": false,
 
   // Force variation for testing
-<<<<<<< HEAD
   // "extensions.cookie-restrictions-shield_mozilla_org.test.variationName": "0",
-=======
-  // "extensions.fastblock_shield_mozilla_org.test.variationName": "0",
->>>>>>> e6b3cb271fdc089e97cf2aea371909a6f47d5a2a
 
   // Enable verbose shield study utils logging
   "shieldStudy.logLevel": "All",
