@@ -9,7 +9,6 @@
       "strict_min_version": "62.0"
     }
   },
-  "default_locale": "en-US",
   "experiment_apis": {
     "notificationBar": {
       "schema": "./privileged/notificationBar/schema.json",
@@ -57,7 +56,7 @@
   ],
   "permissions": ["management", "storage", "alarms", "webNavigation"],
   "background": {
-    "scripts": ["studySetup.js", "feature.js", "background.js", "tabs.js"]
+    "scripts": ["variations.js", "studySetup.js", "feature.js", "background.js", "tabs.js"]
   },
   "content_scripts": [
     {

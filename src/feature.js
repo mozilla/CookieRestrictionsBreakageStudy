@@ -1,4 +1,4 @@
-/* global TabRecords */
+/* global TabRecords, VARIATIONS */
 
 // Constants for the page_reloaded_survey telemetry probe.
 const SURVEY_SHOWN = 1;
@@ -9,7 +9,7 @@ class Feature {
   constructor() {}
 
   async configure(studyInfo) {
-    const { variation } = studyInfo;
+    let { variation } = studyInfo;
 
     // The userid will be used to create a unique hash
     // for the etld + userid combination.
@@ -20,22 +20,25 @@ class Feature {
     }
     this.userid = userid;
 
-    switch (variation.name) {
-      case "Control":
-        browser.prefs.setIntPref("security.pki.distrust_ca_policy", 1);
-        break;
-      case "CookiesBlocked":
-        browser.prefs.setIntPref("security.pki.distrust_ca_policy", 1);
-        browser.prefs.setIntPref("network.cookie.cookieBehavior", 4);
-        // TODO: verify we want the Tracking Protection onboarding
-        browser.prefs.setBoolPref("privacy.trackingprotection.introCount", 0);
-        browser.prefs.setBoolPref("Browser.contentblocking.trackingprotection.ui.enabled", false);
-        browser.prefs.setBoolPref("Browser.contentblocking.trackingprotection.ui.enabled", false);
-        break;
+    variation = VARIATIONS[variation.name];
+
+    for (const pref in variation.prefs) {
+      browser.prefs.registerPrefCleanup(pref);
+
+      const value = variation.prefs[pref];
+      if (typeof value === "boolean") {
+        browser.prefs.setBoolPref(pref, value);
+      } else if (typeof value === "string") {
+        browser.prefs.setStringPref(pref, value);
+      } else if (typeof value === "number") {
+        browser.prefs.setIntPref(pref, value);
+      }
     }
 
+    // Initialize listeners in privileged code.
+    browser.trackers.init();
+
     // Whenever trackers are detected on a tab, record their presence.
-    browser.trackers.listenForTrackers();
     browser.trackers.onRecordTrackers.addListener(
       (tabId, trackersFound, trackersBlocked) => {
         if (tabId < 0) {
@@ -47,6 +50,25 @@ class Feature {
         tabInfo.telemetryPayload.num_trackers_blocked = trackersBlocked;
       }
     );
+
+    // Record when users submitted a breakage report in the control center.
+    browser.trackers.onReportBreakage.addListener(
+      tabId => {
+        if (tabId < 0) {
+          return;
+        }
+
+        const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
+        tabInfo.telemetryPayload.user_reported_page_breakage = true;
+      }
+    );
+    browser.trackers.onAddException.addListener(tabId => {
+      if (tabId < 0) {
+        return;
+      }
+      const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
+      tabInfo.telemetryPayload.user_added_exception = true;
+    });
 
     // When a tab is removed, make sure to submit telemetry for the
     // last page and delete the tab entry.
@@ -201,7 +223,8 @@ class Feature {
    * Called at end of study, and if the user disables the study or it gets uninstalled by other means.
    */
   async cleanup() {
-    // TODO: put prefs back
+    // This is not triggering properly, see
+    // https://github.com/mozilla/shield-studies-addon-utils/issues/246
   }
 }
 

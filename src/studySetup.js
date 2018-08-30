@@ -1,4 +1,5 @@
 /* eslint no-unused-vars: ["error", { "varsIgnorePattern": "getStudySetup" }]*/
+/* global VARIATIONS */
 
 /**
  *  Overview:
@@ -13,12 +14,6 @@
  *  - some user defined endings.
  *  - study defined 'shouldAllowEnroll' logic.
  */
-
-
-const variations = [
-  "Control", "CookiesBlocked",
-];
-
 
 /** Base for studySetup, as used by `browser.study.setup`.
  *
@@ -75,7 +70,8 @@ const baseStudySetup = {
     },
   },
 
-  weightedVariations: variations.map(variation => { return {name: variation, weight: 1}; }),
+  // Will be set in getStudySetup().
+  weightedVariations: null,
 
   // maximum time that the study should run, from the first run
   expire: {
@@ -124,6 +120,10 @@ async function cachingFirstRunShouldAllowEnroll() {
 async function getStudySetup() {
   // shallow copy
   const studySetup = Object.assign({}, baseStudySetup);
+
+  studySetup.weightedVariations = Object.keys(VARIATIONS).map(variation => {
+    return {name: variation, weight: VARIATIONS[variation].weight};
+  });
 
   studySetup.allowEnroll = await cachingFirstRunShouldAllowEnroll();
 

@@ -29,9 +29,21 @@
 * (Create profile: <https://developer.mozilla.org/Firefox/Multiple_profiles>, or via some other method)
 * Navigate to _about:config_ and set the following preferences. (If a preference does not exist, create it by right-clicking in the white area and selecting New -> String)
 * Set `shieldStudy.logLevel` to `All`. This permits shield-add-on log output in browser console.
-* Set `extensions.cookie-restrictions-shield_mozilla.org.test.variationName` to `FB2L0` (or any other study variation/branch to test specifically)
+* Set `extensions.cookie-restrictions-shield_mozilla_org.test.variationName` to `FB2L0` (or any other study variation/branch to test specifically)
 <!-- TODO: create a zip file with this add-on  -->
 * Go to [this study's tracking bug](tbd: replace with your study's launch bug link in bugzilla) and install the latest add-on zip file
+
+### Test Beta or other versions of Firefox
+
+npm will launch the add-on in Nightly by default, but you may want to test it in Beta.
+
+Using `npm start` you may pass in the path or short name of the Firefox release you want to test with the `--firefox` option:
+
+```
+npm start -- --firefox=beta --pref=extensions.fastblock_shield_mozilla_org.test.variationName=FB2L0
+```
+
+See https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Getting_started_with_web-ext#Testing_in_different_versions_of_Firefox for more information.
 
 ### Variations
 
@@ -43,7 +55,7 @@ There are a 2 variations to study features and heuristics:
 You can run a specific variation like so:
 
 ```
-npm start -- -f Nightly --pref=extensions.cookie-restrictions-shield_mozilla.org.test.variationName=CookiesBlocked
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-shield_mozilla_org.test.variationName=CookiesBlocked
 ```
 
 ## Expected User Experience / Functionality
@@ -96,7 +108,7 @@ test.variationName=Control
 In combination with the above instructions, add the pref `shieldStudy.logLevel=all` to the command to see extra logging. The logging will show the contents of the Telemetry ping, and the variation.
 
 ```
-npm start -- -f Nightly --pref=extensions.cookie-restrictions-shield_mozilla.org.test.variationName=Control --pref=shieldStudy.logLevel=all
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-shield_mozilla_org.test.variationName=Control --pref=shieldStudy.logLevel=all
 ```
 
 ### Websites to test

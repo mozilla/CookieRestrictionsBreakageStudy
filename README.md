@@ -50,7 +50,7 @@ There are a 2 variations to study features and heuristics:
 You can run a specific variation like so:
 
 ```
-npm start -- -f Nightly --pref=extensions.cookie-restrictions-shield_mozilla.org.test.variationName=CookiesBlocked
+npm start -- -f Nightly --pref=extensions.extensions.cookie-restrictions-shield_mozilla_org.test.variationName=CookiesBlocked
 ```
 
 ## User Scenarios
@@ -78,14 +78,14 @@ In a Control [variation](#variations):
   * There are no differences for Control branches from the behaviours described for all variations
 
 ```
-npm start -- -f Nightly --pref=extensions.button-icon-preference_shield_mozilla_org.
+npm start -- -f Nightly --pref=extensions.extensions.cookie-restrictions-shield_mozilla_org.
 test.variationName=Control
 ```
 
 ### Cookie Restrictions
 
 ```
-npm start -- -f Nightly --pref=extensions.button-icon-preference_shield_mozilla_org.
+npm start -- -f Nightly --pref=extensions.extensions.cookie-restrictions-shield_mozilla_org.
 test.variationName=CookiesBlocked
 ```
 
@@ -97,7 +97,7 @@ In a Cookies Blocked [variation](#variations):
 In combination with the above instructions, add the pref `shieldStudy.logLevel=all` to the command to see extra logging. The logging will show the contents of the Telemetry ping, and the variation.
 
 ```
-npm start -- -f Nightly --pref=extensions.cookie-restrictions-shield_mozilla.org.test.variationName=Control --pref=shieldStudy.logLevel=all
+npm start -- -f Nightly --pref=extensions.extensions.cookie-restrictions-shield_mozilla_org.test.variationName=Control --pref=shieldStudy.logLevel=all
 ```
 
 ### Websites to test

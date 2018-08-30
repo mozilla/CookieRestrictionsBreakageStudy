@@ -23,7 +23,11 @@ const FIREFOX_PREFERENCES = {
   "general.warnOnAboutConfig": false,
 
   // Force variation for testing
-  // "extensions.cookie-restrictions-shield_mozilla.org.test.variationName": "0",
+<<<<<<< HEAD
+  // "extensions.cookie-restrictions-shield_mozilla_org.test.variationName": "0",
+=======
+  // "extensions.fastblock_shield_mozilla_org.test.variationName": "0",
+>>>>>>> e6b3cb271fdc089e97cf2aea371909a6f47d5a2a
 
   // Enable verbose shield study utils logging
   "shieldStudy.logLevel": "All",
@@ -72,6 +76,11 @@ async function clearPreference(driver, name) {
   await driver.executeScript(`Services.prefs.clearUserPref("${name}");`);
 }
 
+function prefHasUserValue(driver, name) {
+  driver.setContext(Context.CHROME);
+  return driver.executeScript(`return Services.prefs.prefHasUserValue("${name}");`);
+}
+
 async function openNewTab(driver) {
   driver.setContext(Context.CHROME);
   await driver.executeScript(`
@@ -97,6 +106,7 @@ module.exports = {
   setPreference,
   getPreference,
   clearPreference,
+  prefHasUserValue,
   openNewTab,
   removeCurrentTab,
 };
