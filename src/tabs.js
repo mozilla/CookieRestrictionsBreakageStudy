@@ -33,6 +33,8 @@ window.TabRecords = {
       num_TypeError: 0,
       num_URIError: 0,
       num_SecurityError: 0,
+      "browser_contentblocking_enabled": false,
+      "privacy_trackingprotection_enabled": false,
     };
 
     return tabInfo;

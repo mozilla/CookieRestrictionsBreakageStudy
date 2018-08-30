@@ -78,6 +78,15 @@ describe("telemetry", function() {
       assert.equal(parseInt(attributes.num_URIError), 1, "has URIError");
       assert.equal(parseInt(attributes.num_SecurityError), 1, "has SecurityError");
     });
+
+    it("correctly records the set preferences in the payload", async () => {
+      const ping = studyPings[0];
+      const attributes = ping.payload.data.attributes;
+      const browser_contentblocking_enabled = await utils.getPreference(driver, "browser.contentblocking.enabled");
+      const privacy_trackingprotection_enabled = await utils.getPreference(driver, "privacy.trackingprotection.enabled");
+      assert.equal(attributes.browser_contentblocking_enabled, browser_contentblocking_enabled.toString(), "browser_contentblocking_enabled is set, and equals the pref");
+      assert.equal(attributes.privacy_trackingprotection_enabled, privacy_trackingprotection_enabled.toString(), "privacy_trackingprotection_enabled is set, and equals the pref");
+    });
   }
 
   async function throwErrors() {

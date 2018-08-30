@@ -208,8 +208,11 @@ class Feature {
    * Takes a flat JSON object, converts all values to strings and
    * submits it to Shield telemetry.
    */
-  sendTelemetry(payload) {
+  async sendTelemetry(payload) {
     const stringToStringMap = {};
+    // Report these prefs with each telemetry ping.
+    payload.browser_contentblocking_enabled = await browser.prefs.getBoolPref("browser.contentblocking.enabled");
+    payload.privacy_trackingprotection_enabled = await browser.prefs.getBoolPref("privacy.trackingprotection.enabled");
 
     // Shield Telemetry deals with flat string-string mappings.
     for (const key in payload) {
