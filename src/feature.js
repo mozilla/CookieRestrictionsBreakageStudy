@@ -136,7 +136,7 @@ class Feature {
     // button and record the answer.
     browser.notificationBar.onReportPageNotBroken.addListener(
       (tabId, disableStudyChecked) => {
-        this.recordSurveyInteraction(tabInfo, SURVEY_PAGE_NOT_BROKEN, disableStudyChecked);
+        this.recordSurveyInteraction(tabId, SURVEY_PAGE_NOT_BROKEN, disableStudyChecked);
       },
     );
 
@@ -152,9 +152,6 @@ class Feature {
     tabInfo.telemetryPayload.page_reloaded_survey = payloadValue;
     browser.storage.local.set({[tabInfo.telemetryPayload.etld]: true});
     if (disableStudyChecked) {
-      // FIXME ?: race condition:
-      // endStudy may execute before sendTelemetry finishes
-      // can this.sendTelemetry await for browser.study.sendTelemetry ?
       this.sendTelemetry(tabInfo.telemetryPayload);
       browser.study.endStudy("user-disable");
     }

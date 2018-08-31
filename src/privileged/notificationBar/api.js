@@ -58,9 +58,8 @@ class NotificationBarEventEmitter extends EventEmitter {
       disableHighlight: true,
       label: "Yes (broken)",
       accessKey: "f",
-      callback: (callbackObj) => {
-        console.log(`callbackObj: ${callbackObj}`);
-        self.emit("page-broken", tabId, callbackObj.checkboxChecked);
+      callback: ({checkboxChecked}) => {
+        self.emit("page-broken", tabId, checkboxChecked);
       },
     };
 
@@ -68,9 +67,8 @@ class NotificationBarEventEmitter extends EventEmitter {
       {
         label: "No (works)",
         accessKey: "d",
-        callback: (callbackObj) => {
-          console.log(`callbackObj: ${callbackObj}`);
-          self.emit("page-not-broken", tabId, callbackObj.checkboxChecked);
+        callback: ({checkboxChecked}) => {
+          self.emit("page-not-broken", tabId, checkboxChecked);
         },
       },
     ];
@@ -87,7 +85,7 @@ class NotificationBarEventEmitter extends EventEmitter {
       popupIconURL: "chrome://branding/content/icon64.png",
       checkbox: {
         label: "Disable Privacy Study",
-      }
+      },
     };
     recentWindow.PopupNotifications.show(browser, "cookie-restriction-notification", "<> Did you reload this page because it wasn't working correctly?", null, primaryAction, secondaryActions, options);
   }
