@@ -24,7 +24,7 @@ window.TabRecords = {
       page_reloaded: false,
       page_reloaded_survey: 0,
       user_reported_page_breakage: false,
-      user_added_exception: false,
+      user_toggled_exception: 0,
       num_EvalError: 0,
       num_InternalError: 0,
       num_RangeError: 0,

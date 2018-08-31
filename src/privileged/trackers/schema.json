@@ -56,11 +56,12 @@
         ]
       },
       {
-        "name": "onAddException",
+        "name": "onToggleException",
         "type": "function",
-        "description": "The user added this page to the tracking protection exception.",
+        "description": "The user has added or removed and exception for this page in tracking protection.",
         "parameters": [
-          {"type": "integer", "name": "tabId", "minimum": 0}
+          {"type": "integer", "name": "tabId", "minimum": 0},
+          {"type": "boolean", "name": "toggleValue"}
         ]
       }
     ]

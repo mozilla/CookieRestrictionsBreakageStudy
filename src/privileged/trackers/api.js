@@ -31,8 +31,8 @@ class TrackersEventEmitter extends EventEmitter {
   emitErrorDetected(error, tabId) {
     this.emit("page-error-detected", error, tabId);
   }
-  emitAddException(tabId) {
-    this.emit("exception-added", tabId);
+  emitToggleException(tabId, toggleValue) {
+    this.emit("exception-toggled", tabId, toggleValue);
   }
 }
 
@@ -70,7 +70,9 @@ this.trackers = class extends ExtensionAPI {
           const reportBreakageButton = win.document.getElementById("identity-popup-breakageReportView-submit");
           reportBreakageButton.removeEventListener("command", this.onReportBreakageButtonCommand);
           const addExceptionButton = win.document.getElementById("tracking-action-unblock");
-          addExceptionButton.removeEventListener("command", this.onAddExceptionButtonCommand);
+          addExceptionButton.removeEventListener("command", this.onToggleExceptionCommand);
+          const removeExceptionButton = win.document.getElementById("tracking-action-block");
+          removeExceptionButton.removeEventListener("command", this.onToggleExceptionCommand);
         },
         async trackerCallback(e) {
           const tabId = tabTracker.getBrowserTabId(e.target);
@@ -108,13 +110,14 @@ this.trackers = class extends ExtensionAPI {
           const tabId = tabTracker.getBrowserTabId(win.gBrowser.selectedBrowser);
           trackersEventEmitter.emitReportBreakage(tabId);
         },
-        async onAddExceptionButtonCommand() {
+        async onToggleExceptionCommand() {
           const win = BrowserWindowTracker.getTopWindow({
             private: false,
             allowPopups: false,
           });
           const tabId = tabTracker.getBrowserTabId(win.gBrowser.selectedBrowser);
-          trackersEventEmitter.emitAddException(tabId);
+          const addedException = this.id === "tracking-action-unblock";
+          trackersEventEmitter.emitToggleException(tabId, addedException);
         },
         async setListeners(win) {
           const mm = win.getGroupMessageManager("browsers");
@@ -132,7 +135,10 @@ this.trackers = class extends ExtensionAPI {
           reportBreakageButton.addEventListener("command", this.onReportBreakageButtonCommand);
           // The user has clicked "disable protection for this site"
           const addExceptionButton = win.document.getElementById("tracking-action-unblock");
-          addExceptionButton.addEventListener("command", this.onAddExceptionButtonCommand);
+          addExceptionButton.addEventListener("command", this.onToggleExceptionCommand);
+          // The user has clicked the "enable protection" button
+          const removeExceptionButton = win.document.getElementById("tracking-action-block");
+          removeExceptionButton.addEventListener("command", this.onToggleExceptionCommand);
         },
 
         async init() {
@@ -239,20 +245,20 @@ this.trackers = class extends ExtensionAPI {
           },
         ).api(),
 
-        onAddException: new EventManager(
+        onToggleException: new EventManager(
           context,
-          "trackers.onAddException",
+          "onToggleException",
           fire => {
-            const listener = (value, tabId) => {
-              fire.async(tabId);
+            const listener = (value, tabId, toggleValue) => {
+              fire.async(tabId, toggleValue);
             };
             trackersEventEmitter.on(
-              "exception-added",
+              "exception-toggled",
               listener,
             );
             return () => {
               trackersEventEmitter.off(
-                "exception-added",
+                "exception-toggled",
                 listener,
               );
             };

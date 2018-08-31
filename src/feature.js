@@ -5,6 +5,10 @@ const SURVEY_SHOWN = 1;
 const SURVEY_PAGE_BROKEN = 2;
 const SURVEY_PAGE_NOT_BROKEN = 3;
 
+// Constants for the user_toggled_exception telemetry probe
+const PROTECTION_DISABLED = 1;
+const PROTECTION_ENABLED = 2;
+
 class Feature {
   constructor() {}
 
@@ -116,12 +120,12 @@ class Feature {
       }
     );
 
-    browser.trackers.onAddException.addListener(tabId => {
+    browser.trackers.onToggleException.addListener((tabId, toggleValue) => {
       if (tabId < 0) {
         return;
       }
       const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
-      tabInfo.telemetryPayload.user_added_exception = true;
+      tabInfo.telemetryPayload.user_toggled_exception = toggleValue ? PROTECTION_DISABLED : PROTECTION_ENABLED;
     });
 
     // Watch for the user pressing the "Yes this page is broken"
