@@ -127,22 +127,16 @@ class Feature {
     // Watch for the user pressing the "Yes this page is broken"
     // button and record the answer.
     browser.notificationBar.onReportPageBroken.addListener(
-      (tabId, checkboxChecked) => {
-        console.log(`checkboxChecked: ${checkboxChecked}`);
-        const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
-        tabInfo.telemetryPayload.page_reloaded_survey = SURVEY_PAGE_BROKEN;
-        this.recordSurveyInteraction(tabInfo);
+      (tabId, disableStudyChecked) => {
+        this.recordSurveyInteraction(tabId, SURVEY_PAGE_BROKEN, disableStudyChecked);
       },
     );
 
     // Watch for the user pressing the "No this page is not broken"
     // button and record the answer.
     browser.notificationBar.onReportPageNotBroken.addListener(
-      (tabId, checkboxChecked) => {
-        console.log(`checkboxChecked: ${checkboxChecked}`);
-        const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
-        tabInfo.telemetryPayload.page_reloaded_survey = SURVEY_PAGE_NOT_BROKEN;
-        this.recordSurveyInteraction(tabInfo);
+      (tabId, disableStudyChecked) => {
+        this.recordSurveyInteraction(tabInfo, SURVEY_PAGE_NOT_BROKEN, disableStudyChecked);
       },
     );
 
@@ -153,8 +147,17 @@ class Feature {
     );
   }
 
-  recordSurveyInteraction(tabInfo) {
+  recordSurveyInteraction(tabId, payloadValue, disableStudyChecked) {
+    const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
+    tabInfo.telemetryPayload.page_reloaded_survey = payloadValue;
     browser.storage.local.set({[tabInfo.telemetryPayload.etld]: true});
+    if (disableStudyChecked) {
+      // FIXME ?: race condition:
+      // endStudy may execute before sendTelemetry finishes
+      // can this.sendTelemetry await for browser.study.sendTelemetry ?
+      this.sendTelemetry(tabInfo.telemetryPayload);
+      browser.study.endStudy("user-disable");
+    }
   }
 
   recordPageError(error, tabId) {
