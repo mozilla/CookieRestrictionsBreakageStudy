@@ -68,7 +68,7 @@ describe("add page exception button", function() {
     it("correctly records that the user added an exception for this page", async () => {
       const ping = studyPings[0];
       const attributes = ping.payload.data.attributes;
-      assert.equal(attributes.user_added_exception, "true", "user added exception is included in the ping");
+      assert.equal(attributes.user_toggled_exception, "1", "user added exception is included in the ping");
     });
 
     after(async () => {
