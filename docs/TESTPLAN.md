@@ -40,7 +40,7 @@ npm will launch the add-on in Nightly by default, but you may want to test it in
 Using `npm start` you may pass in the path or short name of the Firefox release you want to test with the `--firefox` option:
 
 ```
-npm start -- --firefox=beta --pref=extensions.fastblock_shield_mozilla_org.test.variationName=FB2L0
+npm start -- --firefox=beta --pref=extensions.cookie-restrictions-shield_mozilla_org.test.variationName=CookiesBlocked
 ```
 
 See https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Getting_started_with_web-ext#Testing_in_different_versions_of_Firefox for more information.
@@ -84,15 +84,13 @@ In a Control [variation](#variations):
   * There are no differences for Control branches from the behaviours described for all variations
 
 ```
-npm start -- -f Nightly --pref=extensions.button-icon-preference_shield_mozilla_org.
-test.variationName=Control
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-shield_mozilla_org.test.variationName=Control
 ```
 
 ### Tracking Protection
 
  ```
- npm start -- -f Nightly --pref=extensions.button-icon-preference_shield_mozilla_org.
- test.variationName=
+ npm start -- -f Nightly --pref=extensions.cookie-restrictions-shield_mozilla_org.test.variationName=
  ```
 
  In a Tracking Protection [variation](#variations):
