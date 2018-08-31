@@ -58,8 +58,9 @@ class NotificationBarEventEmitter extends EventEmitter {
       disableHighlight: true,
       label: "Yes (broken)",
       accessKey: "f",
-      callback: () => {
-        self.emit("page-broken", tabId);
+      callback: (callbackObj) => {
+        console.log(`callbackObj: ${callbackObj}`);
+        self.emit("page-broken", tabId, callbackObj.checkboxChecked);
       },
     };
 
@@ -67,8 +68,9 @@ class NotificationBarEventEmitter extends EventEmitter {
       {
         label: "No (works)",
         accessKey: "d",
-        callback: () => {
-          self.emit("page-not-broken", tabId);
+        callback: (callbackObj) => {
+          console.log(`callbackObj: ${callbackObj}`);
+          self.emit("page-not-broken", tabId, callbackObj.checkboxChecked);
         },
       },
     ];
@@ -83,8 +85,11 @@ class NotificationBarEventEmitter extends EventEmitter {
       autofocus: true,
       name: "Firefox Survey: ",
       popupIconURL: "chrome://branding/content/icon64.png",
+      checkbox: {
+        label: "Disable Privacy Study",
+      }
     };
-    recentWindow.PopupNotifications.show(browser, "fast-block-notification", "<> Did you reload this page to resolve loading issues?", null, primaryAction, secondaryActions, options);
+    recentWindow.PopupNotifications.show(browser, "cookie-restriction-notification", "<> Did you reload this page because it wasn't working correctly?", null, primaryAction, secondaryActions, options);
   }
 }
 
@@ -96,7 +101,7 @@ this.notificationBar = class extends ExtensionAPI {
   onShutdown(shutdownReason) {
     for (const win of BrowserWindowTracker.orderedWindows) {
       for (const browser of win.gBrowser.browsers) {
-        const notification = win.PopupNotifications.getNotification("fast-block-notification", browser);
+        const notification = win.PopupNotifications.getNotification("cookie-restriction-notification", browser);
         if (notification) {
           win.PopupNotifications.remove(notification);
         }
@@ -115,8 +120,8 @@ this.notificationBar = class extends ExtensionAPI {
           context,
           "notificationBar.onReportPageBroken",
           fire => {
-            const listener = (value, tabId) => {
-              fire.async(tabId);
+            const listener = (value, tabId, checkboxChecked) => {
+              fire.async(tabId, checkboxChecked);
             };
             notificationBarEventEmitter.on(
               "page-broken",
@@ -134,8 +139,8 @@ this.notificationBar = class extends ExtensionAPI {
           context,
           "notificationBar.onReportPageNotBroken",
           fire => {
-            const listener = (value, tabId) => {
-              fire.async(tabId);
+            const listener = (value, tabId, checkboxChecked) => {
+              fire.async(tabId, checkboxChecked);
             };
             notificationBarEventEmitter.on(
               "page-not-broken",

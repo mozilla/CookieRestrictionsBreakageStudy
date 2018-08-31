@@ -127,7 +127,8 @@ class Feature {
     // Watch for the user pressing the "Yes this page is broken"
     // button and record the answer.
     browser.notificationBar.onReportPageBroken.addListener(
-      tabId => {
+      (tabId, checkboxChecked) => {
+        console.log(`checkboxChecked: ${checkboxChecked}`);
         const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
         tabInfo.telemetryPayload.page_reloaded_survey = SURVEY_PAGE_BROKEN;
         this.recordSurveyInteraction(tabInfo);
@@ -137,7 +138,8 @@ class Feature {
     // Watch for the user pressing the "No this page is not broken"
     // button and record the answer.
     browser.notificationBar.onReportPageNotBroken.addListener(
-      tabId => {
+      (tabId, checkboxChecked) => {
+        console.log(`checkboxChecked: ${checkboxChecked}`);
         const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
         tabInfo.telemetryPayload.page_reloaded_survey = SURVEY_PAGE_NOT_BROKEN;
         this.recordSurveyInteraction(tabInfo);
