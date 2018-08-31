@@ -68,6 +68,7 @@ class Feature {
         tabInfo.reloadCount = 0;
       }
 
+      tabInfo.telemetryPayload.login_form_on_page = data.login_form_on_page;
       tabInfo.telemetryPayload.page_reloaded = data.pageReloaded;
       for (const key in data.performanceEvents) {
         tabInfo.telemetryPayload[key] = data.performanceEvents[key];

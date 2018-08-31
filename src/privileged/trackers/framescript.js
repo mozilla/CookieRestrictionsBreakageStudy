@@ -77,6 +77,8 @@ addEventListener("DOMContentLoaded", function(e) {
     if (docShell.document.numTrackersFound <= 0) {
       return;
     }
+    const passwordFields = content.document.querySelectorAll("input[type='password']");
+    telemetryData.login_form_on_page = !!passwordFields.length;
 
     telemetryData.trackersFound = docShell.document.numTrackersFound;
     telemetryData.trackersBlocked = docShell.document.numTrackersBlocked;
