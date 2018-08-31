@@ -12,8 +12,8 @@ const trackerListener = {
     // we report the actual numbers of trackers later. We need to report this
     // as soon as possible to be able to prompt the user. The remaining data
     // is only sent at beforeunload.
-    if (!sentReload && telemetryData.pageReloaded && docShell.document.numTrackersFound > 0) {
-      sendAsyncMessage("reload-with-trackers", {hostname: telemetryData.hostname});
+    if (!sentReload && telemetryData.pageReloaded) {
+      sendAsyncMessage("reload", {hostname: telemetryData.hostname});
       sentReload = true;
     }
   },

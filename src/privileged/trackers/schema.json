@@ -38,7 +38,7 @@
         ]
       },
       {
-        "name": "onReloadWithTrackers",
+        "name": "onReload",
         "type": "function",
         "description": "This is called when we find a page that was reloaded and has at least one tracker.",
         "parameters": [
