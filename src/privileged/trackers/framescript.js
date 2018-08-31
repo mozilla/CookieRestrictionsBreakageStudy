@@ -73,11 +73,6 @@ addEventListener("DOMContentLoaded", function(e) {
   // use the "beforeunload" event (which is a little earlier) for recording
   // and use the "unload" event (or a tab close) for submitting the data.
   content.window.addEventListener("beforeunload", () => {
-    // Don't bother if we have no trackers.
-    if (docShell.document.numTrackersFound <= 0) {
-      return;
-    }
-
     telemetryData.trackersFound = docShell.document.numTrackersFound;
     telemetryData.trackersBlocked = docShell.document.numTrackersBlocked;
 
@@ -85,11 +80,6 @@ addEventListener("DOMContentLoaded", function(e) {
   }, {once: true});
 
   content.window.addEventListener("unload", () => {
-    // Don't bother if we have no trackers.
-    if (docShell.document.numTrackersFound <= 0) {
-      return;
-    }
-
     sendAsyncMessage("unload", {});
     telemetryData = {};
     sentReload = false;
