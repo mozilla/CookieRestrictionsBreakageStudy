@@ -62,7 +62,8 @@ telemetry: {
       "num_URIError":"0",
       "num_SecurityError":"0",
       "browser_contentblocking_enabled": "true",
-      "privacy_trackingprotection_enabled": "true"
+      "privacy_trackingprotection_enabled": "true",
+      "login_form_on_page": "false"
     }
   }
 }
