@@ -4,27 +4,6 @@
 let telemetryData = {};
 let sentReload = false;
 
-const {classes: Cc, interfaces: Ci} = Components;
-const trackerListener = {
-  QueryInterface: ChromeUtils.generateQI(["nsIWebProgressListener", "nsISupportsWeakReference"]),
-  onSecurityChange(webProgress, request, state) {
-    // This is only to be able to show the "is this page broken?" dialog,
-    // we report the actual numbers of trackers later. We need to report this
-    // as soon as possible to be able to prompt the user. The remaining data
-    // is only sent at beforeunload.
-    if (!sentReload && telemetryData.pageReloaded) {
-      sendAsyncMessage("reload", {hostname: telemetryData.hostname});
-      sentReload = true;
-    }
-  },
-};
-
-const filter = Cc["@mozilla.org/appshell/component/browser-status-filter;1"].createInstance(Ci.nsIWebProgress);
-filter.addProgressListener(trackerListener, Ci.nsIWebProgress.NOTIFY_ALL);
-const webProgress = docShell.QueryInterface(Ci.nsIInterfaceRequestor)
-  .getInterface(Ci.nsIWebProgress);
-webProgress.addProgressListener(filter, Ci.nsIWebProgress.NOTIFY_ALL);
-
 // The global "load" and "unload" event listeners listen for lifetime
 // events of the framescript, hence we wait for a DOM window to appear
 // and attach listeners to it. That also helps us make sure that these
@@ -64,6 +43,10 @@ addEventListener("DOMContentLoaded", function(e) {
         // TIME_TO_DOM_LOADING_MS ( integer)
         // TIME_TO_FIRST_INTERACTION_MS ( integer)
       };
+      if (!sentReload && telemetryData.pageReloaded) {
+        sendAsyncMessage("reload", {hostname: telemetryData.hostname});
+        sentReload = true;
+      }
     }, 0);
   }, {once: true});
 
