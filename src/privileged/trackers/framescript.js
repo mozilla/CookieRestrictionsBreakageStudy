@@ -56,7 +56,6 @@ addEventListener("DOMContentLoaded", function(e) {
   // use the "beforeunload" event (which is a little earlier) for recording
   // and use the "unload" event (or a tab close) for submitting the data.
   content.window.addEventListener("beforeunload", () => {
-    // Don't bother if we have no trackers.
     const passwordFields = content.document.querySelectorAll("input[type='password']");
     telemetryData.login_form_on_page = !!passwordFields.length;
 
