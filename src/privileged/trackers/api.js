@@ -20,7 +20,7 @@ class TrackersEventEmitter extends EventEmitter {
     this.emit("report-breakage", tabId);
   }
   emitReloadWithTrackers(tabId, etld) {
-    this.emit("reload-with-trackers", tabId, etld);
+    this.emit("reload", tabId, etld);
   }
   emitPageBeforeUnload(tabId, data) {
     this.emit("page-before-unload", tabId, data);
@@ -62,7 +62,7 @@ this.trackers = class extends ExtensionAPI {
       trackers: {
         async unmount(win) {
           const mm = win.ownerGlobal.getGroupMessageManager("browsers");
-          mm.removeMessageListener("reload-with-trackers", this.trackerCallback);
+          mm.removeMessageListener("reload", this.reloadCallback);
           mm.removeMessageListener("pageError", this.pageErrorCallback);
           mm.removeMessageListener("unload", this.pageUnloadCallback);
           mm.removeMessageListener("beforeunload", this.pageBeforeUnloadCallback);
@@ -74,7 +74,7 @@ this.trackers = class extends ExtensionAPI {
           const removeExceptionButton = win.document.getElementById("tracking-action-block");
           removeExceptionButton.removeEventListener("command", this.onToggleExceptionCommand);
         },
-        async trackerCallback(e) {
+        async reloadCallback(e) {
           const tabId = tabTracker.getBrowserTabId(e.target);
           let etld;
           try {
@@ -122,7 +122,7 @@ this.trackers = class extends ExtensionAPI {
         async setListeners(win) {
           const mm = win.getGroupMessageManager("browsers");
           // Web Progress Listener has detected a change.
-          mm.addMessageListener("reload-with-trackers", this.trackerCallback);
+          mm.addMessageListener("reload", this.reloadCallback);
           mm.addMessageListener("pageError", this.pageErrorCallback);
           // We pass "true" as the third argument to signify that we want to listen
           // to messages even when the framescript is unloading, to catch tabs closing.
@@ -205,20 +205,20 @@ this.trackers = class extends ExtensionAPI {
           },
         ).api(),
 
-        onReloadWithTrackers: new EventManager(
+        onReload: new EventManager(
           context,
-          "trackers.onReloadWithTrackers",
+          "trackers.onReload",
           fire => {
             const listener = (value, tabId, etld) => {
               fire.async(tabId, etld);
             };
             trackersEventEmitter.on(
-              "reload-with-trackers",
+              "reload",
               listener,
             );
             return () => {
               trackersEventEmitter.off(
-                "reload-with-trackers",
+                "reload",
                 listener,
               );
             };

@@ -43,8 +43,8 @@ class Feature {
     browser.trackers.init();
 
     // This is a notification to let us know that we should prompt
-    // the user whether the page is broken (the user reloaded a tracking page.)
-    browser.trackers.onReloadWithTrackers.addListener((tabId, etld) => {
+    // the user whether the page is broken (the user reloaded a page.)
+    browser.trackers.onReload.addListener((tabId, etld) => {
       if (tabId < 0 || !etld) {
         return;
       }
