@@ -83,6 +83,22 @@ addEventListener("DOMContentLoaded", function(e) {
     telemetryData.trackersFound = docShell.document.numTrackersFound;
     telemetryData.trackersBlocked = docShell.document.numTrackersBlocked;
 
+    // Find all scripts on the page.
+    const scripts = Array.prototype.slice
+      .apply(content.document.querySelectorAll("script"))
+      .filter(s => s.src)
+      .map(s => s.src);
+    // Find if any of the scripts are identified social login scripts.
+    telemetryData.embedded_social_login_script = scripts.some(src => {
+      return src.includes("platform.twitter.com/widgets.js") ||
+             /connect\.facebook\.net\/.*\/(all|sdk)\.js/.test(src) ||
+             src.includes("apis.google.com/js/platform.js") ||
+             src.includes("platform.linkedin.com/in.js") ||
+             src.includes("www.paypalobjects.com/js/external/api.js") ||
+             src.includes("api-cdn.amazon.com/sdk/login1.js") ||
+             src.includes("api.instagram.com/oauth/authorize/");
+    });
+
     sendAsyncMessage("beforeunload", {telemetryData});
   }, {once: true});
 

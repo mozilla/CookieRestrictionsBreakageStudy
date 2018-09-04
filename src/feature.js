@@ -71,7 +71,7 @@ class Feature {
         tabInfo.surveyShown = false;
         tabInfo.reloadCount = 0;
       }
-
+      tabInfo.telemetryPayload.embedded_social_login_script = data.embedded_social_login_script;
       tabInfo.telemetryPayload.login_form_on_page = data.login_form_on_page;
       tabInfo.telemetryPayload.page_reloaded = data.pageReloaded;
       for (const key in data.performanceEvents) {

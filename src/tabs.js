@@ -36,6 +36,7 @@ window.TabRecords = {
       "browser_contentblocking_enabled": false,
       "privacy_trackingprotection_enabled": false,
       "login_form_on_page": false,
+      "embedded_social_login_script": false,
     };
 
     return tabInfo;
