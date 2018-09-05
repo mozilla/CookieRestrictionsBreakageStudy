@@ -150,7 +150,7 @@ class Feature {
 
     // Watch for the user pressing the "Yes this page is broken"
     // button and record the answer.
-    browser.notificationBar.onReportPageBroken.addListener(
+    browser.popupNotification.onReportPageBroken.addListener(
       (tabId, disableStudyChecked) => {
         this.recordSurveyInteraction(tabId, SURVEY_PAGE_BROKEN, disableStudyChecked);
       },
@@ -158,7 +158,7 @@ class Feature {
 
     // Watch for the user pressing the "No this page is not broken"
     // button and record the answer.
-    browser.notificationBar.onReportPageNotBroken.addListener(
+    browser.popupNotification.onReportPageNotBroken.addListener(
       (tabId, disableStudyChecked) => {
         this.recordSurveyInteraction(tabId, SURVEY_PAGE_NOT_BROKEN, disableStudyChecked);
       },
@@ -221,7 +221,7 @@ class Feature {
     if (num <= (3 + tabInfo.reloadCount)) {
       tabInfo.telemetryPayload.page_reloaded_survey = SURVEY_SHOWN;
       tabInfo.surveyShown = true;
-      browser.notificationBar.show();
+      browser.popupNotification.show();
     }
   }
 
