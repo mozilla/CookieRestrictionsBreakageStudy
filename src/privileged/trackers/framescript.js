@@ -58,6 +58,7 @@ addEventListener("DOMContentLoaded", function(e) {
   content.window.addEventListener("beforeunload", () => {
     const passwordFields = content.document.querySelectorAll("input[type='password']");
     telemetryData.login_form_on_page = !!passwordFields.length;
+    telemetryData.completeLocation = content.location.href;
 
     telemetryData.trackersFound = docShell.document.numTrackersFound;
     telemetryData.trackersBlocked = docShell.document.numTrackersBlocked;

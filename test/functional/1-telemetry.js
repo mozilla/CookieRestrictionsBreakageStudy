@@ -223,4 +223,32 @@ describe("telemetry", function() {
 
     checkTelemetryPayload(true);
   });
+
+  describe("records the correct value if a user has set an exception", function() {
+    before(async () => {
+      const time = Date.now();
+      driver.setContext(Context.CONTENT);
+      await driver.get("https://itisatrap.org/firefox/its-a-tracker.html");
+      await driver.sleep(500);
+      await driver.navigate().refresh();
+      await driver.sleep(500);
+      studyPings = await utils.telemetry.getShieldPingsAfterTimestamp(
+        driver,
+        time,
+      );
+      studyPings = studyPings.filter(ping => ping.type === "shield-study-addon");
+    });
+
+    it("correctly records if the user has set a tracking protection exception on the page", async () => {
+      it.skip("This depends on platform support, this will currently only record false");
+      const ping = studyPings[0];
+      const attributes = ping.payload.data.attributes;
+      const value = await driver.executeScript(`
+        let uri = Services.io.newURI("https://itisatrap.org/firefox/its-a-tracker.html");
+        return Services.perms.testExactPermission(uri, "trackingprotection") === Services.perms.ALLOW_ACTION;
+      `);
+
+      assert.equal(attributes.user_has_tracking_protection_exception, value.toString(), "user_has_tracking_protection_exception is recorded, and equals the actual setting");
+    });
+  });
 });
