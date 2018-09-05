@@ -66,7 +66,6 @@ this.trackers = class extends ExtensionAPI {
         async unmount(win) {
           const mm = win.ownerGlobal.getGroupMessageManager("browsers");
           mm.removeMessageListener("reload", this.reloadCallback);
-          mm.removeMessageListener("pageError", this.pageErrorCallback);
           mm.removeMessageListener("unload", this.pageUnloadCallback);
           mm.removeMessageListener("beforeunload", this.pageBeforeUnloadCallback);
 
@@ -87,10 +86,6 @@ this.trackers = class extends ExtensionAPI {
             return;
           }
           trackersEventEmitter.emitReloadWithTrackers(tabId, etld);
-        },
-        async pageErrorCallback(e) {
-          const tabId = tabTracker.getBrowserTabId(e.target);
-          trackersEventEmitter.emitErrorDetected(e.data, tabId);
         },
         async pageBeforeUnloadCallback(e) {
           const tabId = tabTracker.getBrowserTabId(e.target);
@@ -133,7 +128,6 @@ this.trackers = class extends ExtensionAPI {
           const mm = win.getGroupMessageManager("browsers");
           // Web Progress Listener has detected a change.
           mm.addMessageListener("reload", this.reloadCallback);
-          mm.addMessageListener("pageError", this.pageErrorCallback);
           // We pass "true" as the third argument to signify that we want to listen
           // to messages even when the framescript is unloading, to catch tabs closing.
           mm.addMessageListener("beforeunload", this.pageBeforeUnloadCallback, true);
@@ -251,26 +245,6 @@ this.trackers = class extends ExtensionAPI {
             return () => {
               trackersEventEmitter.off(
                 "reload",
-                listener,
-              );
-            };
-          },
-        ).api(),
-
-        onErrorDetected: new EventManager(
-          context,
-          "trackers.onErrorDetected",
-          fire => {
-            const listener = (value, error, tabId) => {
-              fire.async(error, tabId);
-            };
-            trackersEventEmitter.on(
-              "page-error-detected",
-              listener,
-            );
-            return () => {
-              trackersEventEmitter.off(
-                "page-error-detected",
                 listener,
               );
             };

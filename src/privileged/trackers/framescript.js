@@ -16,7 +16,7 @@ addEventListener("DOMContentLoaded", function(e) {
   }
 
   telemetryData.hostname = content.location.hostname;
-
+  // there *should* be only one entry - I haven't see anything to the alternative yet
   const entryForReload = content.performance.getEntriesByType("navigation")[0];
   telemetryData.pageReloaded = entryForReload.type === "reload";
 
@@ -29,20 +29,6 @@ addEventListener("DOMContentLoaded", function(e) {
     // We call setTimeout because otherwise our loadEventEnd entry (which is
     // filled after the "load" event handler runs) would be empty.
     setTimeout(function() {
-      // there *should* be only one entry - I haven't see anything to the alternative yet
-      const entry = content.performance.getEntriesByType("navigation")[0];
-      telemetryData.performanceEvents = {
-        TIME_TO_DOM_CONTENT_LOADED_START_MS: entry.domContentLoadedEventStart,
-        TIME_TO_DOM_COMPLETE_MS: entry.domComplete,
-        TIME_TO_DOM_INTERACTIVE_MS: entry.domInteractive,
-        TIME_TO_LOAD_EVENT_START_MS: entry.loadEventStart,
-        TIME_TO_LOAD_EVENT_END_MS: entry.loadEventEnd,
-        TIME_TO_RESPONSE_START_MS: entry.responseStart,
-        // Missing:
-        // TIME_TO_NON_BLANK_PAINT_MS ( integer)
-        // TIME_TO_DOM_LOADING_MS ( integer)
-        // TIME_TO_FIRST_INTERACTION_MS ( integer)
-      };
       if (!sentReload && telemetryData.pageReloaded) {
         sendAsyncMessage("reload", {hostname: telemetryData.hostname});
         sentReload = true;
@@ -61,7 +47,6 @@ addEventListener("DOMContentLoaded", function(e) {
     telemetryData.completeLocation = content.location.href;
 
     telemetryData.trackersFound = docShell.document.numTrackersFound;
-    telemetryData.trackersBlocked = docShell.document.numTrackersBlocked;
 
     // Find all scripts on the page.
     const scripts = Array.prototype.slice
@@ -87,14 +72,4 @@ addEventListener("DOMContentLoaded", function(e) {
     telemetryData = {};
     sentReload = false;
   }, {once: true});
-});
-
-// Listen for errors from the content.
-addEventListener("error", function(e) {
-  // TODO should we handle these somehow?
-  if (!e.error) {
-    return;
-  }
-
-  sendAsyncMessage("pageError", e.error.name);
 });
