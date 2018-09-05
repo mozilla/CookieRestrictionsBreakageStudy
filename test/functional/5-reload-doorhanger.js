@@ -32,7 +32,7 @@ describe("reload survey doorhanger", function() {
   after(() => {
     driver.quit();
   });
-  
+
   async function checkDoorhangerTelemetry() {
     it("shows the doorhanger after at most 6 tries", async () => {
       assert.isAtMost(tries, 6, "Should have shown the doorhanger after at most 6 tries");
@@ -80,6 +80,8 @@ describe("reload survey doorhanger", function() {
 
   describe("shows a survey after reloading a page with trackers 6 times max", function() {
     before(async () => {
+      tries = 0;
+      studyPings = [];
       await utils.setPreference(driver, "privacy.trackingprotection.enabled", true);
       await driver.sleep(DELAY);
 
@@ -107,17 +109,15 @@ describe("reload survey doorhanger", function() {
     checkDoorhangerTelemetry();
 
     after(async () => {
-      tries = 0;
-      studyPings = [];
       await utils.clearPreference(driver, "privacy.trackingprotection.enabled");
     });
   });
-  
+
   describe("shows a survey after reloading a page without trackers 6 times max", function() {
-    let studyPings;
-    let tries = 0;
 
     before(async () => {
+      tries = 0;
+      studyPings = [];
       await utils.setPreference(driver, "privacy.trackingprotection.enabled", true);
       await driver.sleep(DELAY);
 
@@ -144,8 +144,6 @@ describe("reload survey doorhanger", function() {
     checkDoorhangerTelemetry();
 
     after(async () => {
-      tries = 0;
-      studyPings = [];
       await utils.clearPreference(driver, "privacy.trackingprotection.enabled");
     });
   });

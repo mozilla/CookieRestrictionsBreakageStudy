@@ -39,21 +39,21 @@ describe("report breakage button", function() {
       await utils.setPreference(driver, "privacy.trackingprotection.enabled", true);
       await driver.sleep(500);
 
-      let time = Date.now();
+      const time = Date.now();
       driver.setContext(Context.CONTENT);
       await driver.get("https://itisatrap.org/firefox/its-a-tracker.html");
       await driver.sleep(1000);
       driver.setContext(Context.CHROME);
       // Open the control center.
-      let identityBox = await driver.wait(until.elementLocated(By.id("identity-box")), 1000);
+      const identityBox = await driver.wait(until.elementLocated(By.id("identity-box")), 1000);
       identityBox.click();
       await driver.sleep(500);
       // Open the "report breakage" dialog.
-      let reportDialogButton = await driver.wait(until.elementLocated(By.id("identity-popup-content-blocking-report-breakage")), 1000);
+      const reportDialogButton = await driver.wait(until.elementLocated(By.id("identity-popup-content-blocking-report-breakage")), 1000);
       reportDialogButton.click();
       await driver.sleep(500);
       // Submit the report.
-      let reportBreakageButton = await driver.wait(until.elementLocated(By.id("identity-popup-breakageReportView-submit")), 1000);
+      const reportBreakageButton = await driver.wait(until.elementLocated(By.id("identity-popup-breakageReportView-submit")), 1000);
       reportBreakageButton.click();
       await driver.sleep(500);
       driver.setContext(Context.CONTENT);
@@ -72,8 +72,8 @@ describe("report breakage button", function() {
     });
 
     it("correctly records that the user submit a breakage report", async () => {
-      let ping = studyPings[0];
-      let attributes = ping.payload.data.attributes;
+      const ping = studyPings[0];
+      const attributes = ping.payload.data.attributes;
       assert.equal(attributes.user_reported_page_breakage, "true", "user reported breakage is included in the ping");
       assert.equal(attributes.user_opened_control_center, "true", "user opened the control center is included in the ping");
     });

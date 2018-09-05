@@ -28,7 +28,7 @@ describe("telemetry", function() {
     driver.quit();
   });
 
-  function checkTelemetryPayload(nonTracking=false) {
+  function checkTelemetryPayload(nonTracking = false) {
     it("has recorded pings", async () => {
       assert(studyPings.length, "at least one shield telemetry ping");
     });
@@ -47,19 +47,19 @@ describe("telemetry", function() {
       assert.equal(attributes.page_reloaded, "false", "page reloaded is false");
       assert.equal(parseInt(attributes.page_reloaded_survey), 0, "page reloaded survey not shown");
     });
-    
+
     it("correctly records the amount of trackers on the page", async function() {
       if (nonTracking) {
         this.skip();
       }
-      let ping = studyPings[0];
-      let attributes = ping.payload.data.attributes;
+      const ping = studyPings[0];
+      const attributes = ping.payload.data.attributes;
       assert.equal(attributes.num_blockable_trackers, "1", "found a blockable tracker");
     });
 
     it("correctly records no info on control center interaction", async () => {
-      let ping = studyPings[0];
-      let attributes = ping.payload.data.attributes;
+      const ping = studyPings[0];
+      const attributes = ping.payload.data.attributes;
       assert.equal(attributes.user_opened_control_center, "false", "user opened the control center is not included in the ping");
       assert.equal(attributes.user_toggled_exception, "0", "user toggled exception is not included in the ping");
       assert.equal(attributes.user_reported_page_breakage, "false", "user reported page breakage exception is not included in the ping");

@@ -144,7 +144,8 @@ class Feature {
         return;
       }
       const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
-      tabInfo.telemetryPayload.user_toggled_exception = toggleValue ? PROTECTION_DISABLED : PROTECTION_ENABLED;
+      tabInfo.telemetryPayload.user_toggled_exception = toggleValue ?
+        PROTECTION_DISABLED : PROTECTION_ENABLED;
     });
 
     // Watch for the user pressing the "Yes this page is broken"

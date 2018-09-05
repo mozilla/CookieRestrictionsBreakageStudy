@@ -18,7 +18,7 @@ const allPrefs = [
 
 async function checkPrefs(driver, prefs) {
   for (const pref of allPrefs) {
-    if (prefs[pref] != undefined) {
+    if (prefs[pref] !== undefined) {
       const val = await utils.getPreference(driver, pref);
       assert.equal(val, prefs[pref], `set the right pref for ${pref}`);
     } else {
@@ -58,7 +58,7 @@ describe("setup and teardown", function() {
 
       it("has the correct prefs after install", async () => {
         await checkPrefs(driver, {
-          "security.pki.distrust_ca_policy": 1
+          "security.pki.distrust_ca_policy": 1,
         });
       });
 
@@ -85,9 +85,9 @@ describe("setup and teardown", function() {
           "browser.contentblocking.trackingprotection.ui.enabled": false,
           "Browser.contentblocking.fastblock.ui.enabled": false,
           "network.cookie.cookieBehavior": 4,
-          
+
           // temporary to show Tracker status
-          "privacy.trackingprotection.enabled": true
+          "privacy.trackingprotection.enabled": true,
         });
       });
 
