@@ -89,7 +89,7 @@ class NotificationBarEventEmitter extends EventEmitter {
         label: "Disable Privacy Study",
       },
     };
-    recentWindow.PopupNotifications.show(browser, "cookie-restriction-notification", "<> Did you reload this page because it wasn't working correctly?", null, primaryAction, secondaryActions, options);
+    recentWindow.PopupNotifications.show(browser, "cookie-restriction", "<> Did you reload this page because it wasn't working correctly?", null, primaryAction, secondaryActions, options);
   }
 }
 
@@ -101,7 +101,7 @@ this.notificationBar = class extends ExtensionAPI {
   onShutdown(shutdownReason) {
     for (const win of BrowserWindowTracker.orderedWindows) {
       for (const browser of win.gBrowser.browsers) {
-        const notification = win.PopupNotifications.getNotification("cookie-restriction-notification", browser);
+        const notification = win.PopupNotifications.getNotification("cookie-restriction", browser);
         if (notification) {
           win.PopupNotifications.remove(notification);
         }
