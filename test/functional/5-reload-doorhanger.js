@@ -59,6 +59,17 @@ describe("reload survey doorhanger", function() {
         }
       }
     });
+
+    it("correctly records etld as a hash", async () => {
+      for (let i = 0; i < studyPings.length; i++) {
+        const ping = studyPings[i];
+        const attributes = ping.payload.data.attributes;
+        assert.exists(attributes.etld, "etld exists");
+        assert.notInclude(attributes.etld, "itisatrap", "etld does not contain the domain");
+        assert.notInclude(attributes.etld, "example", "etld does not contain the domain");
+        assert.equal(attributes.etld.length * 4, 256, "etld is a 256 bit hex string");
+      }
+    });
   }
 
   async function checkDoorhangerPresent() {

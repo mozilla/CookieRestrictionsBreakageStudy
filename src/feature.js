@@ -52,13 +52,14 @@ class Feature {
 
     // This is a notification to let us know that we should prompt
     // the user whether the page is broken (the user reloaded a page.)
-    browser.trackers.onReload.addListener((tabId, etld) => {
+    browser.trackers.onReload.addListener(async (tabId, etld) => {
       if (tabId < 0 || !etld) {
         return;
       }
 
       const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
-      tabInfo.telemetryPayload.etld = etld;
+      const hash = await this.SHA256(userid + etld);
+      tabInfo.telemetryPayload.etld = hash;
 
       // Show the user a survey if the page was reloaded.
       tabInfo.reloadCount += 1;
