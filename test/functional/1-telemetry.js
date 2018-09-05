@@ -55,6 +55,14 @@ describe("telemetry", function() {
       assert.equal(attributes.num_trackers_blocked, "1", "found blocked trackers");
     });
 
+    it("correctly records no info on control center interaction", async () => {
+      let ping = studyPings[0];
+      let attributes = ping.payload.data.attributes;
+      assert.equal(attributes.user_opened_control_center, "false", "user opened the control center is not included in the ping");
+      assert.equal(attributes.user_toggled_exception, "0", "user toggled exception is not included in the ping");
+      assert.equal(attributes.user_reported_page_breakage, "false", "user reported page breakage exception is not included in the ping");
+    });
+
     it("correctly records performance metrics", async () => {
       const ping = studyPings[0];
       const attributes = ping.payload.data.attributes;

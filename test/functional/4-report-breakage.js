@@ -75,6 +75,7 @@ describe("report breakage button", function() {
       let ping = studyPings[0];
       let attributes = ping.payload.data.attributes;
       assert.equal(attributes.user_reported_page_breakage, "true", "user reported breakage is included in the ping");
+      assert.equal(attributes.user_opened_control_center, "true", "user opened the control center is included in the ping");
     });
 
     after(async () => {
