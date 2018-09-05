@@ -4,6 +4,14 @@
 const SURVEY_SHOWN = 1;
 const SURVEY_PAGE_BROKEN = 2;
 const SURVEY_PAGE_NOT_BROKEN = 3;
+// We only ask the user once per etld+1, so we make sure
+// to send along the previous response of the user.
+const SURVEY_PREVIOUSLY_BROKEN = 4;
+const SURVEY_PREVIOUSLY_NOT_BROKEN = 5;
+// We don't want to nag the user about this too much,
+// so we ask only once per tab. If the survey was hidden
+// because of that, make sure to mark it in the payload.
+const SURVEY_HIDDEN = 6;
 
 // Constants for the user_toggled_exception telemetry probe
 const PROTECTION_DISABLED = 1;
@@ -167,7 +175,9 @@ class Feature {
   recordSurveyInteraction(tabId, payloadValue, disableStudyChecked) {
     const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
     tabInfo.telemetryPayload.page_reloaded_survey = payloadValue;
-    browser.storage.local.set({[tabInfo.telemetryPayload.etld]: true});
+    const historicalValue = payloadValue === SURVEY_PAGE_BROKEN ?
+      SURVEY_PREVIOUSLY_BROKEN : SURVEY_PREVIOUSLY_NOT_BROKEN;
+    browser.storage.local.set({[tabInfo.telemetryPayload.etld]: historicalValue});
     if (disableStudyChecked) {
       this.sendTelemetry(tabInfo.telemetryPayload);
       browser.study.endStudy("user-disable");
@@ -210,7 +220,14 @@ class Feature {
   // same site and page if it was ignored.
   async possiblyShowNotification(tabInfo) {
     const storedEtld = await browser.storage.local.get(tabInfo.telemetryPayload.etld);
-    if (storedEtld[tabInfo.telemetryPayload.etld] || tabInfo.surveyShown) {
+    if (storedEtld[tabInfo.telemetryPayload.etld]) {
+      tabInfo.telemetryPayload.page_reloaded_survey = storedEtld[tabInfo.telemetryPayload.etld];
+      return;
+    }
+    if (tabInfo.surveyShown) {
+      if (!tabInfo.telemetryPayload.page_reloaded_survey) {
+        tabInfo.telemetryPayload.page_reloaded_survey = SURVEY_HIDDEN;
+      }
       return;
     }
 
