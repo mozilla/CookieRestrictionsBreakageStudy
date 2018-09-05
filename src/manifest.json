@@ -1,6 +1,6 @@
 {
   "name": "Mozilla Cookie Restrictions User Study",
-  "description": "__MSG_extensionDescription__",
+  "description": "A Mozilla study created to learn the positive and negative effects of blocking tracking cookies.",
   "version": "1.0.0",
   "manifest_version": 2,
   "applications": {
