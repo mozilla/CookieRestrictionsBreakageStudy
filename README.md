@@ -57,20 +57,22 @@ npm start -- -f Nightly --pref=extensions.cookie-restrictions-shield_mozilla_org
 
 In both variations:
 
-  * Nothing different should happen in Private Browsing or Safe Mode operation.
-  * Nothing different should happen on a page without trackers.
-  * No telemetry will be sent on a page without trackers.
-  * Panel Behaviour:
-    * If the user refreshes a page that has trackers on it, they have a chance of being shown
-      a panel notification: "Did you reload this page to resolve loading issues?". This chance is 100% by the 6th refresh.
-    * If the panel is ignored it will not show up again on the next refreshes. Once the user
-      navigates, on the next refresh there is once again a chance the panel will show up. And the
-      chance that it might show up on the same etld+1 is once again possible.
-    * If "yes" or "no" is clicked on the panel, it will never show up again for that etld+1.
-    * The panel should not dismiss until interacted with, or until the user navigates or refreshes
-      the page
-  * Telemetry Behaviour:
-    * Telemetry will be sent upon page unload.
+* Nothing different should happen in Private Browsing or Safe Mode operation.
+* Panel Behaviour:
+  * The panel has a checkbox on it, if the user checks that box and clicks an option, 
+    they will be un-enrolled from the study.
+  * If the user refreshes a page they have a chance of being shown
+    a panel notification: "Did you reload this page to resolve loading issues?". This chance is 100% by the 6th refresh.
+  * If the panel is ignored it will not show up again on the next refreshes. Once the user
+    navigates, on the next refresh there is once again a chance the panel will show up. And the
+    chance that it might show up on the same etld+1 is once again possible.
+  * If "yes" or "no" is clicked on the panel, it will never show up again for that etld+1.
+  * The panel should not dismiss until interacted with, or until the user navigates or refreshes
+    the page
+  * If "yes" is clicked we will add an exception for this page for content blocking
+* Telemetry Behaviour:
+  * Telemetry will be sent upon page unload.
+
 
 ### Control
 In a Control [variation](#variations):
@@ -90,7 +92,13 @@ test.variationName=CookiesBlocked
 ```
 
 In a Cookies Blocked [variation](#variations):
-<!-- TODO -->
+
+* The user should see the "How Tracking Protection works" onboarding experience
+  when they first visit a site with trackers detected.
+* The "Content Blocking" panel should show "Trackers: Blocked",
+  "Slow-loading Trackers: Add blocking...", and "Disable Blocking for This
+  Site"
+  
 
 ### Testing Guide
 
@@ -99,11 +107,3 @@ In combination with the above instructions, add the pref `shieldStudy.logLevel=a
 ```
 npm start -- -f Nightly --pref=extensions.cookie-restrictions-shield_mozilla_org.test.variationName=CookiesBlocked --pref=shieldStudy.logLevel=all
 ```
-
-### Websites to test
-
-You can find a good a assortment of test sites with trackers on the [Tracking Protection Wiki Page](https://wiki.mozilla.org/Security/Tracking_protection#QA). These pages were designed to simply and reliably load one or two tracking resources for testing.
-
-Here is a [test page](https://mozilla.github.io/FastBlockShield/) that causes various Javascript Errors when buttons are clicked. The page also contains a GA tracker, resulting in a telemetry ping. The errors should be reported in the telemetry ping.
-
-Of course there is a large variety of sites on the internet that employ trackers and cause errors. This study should generally work the same for all of them, though there may be specific exceptions. In general please be aware of the sensitivity of Cookie Restrictions to network speed and that sites can also intermittently differ in how they load trackers or throw errors.
