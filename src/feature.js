@@ -109,6 +109,18 @@ class Feature {
       TabRecords.resetPayload(tabId);
     });
 
+    // Record when users opened the control center (identity popup).
+    browser.trackers.onIdentityPopupShown.addListener(
+      tabId => {
+        if (tabId < 0) {
+          return;
+        }
+
+        const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
+        tabInfo.telemetryPayload.user_opened_control_center = true;
+      }
+    );
+
     // Record when users submitted a breakage report in the control center.
     browser.trackers.onReportBreakage.addListener(
       tabId => {

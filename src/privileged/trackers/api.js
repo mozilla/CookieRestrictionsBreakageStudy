@@ -16,6 +16,9 @@ XPCOMUtils.defineLazyModuleGetter(
 );
 
 class TrackersEventEmitter extends EventEmitter {
+  emitIdentityPopupShown(tabId) {
+    this.emit("identity-popup-shown", tabId);
+  }
   emitReportBreakage(tabId) {
     this.emit("report-breakage", tabId);
   }
@@ -67,6 +70,7 @@ this.trackers = class extends ExtensionAPI {
           mm.removeMessageListener("unload", this.pageUnloadCallback);
           mm.removeMessageListener("beforeunload", this.pageBeforeUnloadCallback);
 
+          win.gIdentityHandler._identityPopup.removeEventListener("popupshown", this.onIdentityPopupShownEvent);
           const reportBreakageButton = win.document.getElementById("identity-popup-breakageReportView-submit");
           reportBreakageButton.removeEventListener("command", this.onReportBreakageButtonCommand);
           const addExceptionButton = win.document.getElementById("tracking-action-unblock");
@@ -102,19 +106,18 @@ this.trackers = class extends ExtensionAPI {
           const tabId = tabTracker.getBrowserTabId(e.target);
           trackersEventEmitter.emitPageUnload(tabId);
         },
-        onReportBreakageButtonCommand() {
-          const win = BrowserWindowTracker.getTopWindow({
-            private: false,
-            allowPopups: false,
-          });
+        onIdentityPopupShownEvent(e) {
+          const win = e.target.ownerGlobal;
+          const tabId = tabTracker.getBrowserTabId(win.gBrowser.selectedBrowser);
+          trackersEventEmitter.emitIdentityPopupShown(tabId);
+        },
+        onReportBreakageButtonCommand(e) {
+          const win = e.target.ownerGlobal;
           const tabId = tabTracker.getBrowserTabId(win.gBrowser.selectedBrowser);
           trackersEventEmitter.emitReportBreakage(tabId);
         },
-        async onToggleExceptionCommand() {
-          const win = BrowserWindowTracker.getTopWindow({
-            private: false,
-            allowPopups: false,
-          });
+        async onToggleExceptionCommand(e) {
+          const win = e.target.ownerGlobal;
           const tabId = tabTracker.getBrowserTabId(win.gBrowser.selectedBrowser);
           const addedException = this.id === "tracking-action-unblock";
           trackersEventEmitter.emitToggleException(tabId, addedException);
@@ -130,6 +133,8 @@ this.trackers = class extends ExtensionAPI {
           mm.addMessageListener("unload", this.pageUnloadCallback, true);
 
           mm.loadFrameScript(context.extension.getURL("privileged/trackers/framescript.js"), true);
+
+          win.gIdentityHandler._identityPopup.addEventListener("popupshown", this.onIdentityPopupShownEvent);
 
           const reportBreakageButton = win.document.getElementById("identity-popup-breakageReportView-submit");
           reportBreakageButton.addEventListener("command", this.onReportBreakageButtonCommand);
@@ -179,6 +184,26 @@ this.trackers = class extends ExtensionAPI {
             return () => {
               trackersEventEmitter.off(
                 "page-before-unload",
+                listener,
+              );
+            };
+          },
+        ).api(),
+
+        onIdentityPopupShown: new EventManager(
+          context,
+          "trackers.onIdentityPopupShown",
+          fire => {
+            const listener = (value, tabId) => {
+              fire.async(tabId);
+            };
+            trackersEventEmitter.on(
+              "identity-popup-shown",
+              listener,
+            );
+            return () => {
+              trackersEventEmitter.off(
+                "identity-popup-shown",
                 listener,
               );
             };

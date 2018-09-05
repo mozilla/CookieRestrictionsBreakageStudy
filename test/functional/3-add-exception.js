@@ -45,15 +45,12 @@ describe("add page exception button", function() {
       // Open the control center.
       const identityBox = await driver.wait(until.elementLocated(By.id("identity-box")), 1000);
       identityBox.click();
-      await driver.sleep(500);
+      await driver.sleep(1000);
       // Locate and click the add exception button.
       const addExceptionButton = await driver.wait(until.elementLocated(By.id("tracking-action-unblock")), 1000);
       addExceptionButton.click();
-      await driver.sleep(500);
-      driver.setContext(Context.CONTENT);
-      // Navigate somewhere else to send the telemetry.
-      await driver.navigate().refresh();
-      await driver.sleep(500);
+      // Clicking this button will reload the page.
+      await driver.sleep(1000);
       studyPings = await utils.telemetry.getShieldPingsAfterTimestamp(
         driver,
         time,
@@ -69,6 +66,7 @@ describe("add page exception button", function() {
       const ping = studyPings[0];
       const attributes = ping.payload.data.attributes;
       assert.equal(attributes.user_toggled_exception, "1", "user added exception is included in the ping");
+      assert.equal(attributes.user_opened_control_center, "true", "user opened the control center is included in the ping");
     });
 
     after(async () => {
