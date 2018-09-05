@@ -55,15 +55,6 @@
         ]
       },
       {
-        "name": "onErrorDetected",
-        "type": "function",
-        "description": "There is a page error",
-        "parameters": [
-          {"type": "string", "name": "error"},
-          {"type": "integer", "name": "tabId", "minimum": 0}
-        ]
-      },
-      {
         "name": "onToggleException",
         "type": "function",
         "description": "The user has added or removed and exception for this page in tracking protection.",

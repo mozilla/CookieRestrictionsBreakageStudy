@@ -10,34 +10,15 @@ window.TabRecords = {
     tabInfo.telemetryPayload = {
       etld: null,
       num_blockable_trackers: 0,
-      num_trackers_blocked: 0,
-      TIME_TO_DOM_CONTENT_LOADED_START_MS: -1,
-      TIME_TO_DOM_COMPLETE_MS: -1,
-      TIME_TO_DOM_INTERACTIVE_MS: -1,
-      TIME_TO_LOAD_EVENT_START_MS: -1,
-      TIME_TO_LOAD_EVENT_END_MS: -1,
-      TIME_TO_RESPONSE_START_MS: -1,
-      // Missing:
-      // TIME_TO_NON_BLANK_PAINT_MS ( integer)
-      // TIME_TO_DOM_LOADING_MS ( integer)
-      // TIME_TO_FIRST_INTERACTION_MS ( integer)
       page_reloaded: false,
       page_reloaded_survey: 0,
       user_reported_page_breakage: false,
       user_toggled_exception: 0,
       user_opened_control_center: false,
-      num_EvalError: 0,
-      num_InternalError: 0,
-      num_RangeError: 0,
-      num_ReferenceError: 0,
-      num_SyntaxError: 0,
-      num_TypeError: 0,
-      num_URIError: 0,
-      num_SecurityError: 0,
-      "browser_contentblocking_enabled": false,
-      "privacy_trackingprotection_enabled": false,
-      "login_form_on_page": false,
-      "embedded_social_login_script": false,
+      browser_contentblocking_enabled: false,
+      privacy_trackingprotection_enabled: false,
+      login_form_on_page: false,
+      embedded_social_login_script: false,
       user_has_tracking_protection_exception: false,
     };
 

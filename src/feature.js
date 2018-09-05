@@ -84,15 +84,10 @@ class Feature {
       tabInfo.telemetryPayload.user_has_tracking_protection_exception =
         data.user_has_tracking_protection_exception;
       tabInfo.telemetryPayload.page_reloaded = data.pageReloaded;
-      for (const key in data.performanceEvents) {
-        tabInfo.telemetryPayload[key] = data.performanceEvents[key];
-      }
 
       const hash = await this.SHA256(userid + data.etld);
       tabInfo.telemetryPayload.etld = hash;
-
       tabInfo.telemetryPayload.num_blockable_trackers = data.trackersFound;
-      tabInfo.telemetryPayload.num_trackers_blocked = data.trackersBlocked;
     });
 
     // When a tab is removed, make sure to submit telemetry for the
@@ -166,12 +161,6 @@ class Feature {
         this.recordSurveyInteraction(tabId, SURVEY_PAGE_NOT_BROKEN, disableStudyChecked);
       },
     );
-
-    browser.trackers.onErrorDetected.addListener(
-      (error, tabId) => {
-        this.recordPageError(error, tabId);
-      }
-    );
   }
 
   recordSurveyInteraction(tabId, payloadValue, disableStudyChecked) {
@@ -183,13 +172,6 @@ class Feature {
     if (disableStudyChecked) {
       this.sendTelemetry(tabInfo.telemetryPayload);
       browser.study.endStudy("user-disable");
-    }
-  }
-
-  recordPageError(error, tabId) {
-    const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
-    if (`num_${error}` in tabInfo.telemetryPayload) {
-      tabInfo.telemetryPayload[`num_${error}`] += 1;
     }
   }
 
