@@ -28,9 +28,9 @@ describe("telemetry", function() {
     driver.quit();
   });
 
-  function checkTelemetryPayload() {
-    it("has recorded one ping", async () => {
-      assert(studyPings.length === 1, "one shield telemetry ping");
+  function checkTelemetryPayload(nonTracking=false) {
+    it("has recorded pings", async () => {
+      assert(studyPings.length, "at least one shield telemetry ping");
     });
 
     it("correctly records etld as a hash", async () => {
@@ -48,7 +48,10 @@ describe("telemetry", function() {
       assert.equal(parseInt(attributes.page_reloaded_survey), 0, "page reloaded survey not shown");
     });
 
-    it("correctly records the amount of trackers on the page", async () => {
+    it("correctly records the amount of trackers on the page", async function() {
+      if (nonTracking) {
+        this.skip();
+      }
       let ping = studyPings[0];
       let attributes = ping.payload.data.attributes;
       assert.equal(attributes.num_blockable_trackers, "1", "found a blockable tracker");
@@ -202,7 +205,7 @@ describe("telemetry", function() {
     checkTelemetryPayload();
   });
 
-  describe("records no shield telemetry on non-tracking pages", function() {
+  describe("records shield telemetry on non-tracking pages", function() {
     before(async () => {
       const time = Date.now();
       driver.setContext(Context.CONTENT);
@@ -218,8 +221,6 @@ describe("telemetry", function() {
       studyPings = studyPings.filter(ping => ping.type === "shield-study-addon");
     });
 
-    it("does not record telemetry", () => {
-      assert.isEmpty(studyPings, "no study pings present");
-    });
+    checkTelemetryPayload(true);
   });
 });
