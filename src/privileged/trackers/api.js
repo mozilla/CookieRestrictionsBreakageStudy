@@ -9,7 +9,7 @@ var {EventManager, EventEmitter} = ExtensionCommon;
 /* eslint-disable-next-line no-var */
 var {Management: {global: {tabTracker}}} = ChromeUtils.import("resource://gre/modules/Extension.jsm", {});
 
-XPCOMUtils.defineLazyModuleGetter(
+ChromeUtils.defineModuleGetter(
   this,
   "BrowserWindowTracker",
   "resource:///modules/BrowserWindowTracker.jsm",
