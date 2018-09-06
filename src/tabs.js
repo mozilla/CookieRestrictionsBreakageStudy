@@ -18,7 +18,7 @@ window.TabRecords = {
       browser_contentblocking_enabled: false,
       privacy_trackingprotection_enabled: false,
       login_form_on_page: false,
-      embedded_social_login_script: false,
+      embedded_social_script: false,
       user_has_tracking_protection_exception: false,
     };
 

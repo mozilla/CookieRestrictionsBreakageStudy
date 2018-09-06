@@ -54,7 +54,7 @@ addEventListener("DOMContentLoaded", function(e) {
       .filter(s => s.src)
       .map(s => s.src);
     // Find if any of the scripts are identified social login scripts.
-    telemetryData.embedded_social_login_script = scripts.some(src => {
+    telemetryData.embedded_social_script = scripts.some(src => {
       return src.includes("platform.twitter.com/widgets.js") ||
              /connect\.facebook\.net\/.*\/(all|sdk)\.js/.test(src) ||
              src.includes("apis.google.com/js/platform.js") ||

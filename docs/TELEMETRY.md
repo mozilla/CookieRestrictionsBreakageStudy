@@ -50,7 +50,7 @@ telemetry: {
       "browser_contentblocking_enabled": "true",
       "privacy_trackingprotection_enabled": "true",
       "login_form_on_page": "false",
-      "embedded_social_login_script": "false",
+      "embedded_social_script": "false",
       "user_has_tracking_protection_exception": "false",
     }
   }

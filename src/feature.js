@@ -80,7 +80,7 @@ class Feature {
         tabInfo.surveyShown = false;
         tabInfo.reloadCount = 0;
       }
-      tabInfo.telemetryPayload.embedded_social_login_script = data.embedded_social_login_script;
+      tabInfo.telemetryPayload.embedded_social_script = data.embedded_social_script;
       tabInfo.telemetryPayload.login_form_on_page = data.login_form_on_page;
       tabInfo.telemetryPayload.user_has_tracking_protection_exception =
         data.user_has_tracking_protection_exception;
