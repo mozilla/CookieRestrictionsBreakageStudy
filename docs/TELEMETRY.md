@@ -46,6 +46,7 @@ telemetry: {
       "page_reloaded_survey":"1",
       "user_reported_page_breakage":"false",
       "user_toggled_exception": "0",
+      "user_opened_control_center": "false",
       "browser_contentblocking_enabled": "true",
       "privacy_trackingprotection_enabled": "true",
       "login_form_on_page": "false",
