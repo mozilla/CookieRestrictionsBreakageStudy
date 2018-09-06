@@ -22,7 +22,7 @@ describe("add page exception button", function() {
     driver = await utils.setupWebdriver.promiseSetupDriver(
       utils.FIREFOX_PREFERENCES,
     );
-    await utils.setPreference(driver, "extensions.cookie-restrictions-shield_mozilla_org.test.variationName", "CookiesBlocked");
+    await utils.setPreference(driver, "extensions.cookie-restrictions_shield_mozilla_org.test.variationName", "CookiesBlocked");
     await driver.sleep(500);
     await utils.setupWebdriver.installAddon(driver);
     await driver.sleep(500);
