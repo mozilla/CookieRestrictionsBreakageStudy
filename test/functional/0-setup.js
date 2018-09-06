@@ -51,7 +51,7 @@ describe("setup and teardown", function() {
 
     describe("sets the correct prefs for variation Control", () => {
       before(async () => {
-        await utils.setPreference(driver, "extensions.cookie-restrictions-shield_mozilla_org.test.variationName", "Control");
+        await utils.setPreference(driver, "extensions.cookie-restrictions_shield_mozilla_org.test.variationName", "Control");
         addonId = await utils.setupWebdriver.installAddon(driver);
         await driver.sleep(SETUP_DELAY);
       });
@@ -68,13 +68,13 @@ describe("setup and teardown", function() {
       });
 
       after(async () => {
-        await utils.clearPreference(driver, "extensions.cookie-restrictions-shield_mozilla_org.test.variationName");
+        await utils.clearPreference(driver, "extensions.cookie-restrictions_shield_mozilla_org.test.variationName");
       });
     });
 
     describe("sets the correct prefs for variation CookiesBlocked", () => {
       before(async () => {
-        await utils.setPreference(driver, "extensions.cookie-restrictions-shield_mozilla_org.test.variationName", "CookiesBlocked");
+        await utils.setPreference(driver, "extensions.cookie-restrictions_shield_mozilla_org.test.variationName", "CookiesBlocked");
         addonId = await utils.setupWebdriver.installAddon(driver);
         await driver.sleep(SETUP_DELAY);
       });
@@ -97,7 +97,7 @@ describe("setup and teardown", function() {
       });
 
       after(async () => {
-        await utils.clearPreference(driver, "extensions.cookie-restrictions-shield_mozilla_org.test.variationName");
+        await utils.clearPreference(driver, "extensions.cookie-restrictions_shield_mozilla_org.test.variationName");
       });
     });
   });
