@@ -4,6 +4,7 @@ window.VARIATIONS = {
     prefs: {
       // Make sure we're not affected by the Symantec distrust.
       "security.pki.distrust_ca_policy": 1,
+      "browser.contentblocking.ui.enabled": false,
     },
   },
 
