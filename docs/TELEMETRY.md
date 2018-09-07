@@ -1,15 +1,13 @@
 # Telemetry sent by this add-on
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
-
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 **Contents**
 
-* [Usual Firefox Telemetry is mostly unaffected](#usual-firefox-telemetry-is-mostly-unaffected)
-* [`shield-study` pings (common to all shield-studies)](#shield-study-pings-common-to-all-shield-studies)
-* [`shield-study-addon` pings, specific to THIS study.](#shield-study-addon-pings-specific-to-this-study)
-* [Example sequence for a 'voted => not sure' interaction](#example-payload-of-the-shield-study-addon-ping)
+- [Usual Firefox Telemetry is mostly unaffected](#usual-firefox-telemetry-is-mostly-unaffected)
+- [`shield-study` pings (common to all shield-studies)](#shield-study-pings-common-to-all-shield-studies)
+- [`shield-study-addon` pings, specific to THIS study.](#shield-study-addon-pings-specific-to-this-study)
+- [Example payload of the `shield-study-addon` ping.](#example-payload-of-the-shield-study-addon-ping)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -30,21 +28,21 @@ There is one ping per page visit, fired on the `unload` event.
 
 These are the `payload` fields from the `shield-study-addon` bucket.
 
-```
+```js
 telemetry: {
-  "version":3,
-  "study_name":"cookie-restrictions@shield.mozilla.org",
-  "branch":"CoookiesBlocked",
-  "addon_version":"2.0.0",
-  "shield_version":"5.0.3",
-  "type":"shield-study-addon",
+  "version": 3,
+  "study_name": "cookie-restrictions@shield.mozilla.org",
+  "branch": "CookiesBlocked",
+  "addon_version": "2.0.0",
+  "shield_version": "5.0.3",
+  "type": "shield-study-addon",
   "data": {
     "attributes": {
-      "etld":"f231d141395abf6f4c98dd55fe8c37e2752e82d72e1ffd3b64bdc6c978692fc6",
-      "num_blockable_trackers":"2",
-      "page_reloaded":"true",
-      "page_reloaded_survey":"1",
-      "user_reported_page_breakage":"false",
+      "etld": "f231d141395abf6f4c98dd55fe8c37e2752e82d72e1ffd3b64bdc6c978692fc6",
+      "num_blockable_trackers": "2",
+      "page_reloaded": "true",
+      "page_reloaded_survey": "1",
+      "user_reported_page_breakage": "false",
       "user_toggled_exception": "0",
       "user_opened_control_center": "false",
       "login_form_on_page": "false",
@@ -65,7 +63,7 @@ telemetry: {
       "browser_contentblocking_fastblock_ui_enabled": "false",
       "browser_contentblocking_trackingprotection_ui_enabled": "false",
       "browser_contentblocking_fastblock_control_center_ui_enabled": "false",
-      "browser_contentblocking_trackingprotection_control_center_ui_enabled": "false",
+      "browser_contentblocking_trackingprotection_control_center_ui_enabled": "false"
     }
   }
 }
