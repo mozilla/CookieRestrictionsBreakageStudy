@@ -34,19 +34,8 @@ const baseStudySetup = {
     removeTestingFlag: false,
   },
 
-  // endings with urls
-  endings: {
-    /** standard endings */
-    "user-disable": {
-      baseUrls: [],
-    },
-    ineligible: {
-      baseUrls: [],
-    },
-    expired: {
-      baseUrls: [],
-    },
-  },
+  // We don't have a survey at the ending
+  endings: { },
 
   // Will be set in getStudySetup().
   weightedVariations: null,
