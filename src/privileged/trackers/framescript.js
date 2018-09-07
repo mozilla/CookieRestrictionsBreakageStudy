@@ -18,7 +18,7 @@ addEventListener("DOMContentLoaded", function(e) {
   telemetryData.hostname = content.location.hostname;
   // there *should* be only one entry - I haven't see anything to the alternative yet
   const entryForReload = content.performance.getEntriesByType("navigation")[0];
-  telemetryData.pageReloaded = entryForReload.type === "reload";
+  telemetryData.page_reloaded = entryForReload.type === "reload";
 
   // We use the "load" event to enter the performance data, because at
   // "load" +1 tick it will contain everything we need. This means some
@@ -29,7 +29,7 @@ addEventListener("DOMContentLoaded", function(e) {
     // We call setTimeout because otherwise our loadEventEnd entry (which is
     // filled after the "load" event handler runs) would be empty.
     setTimeout(function() {
-      if (!sentReload && telemetryData.pageReloaded) {
+      if (!sentReload && telemetryData.page_reloaded) {
         sendAsyncMessage("reload", {hostname: telemetryData.hostname});
         sentReload = true;
       }
@@ -49,7 +49,7 @@ addEventListener("DOMContentLoaded", function(e) {
     });
     telemetryData.completeLocation = content.location.href;
 
-    telemetryData.trackersFound = docShell.document.numTrackersFound;
+    telemetryData.num_blockable_trackers = docShell.document.numTrackersFound;
 
     // Find all scripts on the page.
     const scripts = Array.prototype.slice
@@ -57,14 +57,14 @@ addEventListener("DOMContentLoaded", function(e) {
       .filter(s => s.src)
       .map(s => s.src);
     // Find if any of the scripts are identified social login scripts.
+
+    const urls = [/platform\.twitter\.com\/widgets\.js/, /apis\.google\.com\/js\/platform\.js/,
+      /platform\.linkedin\.com\/in\.js/, /www\.paypalobjects\.com\/js\/external\/api\.js/,
+      /api-cdn\.amazon\.com\/sdk\/login1\.js/, /api\.instagram\.com\/oauth\/authorize\//,
+      /connect\.facebook\.net\/.*\/(all|sdk)\.js/];
+
     telemetryData.embedded_social_script = scripts.some(src => {
-      return src.includes("platform.twitter.com/widgets.js") ||
-             /connect\.facebook\.net\/.*\/(all|sdk)\.js/.test(src) ||
-             src.includes("apis.google.com/js/platform.js") ||
-             src.includes("platform.linkedin.com/in.js") ||
-             src.includes("www.paypalobjects.com/js/external/api.js") ||
-             src.includes("api-cdn.amazon.com/sdk/login1.js") ||
-             src.includes("api.instagram.com/oauth/authorize/");
+      return urls.some(url => url.test(src));
     });
 
     sendAsyncMessage("beforeunload", {telemetryData});

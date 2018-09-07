@@ -62,7 +62,7 @@ class Feature {
       tabInfo.telemetryPayload.etld = hash;
 
       // Show the user a survey if the page was reloaded.
-      tabInfo.reloadCount += 1;
+      tabInfo.reloadCount++;
       this.possiblyShowNotification(tabInfo);
     });
 
@@ -76,7 +76,7 @@ class Feature {
       const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
 
       // Reset survey count when no longer refreshing
-      if (!data.pageReloaded) {
+      if (!data.page_reloaded) {
         tabInfo.surveyShown = false;
         tabInfo.reloadCount = 0;
       }
@@ -85,11 +85,11 @@ class Feature {
       tabInfo.telemetryPayload.password_field_was_filled_in = data.password_field_was_filled_in;
       tabInfo.telemetryPayload.user_has_tracking_protection_exception =
         data.user_has_tracking_protection_exception;
-      tabInfo.telemetryPayload.page_reloaded = data.pageReloaded;
+      tabInfo.telemetryPayload.page_reloaded = data.page_reloaded;
 
       const hash = await this.SHA256(userid + data.etld);
       tabInfo.telemetryPayload.etld = hash;
-      tabInfo.telemetryPayload.num_blockable_trackers = data.trackersFound;
+      tabInfo.telemetryPayload.num_blockable_trackers = data.num_blockable_trackers;
     });
 
     // When a tab is removed, make sure to submit telemetry for the
@@ -255,14 +255,6 @@ class Feature {
     }
 
     browser.study.sendTelemetry(stringToStringMap);
-  }
-
-  /**
-   * Called at end of study, and if the user disables the study or it gets uninstalled by other means.
-   */
-  async cleanup() {
-    // This is not triggering properly, see
-    // https://github.com/mozilla/shield-studies-addon-utils/issues/246
   }
 }
 
