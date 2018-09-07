@@ -152,30 +152,26 @@ class Feature {
     // Watch for the user pressing the "Yes this page is broken"
     // button and record the answer.
     browser.popupNotification.onReportPageBroken.addListener(
-      (tabId, disableStudyChecked) => {
-        this.recordSurveyInteraction(tabId, SURVEY_PAGE_BROKEN, disableStudyChecked);
+      (tabId) => {
+        this.recordSurveyInteraction(tabId, SURVEY_PAGE_BROKEN);
       },
     );
 
     // Watch for the user pressing the "No this page is not broken"
     // button and record the answer.
     browser.popupNotification.onReportPageNotBroken.addListener(
-      (tabId, disableStudyChecked) => {
-        this.recordSurveyInteraction(tabId, SURVEY_PAGE_NOT_BROKEN, disableStudyChecked);
+      (tabId) => {
+        this.recordSurveyInteraction(tabId, SURVEY_PAGE_NOT_BROKEN);
       },
     );
   }
 
-  recordSurveyInteraction(tabId, payloadValue, disableStudyChecked) {
+  recordSurveyInteraction(tabId, payloadValue) {
     const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
     tabInfo.telemetryPayload.page_reloaded_survey = payloadValue;
     const historicalValue = payloadValue === SURVEY_PAGE_BROKEN ?
       SURVEY_PREVIOUSLY_BROKEN : SURVEY_PREVIOUSLY_NOT_BROKEN;
     browser.storage.local.set({[tabInfo.telemetryPayload.etld]: historicalValue});
-    if (disableStudyChecked) {
-      this.sendTelemetry(tabInfo.telemetryPayload);
-      browser.study.endStudy("user-disable");
-    }
   }
 
   // Adapted from https://gist.github.com/jed/982883

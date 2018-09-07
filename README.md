@@ -59,8 +59,6 @@ In both variations:
 
 * Nothing different should happen in Private Browsing or Safe Mode operation.
 * Panel Behaviour:
-  * The panel has a checkbox on it, if the user checks that box and clicks an option, 
-    they will be un-enrolled from the study.
   * If the user refreshes a page they have a chance of being shown
     a panel notification: "Did you reload this page to resolve loading issues?". This chance is 100% by the 6th refresh.
   * If the panel is ignored it will not show up again on the next refreshes. Once the user
