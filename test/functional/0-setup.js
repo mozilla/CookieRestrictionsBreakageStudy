@@ -9,7 +9,7 @@ const utils = require("./utils");
 const allPrefs = [
   "security.pki.distrust_ca_policy",
   "browser.contentblocking.trackingprotection.ui.enabled",
-  "Browser.contentblocking.fastblock.ui.enabled",
+  "browser.contentblocking.fastblock.ui.enabled",
   "network.cookie.cookieBehavior",
 
   // temporary to show Tracker status
@@ -59,6 +59,7 @@ describe("setup and teardown", function() {
       it("has the correct prefs after install", async () => {
         await checkPrefs(driver, {
           "security.pki.distrust_ca_policy": 1,
+          "browser.contentblocking.ui.enabled": false,
         });
       });
 
@@ -83,11 +84,8 @@ describe("setup and teardown", function() {
         await checkPrefs(driver, {
           "security.pki.distrust_ca_policy": 1,
           "browser.contentblocking.trackingprotection.ui.enabled": false,
-          "Browser.contentblocking.fastblock.ui.enabled": false,
+          "browser.contentblocking.fastblock.ui.enabled": false,
           "network.cookie.cookieBehavior": 4,
-
-          // temporary to show Tracker status
-          "privacy.trackingprotection.enabled": true,
         });
       });
 

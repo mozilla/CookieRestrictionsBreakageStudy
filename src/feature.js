@@ -235,6 +235,19 @@ class Feature {
     // Report these prefs with each telemetry ping.
     payload.browser_contentblocking_enabled = await browser.prefs.getBoolPref("browser.contentblocking.enabled");
     payload.privacy_trackingprotection_enabled = await browser.prefs.getBoolPref("privacy.trackingprotection.enabled");
+    payload.network_cookie_cookieBehavior = await browser.prefs.getIntPref("network.cookie.cookieBehavior");
+    payload.browser_contentblocking_ui_enabled = await browser.prefs.getBoolPref("browser.contentblocking.ui.enabled");
+    payload.browser_contentblocking_rejecttrackers_ui_recommended = await browser.prefs.getBoolPref("browser.contentblocking.rejecttrackers.ui.recommended");
+    payload.browser_contentblocking_rejecttrackers_control_center_ui_enabled = await browser.prefs.getBoolPref("browser.contentblocking.rejecttrackers.control-center.ui.enabled");
+    payload.browser_contentblocking_cookies_site_data_ui_reject_trackers_enabled = await browser.prefs.getBoolPref("browser.contentblocking.cookies-site-data.ui.reject-trackers.enabled");
+    payload.browser_contentblocking_cookies_site_data_ui_reject_trackers_recommended = await browser.prefs.getBoolPref("browser.contentblocking.cookies-site-data.ui.reject-trackers.recommended");
+    payload.browser_contentblocking_reportBreakage_enabled = await browser.prefs.getBoolPref("browser.contentblocking.reportBreakage.enabled");
+    payload.urlclassifier_trackingAnnotationTable = await browser.prefs.getStringPref("urlclassifier.trackingAnnotationTable");
+    payload.urlclassifier_trackingAnnotationWhitelistTable = await browser.prefs.getStringPref("urlclassifier.trackingAnnotationWhitelistTable");
+    payload.browser_contentblocking_fastblock_ui_enabled = await browser.prefs.getBoolPref("browser.contentblocking.fastblock.ui.enabled");
+    payload.browser_contentblocking_trackingprotection_ui_enabled = await browser.prefs.getBoolPref("browser.contentblocking.trackingprotection.ui.enabled");
+    payload.browser_contentblocking_fastblock_control_center_ui_enabled = await browser.prefs.getBoolPref("browser.contentblocking.fastblock.control-center.ui.enabled");
+    payload.browser_contentblocking_trackingprotection_control_center_ui_enabled = await browser.prefs.getBoolPref("browser.contentblocking.trackingprotection.control-center.ui.enabled");
 
     // Shield Telemetry deals with flat string-string mappings.
     for (const key in payload) {

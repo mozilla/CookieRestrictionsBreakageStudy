@@ -33,8 +33,8 @@ These are the `payload` fields from the `shield-study-addon` bucket.
 ```
 telemetry: {
   "version":3,
-  "study_name":"cookie-restrictions-shield@mozilla.org",
-  "branch":"Control",
+  "study_name":"cookie-restrictions@shield.mozilla.org",
+  "branch":"CoookiesBlocked",
   "addon_version":"2.0.0",
   "shield_version":"5.0.3",
   "type":"shield-study-addon",
@@ -47,12 +47,25 @@ telemetry: {
       "user_reported_page_breakage":"false",
       "user_toggled_exception": "0",
       "user_opened_control_center": "false",
-      "browser_contentblocking_enabled": "true",
-      "privacy_trackingprotection_enabled": "true",
       "login_form_on_page": "false",
       "embedded_social_script": "false",
       "user_has_tracking_protection_exception": "false",
       "password_field_was_filled_in": "false",
+      "browser_contentblocking_enabled": "true",
+      "privacy_trackingprotection_enabled": "true",
+      "network_cookie_cookieBehavior": "4",
+      "browser_contentblocking_ui_enabled": "true",
+      "browser_contentblocking_rejecttrackers_ui_recommended": "true",
+      "browser_contentblocking_rejecttrackers_control_center_ui_enabled": "true",
+      "browser_contentblocking_cookies_site_data_ui_reject_trackers_enabled": "true",
+      "browser_contentblocking_cookies_site_data_ui_reject_trackers_recommended": "true",
+      "browser_contentblocking_reportBreakage_enabled": "true",
+      "urlclassifier_trackingAnnotationTable": "test-track-simple,base-track-digest256",
+      "urlclassifier_trackingAnnotationWhitelistTable": "test-trackwhite-simple,mozstd-trackwhite-digest256",
+      "browser_contentblocking_fastblock_ui_enabled": "false",
+      "browser_contentblocking_trackingprotection_ui_enabled": "false",
+      "browser_contentblocking_fastblock_control_center_ui_enabled": "false",
+      "browser_contentblocking_trackingprotection_control_center_ui_enabled": "false",
     }
   }
 }
