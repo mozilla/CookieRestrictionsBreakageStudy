@@ -105,3 +105,8 @@ In combination with the above instructions, add the pref `shieldStudy.logLevel=a
 ```shell
 npm start -- -f Nightly --pref=extensions.cookie-restrictions_shield_mozilla_org.test.variationName=CookiesBlocked --pref=shieldStudy.logLevel=all
 ```
+
+### After Study Survey
+
+There is a breadcrumb pref at `extensions.cookie-restrictions.wasEnabled`
+a string containing the variation name is the value of the pref. Heartbeat will be used to target and survey users.
