@@ -39,21 +39,20 @@ class PopupNotificationEventEmitter extends EventEmitter {
 
     const primaryAction =  {
       disableHighlight: true,
-      label: "Yes (broken)",
-      accessKey: "f",
-      callback: ({checkboxChecked}) => {
-        const addExceptionButton = recentWindow.document.getElementById("tracking-action-unblock");
-        addExceptionButton.doCommand();
-        self.emit("page-broken", tabId, checkboxChecked);
+      label: "Other Reason",
+      accessKey: "d",
+      callback: () => {
+        self.emit("page-not-broken", tabId);
       },
     };
-
     const secondaryActions =  [
       {
-        label: "No (works)",
-        accessKey: "d",
-        callback: ({checkboxChecked}) => {
-          self.emit("page-not-broken", tabId, checkboxChecked);
+        label: "Page Was Broken",
+        accessKey: "f",
+        callback: () => {
+          const addExceptionButton = recentWindow.document.getElementById("tracking-action-unblock");
+          addExceptionButton.doCommand();
+          self.emit("page-broken", tabId);
         },
       },
     ];
@@ -68,11 +67,8 @@ class PopupNotificationEventEmitter extends EventEmitter {
       autofocus: true,
       name: "Firefox Survey: ",
       popupIconURL: "chrome://branding/content/icon64.png",
-      checkbox: {
-        label: "Disable Privacy Study",
-      },
     };
-    recentWindow.PopupNotifications.show(browser, "cookie-restriction", "<> Did you reload this page because it wasn't working correctly?", null, primaryAction, secondaryActions, options);
+    recentWindow.PopupNotifications.show(browser, "cookie-restriction", "<> Why did you reload this page?", null, primaryAction, secondaryActions, options);
   }
 }
 
@@ -103,8 +99,8 @@ this.popupNotification = class extends ExtensionAPI {
           context,
           "popupNotification.onReportPageBroken",
           fire => {
-            const listener = (value, tabId, checkboxChecked) => {
-              fire.async(tabId, checkboxChecked);
+            const listener = (value, tabId) => {
+              fire.async(tabId);
             };
             popupNotificationEventEmitter.on(
               "page-broken",
@@ -122,8 +118,8 @@ this.popupNotification = class extends ExtensionAPI {
           context,
           "popupNotification.onReportPageNotBroken",
           fire => {
-            const listener = (value, tabId, checkboxChecked) => {
-              fire.async(tabId, checkboxChecked);
+            const listener = (value, tabId) => {
+              fire.async(tabId);
             };
             popupNotificationEventEmitter.on(
               "page-not-broken",
