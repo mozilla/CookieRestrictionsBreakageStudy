@@ -39,21 +39,20 @@ class PopupNotificationEventEmitter extends EventEmitter {
 
     const primaryAction =  {
       disableHighlight: true,
-      label: "Yes (broken)",
-      accessKey: "f",
+      label: "Other Reason",
+      accessKey: "d",
       callback: () => {
-        const addExceptionButton = recentWindow.document.getElementById("tracking-action-unblock");
-        addExceptionButton.doCommand();
-        self.emit("page-broken", tabId);
+        self.emit("page-not-broken", tabId);
       },
     };
-
     const secondaryActions =  [
       {
-        label: "No (works)",
-        accessKey: "d",
+        label: "Page Was Broken",
+        accessKey: "f",
         callback: () => {
-          self.emit("page-not-broken", tabId);
+          const addExceptionButton = recentWindow.document.getElementById("tracking-action-unblock");
+          addExceptionButton.doCommand();
+          self.emit("page-broken", tabId);
         },
       },
     ];
@@ -69,7 +68,7 @@ class PopupNotificationEventEmitter extends EventEmitter {
       name: "Firefox Survey: ",
       popupIconURL: "chrome://branding/content/icon64.png",
     };
-    recentWindow.PopupNotifications.show(browser, "cookie-restriction", "<> Did you reload this page because it wasn't working correctly?", null, primaryAction, secondaryActions, options);
+    recentWindow.PopupNotifications.show(browser, "cookie-restriction", "<> Why did you reload this page?", null, primaryAction, secondaryActions, options);
   }
 }
 
