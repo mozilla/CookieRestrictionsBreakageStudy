@@ -48,8 +48,11 @@ addEventListener("DOMContentLoaded", function(e) {
       return !!input.value.length;
     });
     telemetryData.completeLocation = content.location.href;
-
-    telemetryData.num_blockable_trackers = docShell.document.numTrackersFound;
+    if (docShell && docShell.document) {
+      telemetryData.num_blockable_trackers = docShell.document.numTrackersFound;
+    } else {
+      telemetryData.num_blockable_trackers = -1; // some sort of error here
+    }
 
     // Find all scripts on the page.
     const scripts = Array.prototype.slice
