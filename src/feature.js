@@ -82,6 +82,7 @@ class Feature {
       }
       tabInfo.telemetryPayload.embedded_social_script = data.embedded_social_script;
       tabInfo.telemetryPayload.login_form_on_page = data.login_form_on_page;
+      tabInfo.telemetryPayload.password_field_was_filled_in = data.password_field_was_filled_in;
       tabInfo.telemetryPayload.user_has_tracking_protection_exception =
         data.user_has_tracking_protection_exception;
       tabInfo.telemetryPayload.page_reloaded = data.pageReloaded;
