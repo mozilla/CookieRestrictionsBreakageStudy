@@ -4,6 +4,7 @@ window.VARIATIONS = {
     prefs: {
       // Make sure we're not affected by the Symantec distrust.
       "security.pki.distrust_ca_policy": 1,
+      "browser.fastblock.enabled": false,
       "browser.contentblocking.ui.enabled": false,
     },
   },
@@ -15,6 +16,7 @@ window.VARIATIONS = {
 
       // Fastblock and Tracking Protection UI should be disabled.
       "browser.contentblocking.trackingprotection.ui.enabled": false,
+      "browser.fastblock.enabled": false,
       "browser.contentblocking.fastblock.ui.enabled": false,
       "browser.contentblocking.fastblock.control-center.ui.enabled": false,
       "browser.contentblocking.trackingprotection.control-center.ui.enabled": false,

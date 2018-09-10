@@ -10,6 +10,7 @@ const allPrefs = [
   "security.pki.distrust_ca_policy",
   "browser.contentblocking.trackingprotection.ui.enabled",
   "browser.contentblocking.fastblock.ui.enabled",
+  "browser.fastblock.enabled",
   "network.cookie.cookieBehavior",
 
   // temporary to show Tracker status
@@ -60,6 +61,7 @@ describe("setup and teardown", function() {
         await checkPrefs(driver, {
           "security.pki.distrust_ca_policy": 1,
           "browser.contentblocking.ui.enabled": false,
+          "browser.fastblock.enabled": false,
         });
       });
 
@@ -85,6 +87,7 @@ describe("setup and teardown", function() {
           "security.pki.distrust_ca_policy": 1,
           "browser.contentblocking.trackingprotection.ui.enabled": false,
           "browser.contentblocking.fastblock.ui.enabled": false,
+          "browser.fastblock.enabled": false,
           "network.cookie.cookieBehavior": 4,
         });
       });
