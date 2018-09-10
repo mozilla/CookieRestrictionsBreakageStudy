@@ -28,7 +28,7 @@ addEventListener("DOMContentLoaded", function(e) {
   content.window.addEventListener("load", () => {
     // We call setTimeout because otherwise our loadEventEnd entry (which is
     // filled after the "load" event handler runs) would be empty.
-    setTimeout(function() {
+    content.window.setTimeout(function() {
       if (!sentReload && telemetryData.page_reloaded) {
         sendAsyncMessage("reload", {hostname: telemetryData.hostname});
         sentReload = true;
