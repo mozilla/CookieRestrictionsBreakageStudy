@@ -10,7 +10,7 @@
     }
   },
   "icons": {
-    "48": "icons/mozilla-16.svg"
+    "48": "icons/moz-fav-bw-rgb.png"
   },
   "experiment_apis": {
     "popupNotification": {
