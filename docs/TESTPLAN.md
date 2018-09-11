@@ -50,6 +50,7 @@ There are a 2 variations to study features and heuristics:
 
   * `Control`
   * `CookiesBlocked`
+  * `AllThirdPartyCookiesBlocked`
 
 You can run a specific variation like so:
 
@@ -85,10 +86,10 @@ In a Control [variation](#variations):
 npm start -- -f Nightly --pref=extensions.cookie-restrictions_shield_mozilla_org.test.variationName=Control
 ```
 
-### Tracking Protection
+### Cookies Blocked 
 
  ```shell
- npm start -- -f Nightly --pref=extensions.cookie-restrictions_shield_mozilla_org.test.variationName=
+ npm start -- -f Nightly --pref=extensions.cookie-restrictions_shield_mozilla_org.test.variationName=CookiesBlocked
  ```
 
  In a CookiesBlocked [variation](#variations):
@@ -98,6 +99,16 @@ npm start -- -f Nightly --pref=extensions.cookie-restrictions_shield_mozilla_org
    * The "Content Blocking" panel should show "Trackers: Blocked",
      "Slow-loading Trackers: Add blocking...", and "Disable Blocking for This
      Site"
+
+### All Third Party Cookies Blocked 
+
+```shell
+npm start -- -f Nightly --pref=extensions.cookie-restrictions_shield_mozilla_org.test.variationName=AllThirdPartyCookiesBlocked
+```
+
+In a AllThirdPartyCookiesBlocked [variation](#variations):
+
+  * Behaviour should be the same as CookiesBlocked, but with stricter cookie blocking. 
 
 ### Testing Guide
 
