@@ -84,11 +84,60 @@ describe("setup and teardown", function() {
 
       it("has the correct prefs after install", async () => {
         await checkPrefs(driver, {
-          "security.pki.distrust_ca_policy": 1,
-          "browser.contentblocking.trackingprotection.ui.enabled": false,
-          "browser.contentblocking.fastblock.ui.enabled": false,
-          "browser.fastblock.enabled": false,
           "network.cookie.cookieBehavior": 4,
+          "browser.contentblocking.trackingprotection.ui.enabled": false,
+          "browser.fastblock.enabled": false,
+          "browser.contentblocking.fastblock.ui.enabled": false,
+          "browser.contentblocking.fastblock.control-center.ui.enabled": false,
+          "browser.contentblocking.trackingprotection.control-center.ui.enabled": false,
+          "security.pki.distrust_ca_policy": 1,
+          "browser.contentblocking.enabled": true,
+          "browser.contentblocking.ui.enabled": true,
+          "browser.contentblocking.rejecttrackers.ui.recommended": true,
+          "browser.contentblocking.rejecttrackers.control-center.ui.enabled": true,
+          "browser.contentblocking.cookies-site-data.ui.reject-trackers.recommended": true,
+          "browser.contentblocking.cookies-site-data.ui.reject-trackers.enabled": true,
+          "browser.contentblocking.reportBreakage.enabled": true,
+          "urlclassifier.trackingAnnotationTable": "test-track-simple,base-track-digest256",
+          "urlclassifier.trackingAnnotationWhitelistTable": "test-trackwhite-simple,mozstd-trackwhite-digest256",
+        });
+      });
+
+      it("has the correct prefs after uninstall", async () => {
+        await utils.setupWebdriver.uninstallAddon(driver, addonId);
+        await checkPrefs(driver, {});
+      });
+
+      after(async () => {
+        await utils.clearPreference(driver, "extensions.cookie-restrictions_shield_mozilla_org.test.variationName");
+      });
+    });
+
+    describe("sets the correct prefs for variation AllThirdPartyCookiesBlocked", () => {
+      before(async () => {
+        await utils.setPreference(driver, "extensions.cookie-restrictions_shield_mozilla_org.test.variationName", "AllThirdPartyCookiesBlocked");
+        addonId = await utils.setupWebdriver.installAddon(driver);
+        await driver.sleep(SETUP_DELAY);
+      });
+
+      it("has the correct prefs after install", async () => {
+        await checkPrefs(driver, {
+          "network.cookie.cookieBehavior": 1,
+          "browser.contentblocking.trackingprotection.ui.enabled": false,
+          "browser.fastblock.enabled": false,
+          "browser.contentblocking.fastblock.ui.enabled": false,
+          "browser.contentblocking.fastblock.control-center.ui.enabled": false,
+          "browser.contentblocking.trackingprotection.control-center.ui.enabled": false,
+          "security.pki.distrust_ca_policy": 1,
+          "browser.contentblocking.enabled": true,
+          "browser.contentblocking.ui.enabled": true,
+          "browser.contentblocking.rejecttrackers.ui.recommended": true,
+          "browser.contentblocking.rejecttrackers.control-center.ui.enabled": true,
+          "browser.contentblocking.cookies-site-data.ui.reject-trackers.recommended": true,
+          "browser.contentblocking.cookies-site-data.ui.reject-trackers.enabled": true,
+          "browser.contentblocking.reportBreakage.enabled": true,
+          "urlclassifier.trackingAnnotationTable": "test-track-simple,base-track-digest256",
+          "urlclassifier.trackingAnnotationWhitelistTable": "test-trackwhite-simple,mozstd-trackwhite-digest256",
         });
       });
 

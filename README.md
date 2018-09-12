@@ -96,7 +96,16 @@ In a Cookies Blocked [variation](#variations):
 * The "Content Blocking" panel should show "Trackers: Blocked",
   "Slow-loading Trackers: Add blocking...", and "Disable Blocking for This
   Site"
-  
+
+### All Third Party Cookies Blocked 
+
+```shell
+npm start -- -f Nightly --pref=extensions.cookie-restrictions_shield_mozilla_org.test.variationName=AllThirdPartyCookiesBlocked
+```
+
+In a AllThirdPartyCookiesBlocked [variation](#variations):
+
+  * Behaviour should be the same as CookiesBlocked, but with stricter cookie blocking.
 
 ### Testing Guide
 
