@@ -1,8 +1,21 @@
-/* global ChromeUtils, content, docShell, sendAsyncMessage */
+/* global ChromeUtils, content, docShell, sendAsyncMessage, addMessageListener, removeMessageListener */
 
 // This will be reset on page unload.
 let telemetryData = {};
-let sentReload = false;
+
+const reloadListener = {
+  receiveMessage(message) {
+    if (message.name === "Browser:Reload") {
+      telemetryData.page_reloaded = true;
+    }
+  },
+};
+
+addMessageListener("Browser:Reload", reloadListener);
+
+addEventListener("unload", function() {
+  removeMessageListener("Browser:Reload", reloadListener);
+});
 
 // The global "load" and "unload" event listeners listen for lifetime
 // events of the framescript, hence we wait for a DOM window to appear
@@ -15,26 +28,11 @@ addEventListener("DOMContentLoaded", function(e) {
     return;
   }
 
-  telemetryData.hostname = content.location.hostname;
-  // there *should* be only one entry - I haven't see anything to the alternative yet
-  const entryForReload = content.performance.getEntriesByType("navigation")[0];
-  telemetryData.page_reloaded = entryForReload.type === "reload";
+  // We show the survey doorhanger on next page load, so
+  // let the background script know that some page loaded.
+  sendAsyncMessage("CookieRestrictions:DOMContentLoaded", {});
 
-  // We use the "load" event to enter the performance data, because at
-  // "load" +1 tick it will contain everything we need. This means some
-  // pages may end up without perf data if the user closes the tab too
-  // early, but that's a tradeoff in simplicity vs. correctness we're
-  // willing to take.
-  content.window.addEventListener("load", () => {
-    // We call setTimeout because otherwise our loadEventEnd entry (which is
-    // filled after the "load" event handler runs) would be empty.
-    content.window.setTimeout(function() {
-      if (!sentReload && telemetryData.page_reloaded) {
-        sendAsyncMessage("reload", {hostname: telemetryData.hostname});
-        sentReload = true;
-      }
-    }, 0);
-  }, {once: true});
+  telemetryData.hostname = content.location.hostname;
 
   // Listening on "unload" was giving us race conditions with the
   // tab being removed too fast, which meant we were unable to recover
@@ -60,7 +58,6 @@ addEventListener("DOMContentLoaded", function(e) {
       .filter(s => s.src)
       .map(s => s.src);
     // Find if any of the scripts are identified social login scripts.
-
     const urls = [/platform\.twitter\.com\/widgets\.js/, /apis\.google\.com\/js\/platform\.js/,
       /platform\.linkedin\.com\/in\.js/, /www\.paypalobjects\.com\/js\/external\/api\.js/,
       /api-cdn\.amazon\.com\/sdk\/login1\.js/, /api\.instagram\.com\/oauth\/authorize\//,
@@ -70,12 +67,17 @@ addEventListener("DOMContentLoaded", function(e) {
       return urls.some(url => url.test(src));
     });
 
-    sendAsyncMessage("beforeunload", {telemetryData});
+    sendAsyncMessage("CookieRestrictions:beforeunload", {telemetryData});
   }, {once: true});
 
   content.window.addEventListener("unload", () => {
-    sendAsyncMessage("unload", {});
+    telemetryData.completeLocation = content.location.href;
+    if (docShell && docShell.document) {
+      telemetryData.num_blockable_trackers = docShell.document.numTrackersFound;
+    } else {
+      telemetryData.num_blockable_trackers = -1; // some sort of error here
+    }
+    sendAsyncMessage("CookieRestrictions:unload", {telemetryData});
     telemetryData = {};
-    sentReload = false;
   }, {once: true});
 });

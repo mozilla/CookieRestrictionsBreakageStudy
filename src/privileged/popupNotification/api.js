@@ -42,8 +42,11 @@ class PopupNotificationEventEmitter extends EventEmitter {
       label: "Page Was Broken",
       accessKey: "f",
       callback: () => {
-        const addExceptionButton = recentWindow.document.getElementById("tracking-action-unblock");
-        addExceptionButton.doCommand();
+        const hasException = Services.perms.testExactPermissionFromPrincipal(recentWindow.gBrowser.contentPrincipal, "trackingprotection") === Services.perms.ALLOW_ACTION;
+        if (!hasException) {
+          const addExceptionButton = recentWindow.document.getElementById("tracking-action-unblock");
+          addExceptionButton.doCommand();
+        }
         self.emit("page-broken", tabId);
       },
     };

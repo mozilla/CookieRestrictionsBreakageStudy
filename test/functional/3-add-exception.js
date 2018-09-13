@@ -1,4 +1,5 @@
 /* eslint-env node, mocha */
+/* eslint-disable no-unreachable */
 
 // for unhandled promise rejection debugging
 process.on("unhandledRejection", r => console.error(r)); // eslint-disable-line no-console
@@ -10,10 +11,11 @@ const Context = firefox.Context;
 const webdriver = require("selenium-webdriver");
 const By = webdriver.By;
 const until = webdriver.until;
+const DELAY = process.env.DELAY ? parseInt(process.env.DELAY) : 1500;
 
 describe("add page exception button", function() {
   // This gives Firefox time to start, and us a bit longer during some of the tests.
-  this.timeout(15000);
+  this.timeout(DELAY * 15);
 
   let driver;
 
@@ -23,9 +25,9 @@ describe("add page exception button", function() {
       utils.FIREFOX_PREFERENCES,
     );
     await utils.setPreference(driver, "extensions.cookie-restrictions_shield_mozilla_org.test.variationName", "CookiesBlocked");
-    await driver.sleep(500);
+    await driver.sleep(DELAY);
     await utils.setupWebdriver.installAddon(driver);
-    await driver.sleep(500);
+    await driver.sleep(DELAY);
   });
 
   after(() => {
@@ -35,22 +37,36 @@ describe("add page exception button", function() {
   describe("records a user clicking the 'disable protection for this site' button", function() {
     let studyPings;
 
+    async function checkDoorhangerPresent() {
+      const result = await driver.findElements(By.id("cookie-restriction-notification"));
+      return !!result.length;
+    }
+
     before(async () => {
 
       const time = Date.now();
       driver.setContext(Context.CONTENT);
       await driver.get("https://itisatrap.org/firefox/its-a-tracker.html");
-      await driver.sleep(1000);
+      await driver.sleep(DELAY);
       driver.setContext(Context.CHROME);
       // Open the control center.
       const identityBox = await driver.wait(until.elementLocated(By.id("identity-box")), 1000);
       identityBox.click();
-      await driver.sleep(1000);
+      await driver.sleep(DELAY);
       // Locate and click the add exception button.
       const addExceptionButton = await driver.wait(until.elementLocated(By.id("tracking-action-unblock")), 1000);
       addExceptionButton.click();
-      // Clicking this button will reload the page.
-      await driver.sleep(1000);
+      // The page refreshes after clicking the add exception button, causing a ping to occur or the
+      // survey doorhanger to be shown.
+      await driver.sleep(DELAY);
+
+      // Interact with the doorhanger if it's showing.
+      const doorhangerPresent = await checkDoorhangerPresent();
+      if (doorhangerPresent) {
+        await driver.executeScript(`document.getElementById("cookie-restriction-notification").button.click()`);
+        await driver.sleep(DELAY);
+      }
+
       studyPings = await utils.telemetry.getShieldPingsAfterTimestamp(
         driver,
         time,

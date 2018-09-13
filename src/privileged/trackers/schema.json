@@ -26,7 +26,8 @@
         "type": "function",
         "description": "When the page unloads.",
         "parameters": [
-          {"type": "integer", "name": "tabId", "minimum": 0}
+          {"type": "integer", "name": "tabId", "minimum": 0},
+          {"type": "object", "name": "data"} 
         ]
       },
       {
@@ -46,21 +47,20 @@
         ]
       },
       {
-        "name": "onReload",
-        "type": "function",
-        "description": "This is called when we find a page that was reloaded.",
-        "parameters": [
-          {"type": "integer", "name": "tabId", "minimum": 0},
-          {"type": "string", "name": "etld"}
-        ]
-      },
-      {
         "name": "onToggleException",
         "type": "function",
         "description": "The user has added or removed and exception for this page in tracking protection.",
         "parameters": [
           {"type": "integer", "name": "tabId", "minimum": 0},
           {"type": "boolean", "name": "toggleValue"}
+        ]
+      },
+      {
+        "name": "onPageDOMContentLoaded",
+        "type": "function",
+        "description": "When the page has loaded the DOM.",
+        "parameters": [
+          {"type": "integer", "name": "tabId", "minimum": 0}
         ]
       }
     ]
