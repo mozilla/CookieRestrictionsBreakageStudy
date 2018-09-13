@@ -59,11 +59,6 @@ class Feature {
 
       const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
       await this.addMainTelemetryData(tabInfo, data, userid);
-      // Reset survey count when no longer refreshing
-      if (!data.page_reloaded) {
-        tabInfo.surveyShown = false;
-        tabInfo.reloadCount = 0;
-      }
     });
 
     // When a tab is removed, make sure to submit telemetry for the
