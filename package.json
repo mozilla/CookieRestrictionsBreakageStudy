@@ -7,7 +7,7 @@
     "url": "https://github.com/mozilla/CookieRestrictionsShield/issues"
   },
   "dependencies": {
-    "shield-studies-addon-utils": "5.0.3"
+    "shield-studies-addon-utils": "^5.1.0"
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
