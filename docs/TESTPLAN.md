@@ -29,7 +29,7 @@
 * (Create profile: <https://developer.mozilla.org/Firefox/Multiple_profiles>, or via some other method)
 * Navigate to _about:config_ and set the following preferences. (If a preference does not exist, create it by right-clicking in the white area and selecting New -> String)
 * Set `shieldStudy.logLevel` to `All`. This permits shield-add-on log output in browser console.
-* Set `extensions.cookie-restrictions_shield_mozilla_org.test.variationName` to `FB2L0` (or any other study variation/branch to test specifically)
+* Set `extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName` to `ThirdPartyTracking` (or any other study variation/branch to test specifically)
 * Go to [this study's tracking bug](tbd: replace with your study's launch bug link in bugzilla) and install the latest add-on zip file
 
 ### Test Beta or other versions of Firefox
@@ -39,7 +39,7 @@ npm will launch the add-on in Nightly by default, but you may want to test it in
 Using `npm start` you may pass in the path or short name of the Firefox release you want to test with the `--firefox` option:
 
 ```shell
-npm start -- --firefox=beta --pref=extensions.cookie-restrictions_shield_mozilla_org.test.variationName=CookiesBlocked
+npm start -- --firefox=beta --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=ThirdPartyTracking
 ```
 
 See https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Getting_started_with_web-ext#Testing_in_different_versions_of_Firefox for more information.
@@ -49,32 +49,20 @@ See https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Getti
 There are a 2 variations to study features and heuristics:
 
   * `Control`
-  * `CookiesBlocked`
-  * `AllThirdPartyCookiesBlocked`
+  * `ThirdPartyTracking`
+  * `Breakage`
 
 You can run a specific variation like so:
 
 ```shell
-npm start -- -f Nightly --pref=extensions.cookie-restrictions_shield_mozilla_org.test.variationName=CookiesBlocked
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=ThirdPartyTracking
 ```
 
 ## Expected User Experience / Functionality
 
 In all variations:
 
-  * Nothing different should happen in Private Browsing or Safe Mode operation.
-  * Panel Behaviour:
-    * If the user refreshes a page they have a chance of being shown
-      a panel notification: "Did you reload this page to resolve loading issues?". This chance is 100% by the 6th refresh.
-    * If the panel is ignored it will not show up again on the next refreshes. Once the user
-      navigates, on the next refresh there is once again a chance the panel will show up. And the
-      chance that it might show up on the same etld+1 is once again possible.
-    * If "yes" or "no" is clicked on the panel, it will never show up again for that etld+1.
-    * The panel should not dismiss until interacted with, or until the user navigates or refreshes
-      the page
-    * If "yes" is clicked we will add an exception for this page for content blocking
-  * Telemetry Behaviour:
-    * Telemetry will be sent upon page unload.
+ * TBD
 
     
 ### Control
@@ -83,39 +71,35 @@ In a Control [variation](#variations):
   * There are no differences for Control branches from the behaviours described for all variations
 
 ```shell
-npm start -- -f Nightly --pref=extensions.cookie-restrictions_shield_mozilla_org.test.variationName=Control
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=Control
 ```
 
-### Cookies Blocked 
+### Third Party Tracking
 
  ```shell
- npm start -- -f Nightly --pref=extensions.cookie-restrictions_shield_mozilla_org.test.variationName=CookiesBlocked
+ npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=ThirdPartyTracking
  ```
 
- In a CookiesBlocked [variation](#variations):
+ In a Third Party Tracking [variation](#variations):
+ 
+ * TBD
 
-   * The user should see the "How Tracking Protection works" onboarding experience
-     when they first visit a site with trackers detected.
-   * The "Content Blocking" panel should show "Trackers: Blocked",
-     "Slow-loading Trackers: Add blocking...", and "Disable Blocking for This
-     Site"
-
-### All Third Party Cookies Blocked 
+### Breakage 
 
 ```shell
-npm start -- -f Nightly --pref=extensions.cookie-restrictions_shield_mozilla_org.test.variationName=AllThirdPartyCookiesBlocked
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=Breakage
 ```
 
-In a AllThirdPartyCookiesBlocked [variation](#variations):
+In a Breakage [variation](#variations):
 
-  * Behaviour should be the same as CookiesBlocked, but with stricter cookie blocking. 
+   * TBD
 
 ### Testing Guide
 
 In combination with the above instructions, add the pref `shieldStudy.logLevel=all` to the command to see extra logging. The logging will show the contents of the Telemetry ping, and the variation.
 
 ```shell
-npm start -- -f Nightly --pref=extensions.cookie-restrictions_shield_mozilla_org.test.variationName=Control --pref=shieldStudy.logLevel=all
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=Control --pref=shieldStudy.logLevel=all
 ```
 
 ### Design

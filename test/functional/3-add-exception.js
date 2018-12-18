@@ -13,7 +13,7 @@ const By = webdriver.By;
 const until = webdriver.until;
 const DELAY = process.env.DELAY ? parseInt(process.env.DELAY) : 1500;
 
-describe("add page exception button", function() {
+xdescribe("add page exception button", function() {
   // This gives Firefox time to start, and us a bit longer during some of the tests.
   this.timeout(DELAY * 15);
 
@@ -24,7 +24,7 @@ describe("add page exception button", function() {
     driver = await utils.setupWebdriver.promiseSetupDriver(
       utils.FIREFOX_PREFERENCES,
     );
-    await utils.setPreference(driver, "extensions.cookie-restrictions_shield_mozilla_org.test.variationName", "CookiesBlocked");
+    await utils.setPreference(driver, "extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName", "ThirdPartyTracking");
     await driver.sleep(DELAY);
     await utils.setupWebdriver.installAddon(driver);
     await driver.sleep(DELAY);
@@ -76,13 +76,6 @@ describe("add page exception button", function() {
 
     it("has recorded one ping", async () => {
       assert.equal(studyPings.length, 1, "one shield telemetry ping");
-    });
-
-    it("correctly records that the user added an exception for this page", async () => {
-      const ping = studyPings[0];
-      const attributes = ping.payload.data.attributes;
-      assert.equal(attributes.user_toggled_exception, "1", "user added exception is included in the ping");
-      assert.equal(attributes.user_opened_control_center, "true", "user opened the control center is included in the ping");
     });
 
     after(async () => {

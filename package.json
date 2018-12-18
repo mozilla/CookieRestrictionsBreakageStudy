@@ -1,10 +1,10 @@
 {
-  "name": "cookie-restrictions-shield",
-  "description": "Shield Study for testing Cookie Restrictions",
-  "version": "1.0.5",
+  "name": "cookie-restrictions-breakage",
+  "description": "Shield Study for testing breakage caused by Cookie Restrictions",
+  "version": "1.0.0",
   "author": "Mozilla",
   "bugs": {
-    "url": "https://github.com/mozilla/CookieRestrictionsShield/issues"
+    "url": "https://github.com/mozilla/CookieRestrictionsBreakageStudy/issues"
   },
   "dependencies": {
     "shield-studies-addon-utils": "^5.1.0"
@@ -19,14 +19,11 @@
     "eslint-plugin-json": "1.2.1",
     "eslint-plugin-mozilla": "0.16.0",
     "eslint-plugin-no-unsanitized": "3.0.2",
-    "fixpack": "^2.3.1",
     "fs-extra": "^3.0.1",
     "fx-runner": "^1.0.9",
     "geckodriver": "^1.12.2",
-    "get-firefox": "^2.0.0",
     "mocha": "^5.2.0",
     "npm-run-all": "^4.1.1",
-    "nsp": "^3.2.1",
     "prettier": "^1.10.2",
     "selenium-webdriver": "^3.5.0",
     "web-ext": "^2.7.0",
@@ -61,10 +58,8 @@
     "harness_test": "npm run test -- --retry 2 --reporter json",
     "lint": "npm-run-all lint:*",
     "lint:eslint": "npm run eslint",
-    "lint:fixpack": "fixpack",
-    "lint:nsp": "nsp check",
     "lint:web-ext-lint": "web-ext lint",
-    "postformat": "npm run eslint-fix && fixpack",
+    "postformat": "npm run eslint-fix",
     "prebuild": "npm run bundle-utils",
     "prestart": "npm run bundle-utils",
     "pretest": "node test/ensure_minimum_node_version.js && npm run build",

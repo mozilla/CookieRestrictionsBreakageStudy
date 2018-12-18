@@ -1,4 +1,4 @@
-# Cookie Restrictions Shield Study
+# Cookie Restrictions Breakage Shield Study
 
 This repository is a [Shield Study](https://wiki.mozilla.org/Firefox/Shield/Shield_Studies) based on the [Shield Studies Add-on Template](https://github.com/mozilla/shield-studies-addon-template). 
 
@@ -42,34 +42,25 @@ command with `--pref`.
 
 ### Variations
 
-There are a 2 variations to study features and heuristics:
+There are a 3 variations to study features and heuristics:
 
   * `Control`
-  * `CookiesBlocked`
+  * `ThirdPartyTracking`
+  * `Breakage`
 
 You can run a specific variation like so:
 
 ```shell
-npm start -- -f Nightly --pref=extensions.cookie-restrictions_shield_mozilla_org.test.variationName=CookiesBlocked
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=ThirdPartyTracking
 ```
 
 ## User Scenarios
 
-In both variations:
-
-* Nothing different should happen in Private Browsing or Safe Mode operation.
-* Panel Behaviour:
-  * If the user refreshes a page they have a chance of being shown
-    a panel notification: "Did you reload this page to resolve loading issues?". This chance is 100% by the 6th refresh.
-  * If the panel is ignored it will not show up again on the next refreshes. Once the user
-    navigates, on the next refresh there is once again a chance the panel will show up. And the
-    chance that it might show up on the same etld+1 is once again possible.
-  * If "yes" or "no" is clicked on the panel, it will never show up again for that etld+1.
-  * The panel should not dismiss until interacted with, or until the user navigates or refreshes
-    the page
-  * If "yes" is clicked we will add an exception for this page for content blocking
+In all variations:
+ <!-- TODO Describe behaviour here of popups and panels -->
+* The shield in the top left of the url bar should never show up.
+* When opening the control panel, the Content Blocking section should not exist
 * Telemetry Behaviour:
-  * Telemetry will be sent upon page unload.
 
 
 ### Control
@@ -78,44 +69,34 @@ In a Control [variation](#variations):
   * There are no differences for Control branches from the behaviours described for all variations
 
 ```shell
-npm start -- -f Nightly --pref=extensions.cookie-restrictions_shield_mozilla_org.
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.
 test.variationName=Control
 ```
 
-### Cookie Restrictions
+### Third Party Tracking
+In a Third Party Tracking [variation](#variations):
+
 
 ```shell
-npm start -- -f Nightly --pref=extensions.cookie-restrictions_shield_mozilla_org.
-test.variationName=CookiesBlocked
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.
+test.variationName=ThirdPartyTracking
 ```
 
-In a Cookies Blocked [variation](#variations):
+### Breakage
 
-* The user should see the "How Tracking Protection works" onboarding experience
-  when they first visit a site with trackers detected.
-* The "Content Blocking" panel should show "Trackers: Blocked",
-  "Slow-loading Trackers: Add blocking...", and "Disable Blocking for This
-  Site"
+In a Breakage [variation](#variations):
 
-### All Third Party Cookies Blocked 
-
+  
 ```shell
-npm start -- -f Nightly --pref=extensions.cookie-restrictions_shield_mozilla_org.test.variationName=AllThirdPartyCookiesBlocked
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=Breakage
 ```
-
-In a AllThirdPartyCookiesBlocked [variation](#variations):
-
-  * Behaviour should be the same as CookiesBlocked, but with stricter cookie blocking.
 
 ### Testing Guide
 
 In combination with the above instructions, add the pref `shieldStudy.logLevel=all` to the command to see extra logging. The logging will show the contents of the Telemetry ping, and the variation.
 
 ```shell
-npm start -- -f Nightly --pref=extensions.cookie-restrictions_shield_mozilla_org.test.variationName=CookiesBlocked --pref=shieldStudy.logLevel=all
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=ThirdPartyTracking --pref=shieldStudy.logLevel=all
 ```
 
 ### After Study Survey
-
-There is a breadcrumb pref at `extensions.cookie-restrictions.wasEnabled`
-a string containing the variation name is the value of the pref. Heartbeat will be used to target and survey users.

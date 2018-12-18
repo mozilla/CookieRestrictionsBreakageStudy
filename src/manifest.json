@@ -1,16 +1,21 @@
 {
-  "name": "Mozilla Cookie Restrictions User Study",
+  "name": "Mozilla Cookie Restrictions Breakage Study",
   "description": "A Mozilla study created to learn the positive and negative effects of blocking tracking cookies.",
   "version": "1.0.5",
   "manifest_version": 2,
   "applications": {
     "gecko": {
-      "id": "cookie-restrictions@shield.mozilla.org",
+      "id": "cookie-restrictions-breakage@shield.mozilla.org",
       "strict_min_version": "62.0"
     }
   },
   "icons": {
     "48": "icons/moz-fav-bw-rgb.png"
+  },
+  "browser_action": {
+    "browser_style": true,
+    "default_icon": "icons/moz-fav-bw-rgb.png",
+    "default_title": "test title"
   },
   "experiment_apis": {
     "popupNotification": {
@@ -45,17 +50,17 @@
         "paths": [["prefs"]]
       }
     },
-    "trackers": {
-      "schema": "./privileged/trackers/schema.json",
+    "pageMonitor": {
+      "schema": "./privileged/pageMonitor/schema.json",
       "parent": {
         "scopes": ["addon_parent"],
-        "script": "./privileged/trackers/api.js",
-        "paths": [["trackers"]]
+        "script": "./privileged/pageMonitor/api.js",
+        "paths": [["pageMonitor"]]
       }
     }
   },
   "web_accessible_resources": [
-    "privileged/trackers/framescript.js"
+    "privileged/pageMonitor/framescript.js"
   ],
   "permissions": ["management", "storage", "alarms", "webNavigation"],
   "background": {

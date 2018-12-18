@@ -1,27 +1,16 @@
 /* global TabRecords, VARIATIONS */
 
-// Constants for the page_reloaded_survey telemetry probe.
-const SURVEY_SHOWN = 1;
-const SURVEY_PAGE_BROKEN = 2;
-const SURVEY_PAGE_NOT_BROKEN = 3;
-// We only ask the user once per etld+1, so we make sure
-// to send along the previous response of the user.
-const SURVEY_PREVIOUSLY_BROKEN = 4;
-const SURVEY_PREVIOUSLY_NOT_BROKEN = 5;
-// We don't want to nag the user about this too much,
-// so we ask only once per tab. If the survey was hidden
-// because of that, make sure to mark it in the payload.
-const SURVEY_HIDDEN = 6;
-
-// Constants for the user_toggled_exception telemetry probe
-const PROTECTION_DISABLED = 1;
-const PROTECTION_ENABLED = 2;
+// Constants for the survey_answer telemetry probe.
+const SURVEY_IGNORED = 1;
+const SURVEY_PAGE_FIXED = 2;
+const SURVEY_PAGE_NOT_FIXED = 3;
 
 class Feature {
   constructor() {}
 
   async configure(studyInfo) {
     let { variation } = studyInfo;
+    browser.browserAction.onClicked.addListener((tab) => this.handleButtonClick(tab.id));
 
     // The userid will be used to create a unique hash
     // for the etld + userid combination.
@@ -48,11 +37,11 @@ class Feature {
     }
 
     // Initialize listeners in privileged code.
-    browser.trackers.init();
+    browser.pageMonitor.init();
 
     // We receive most of the critical site information in beforeunload
     // and send it either on unload or on tab close.
-    browser.trackers.onPageBeforeUnload.addListener(async (tabId, data) => {
+    browser.pageMonitor.onPageBeforeUnload.addListener(async (tabId, data) => {
       if (tabId < 0 || !data.etld) {
         return;
       }
@@ -72,8 +61,7 @@ class Feature {
       if (tabInfo.payloadWaitingForSurvey) {
         this.submitPayloadWaitingForSurvey(tabInfo);
       }
-      // Only submit telemetry if we have recorded load info and
-      // the tab actually has trackers.
+      // Only submit telemetry if we have recorded load info
       if (tabInfo.telemetryPayload.etld) {
         this.sendTelemetry(tabInfo.telemetryPayload);
       }
@@ -81,7 +69,7 @@ class Feature {
     });
 
     // On unload, submit telemetry and reset.
-    browser.trackers.onPageUnload.addListener(async (tabId, data) => {
+    browser.pageMonitor.onPageUnload.addListener(async (tabId, data) => {
       const tabInfo = TabRecords.getTabInfo(tabId);
       if (!tabInfo || !tabInfo.telemetryPayload.etld) {
         return;
@@ -94,28 +82,20 @@ class Feature {
       } catch (e) {
         return;
       }
-      // On unload we also try to record data that might not have
-      // survived onbeforeunload.
+
       await this.addMainTelemetryData(tabInfo, data, userid);
-      if (tabInfo.payloadWaitingForSurvey) {
+      if (tabInfo.compatModeWasJustEntered) {
+        return;
+      } else if (tabInfo.payloadWaitingForSurvey) {
+        // TODO: change this to send after answering survey
         this.submitPayloadWaitingForSurvey(tabInfo);
       }
-      if (tabInfo.telemetryPayload.page_reloaded) {
-        tabInfo.payloadWaitingForSurvey = Object.assign({}, tabInfo.telemetryPayload);
 
-        tabInfo.reloadCount++;
-      } else {
-        this.sendTelemetry(tabInfo.telemetryPayload);
-
-        // Reset survey count and allow survey to show again when no longer refreshing
-        tabInfo.reloadCount = 0;
-        tabInfo.surveyShown = false;
-      }
       TabRecords.resetPayload(tabId);
     });
 
     // Record when users opened the control center (identity popup).
-    browser.trackers.onIdentityPopupShown.addListener(
+    browser.pageMonitor.onIdentityPopupShown.addListener(
       tabId => {
         if (tabId < 0) {
           return;
@@ -126,33 +106,12 @@ class Feature {
       }
     );
 
-    // Record when users submitted a breakage report in the control center.
-    browser.trackers.onReportBreakage.addListener(
-      tabId => {
-        if (tabId < 0) {
-          return;
-        }
-
-        const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
-        tabInfo.telemetryPayload.user_reported_page_breakage = true;
-      }
-    );
-
-    browser.trackers.onToggleException.addListener((tabId, toggleValue) => {
-      if (tabId < 0) {
-        return;
-      }
-      const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
-      tabInfo.telemetryPayload.user_toggled_exception = toggleValue ?
-        PROTECTION_DISABLED : PROTECTION_ENABLED;
-    });
-
     // Listen for the page to load to show the "is this page broken?"
     // survey for the previous (reloaded) page.
-    browser.trackers.onPageDOMContentLoaded.addListener((tabId) => {
+    browser.pageMonitor.onPageDOMContentLoaded.addListener((tabId) => {
       const tabInfo = TabRecords.getTabInfo(tabId);
       if (tabInfo && tabInfo.payloadWaitingForSurvey) {
-        this.possiblyShowNotification(tabInfo);
+        this.showNotification(tabInfo);
       }
     });
 
@@ -165,8 +124,7 @@ class Feature {
         if (!tabInfo || !tabInfo.payloadWaitingForSurvey) {
           return;
         }
-        tabInfo.payloadWaitingForSurvey.page_reloaded_survey = SURVEY_PAGE_BROKEN;
-        this.recordSurveyInteraction(tabId, SURVEY_PAGE_BROKEN);
+        tabInfo.payloadWaitingForSurvey.survey_answer = SURVEY_PAGE_NOT_FIXED;
         this.submitPayloadWaitingForSurvey(tabInfo);
       },
     );
@@ -179,11 +137,32 @@ class Feature {
         if (!tabInfo || !tabInfo.payloadWaitingForSurvey) {
           return;
         }
-        tabInfo.payloadWaitingForSurvey.page_reloaded_survey = SURVEY_PAGE_NOT_BROKEN;
-        this.recordSurveyInteraction(tabId, SURVEY_PAGE_NOT_BROKEN);
+        tabInfo.payloadWaitingForSurvey.survey_answer = SURVEY_PAGE_FIXED;
         this.submitPayloadWaitingForSurvey(tabInfo);
       },
     );
+
+    browser.pageMonitor.onErrorDetected.addListener(
+      (error, tabId) => {
+        this.recordPageError(error, tabId);
+      }
+    );
+  }
+
+  recordPageError(error, tabId) {
+    const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
+    // TODO if compat mode is on, put errors into `compat_on_num_${error}`
+    if (`compat_off_num_${error}` in tabInfo.telemetryPayload) {
+      tabInfo.telemetryPayload[`compat_off_num_${error}`] += 1;
+    }
+  }
+
+  handleButtonClick(tabId) {
+    const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
+    // TODO: make this refresh and turn on compat mode
+    // then show survey
+    tabInfo.payloadWaitingForSurvey = Object.assign({}, tabInfo.telemetryPayload);
+    tabInfo.compatModeWasJustEntered = true;
   }
 
   submitPayloadWaitingForSurvey(tabInfo) {
@@ -197,7 +176,6 @@ class Feature {
     }
     const hash = await this.SHA256(userid + data.etld);
     tabInfo.telemetryPayload.etld = hash;
-    tabInfo.telemetryPayload.num_blockable_trackers = data.num_blockable_trackers;
     tabInfo.telemetryPayload.page_reloaded = data.page_reloaded || false;
 
     tabInfo.telemetryPayload.embedded_social_script = data.embedded_social_script;
@@ -205,14 +183,6 @@ class Feature {
     tabInfo.telemetryPayload.password_field_was_filled_in = data.password_field_was_filled_in;
     tabInfo.telemetryPayload.user_has_tracking_protection_exception =
       data.user_has_tracking_protection_exception;
-  }
-
-  recordSurveyInteraction(tabId, payloadValue) {
-    const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
-    tabInfo.telemetryPayload.page_reloaded_survey = payloadValue;
-    const historicalValue = payloadValue === SURVEY_PAGE_BROKEN ?
-      SURVEY_PREVIOUSLY_BROKEN : SURVEY_PREVIOUSLY_NOT_BROKEN;
-    browser.storage.local.set({[tabInfo.payloadWaitingForSurvey.etld]: historicalValue});
   }
 
   // Adapted from https://gist.github.com/jed/982883
@@ -236,36 +206,11 @@ class Feature {
     });
   }
 
-  // Start at 40% chance of showing the notification,
-  // increment by 10% until at 6 times, then it is guaranteed.
-  // Never show the popup again on the same site if the popup has been interacted with.
-  // If the popup is ignored, do not show it while the user continues refreshing
-  // but reset upon navigation and possibly show again. The popup can show again on the
-  // same site and page if it was ignored.
-  async possiblyShowNotification(tabInfo) {
+  async showNotification(tabInfo) {
     const payload = tabInfo.payloadWaitingForSurvey;
-    const storedEtld = await browser.storage.local.get(payload.etld);
-    if (storedEtld[payload.etld]) {
-      payload.page_reloaded_survey = storedEtld[payload.etld];
-      this.submitPayloadWaitingForSurvey(tabInfo);
-      return;
-    }
-    if (tabInfo.surveyShown) {
-      if (!payload.page_reloaded_survey) {
-        payload.page_reloaded_survey = SURVEY_HIDDEN;
-      }
-      this.submitPayloadWaitingForSurvey(tabInfo);
-      return;
-    }
 
-    const num = Math.floor(Math.random() * 10);
-    if (num <= (3 + tabInfo.reloadCount)) {
-      payload.page_reloaded_survey = SURVEY_SHOWN;
-      tabInfo.surveyShown = true;
+    if (payload) {
       browser.popupNotification.show();
-    } else {
-      // We're not showing a survey for this document, so send its telemetry...
-      this.submitPayloadWaitingForSurvey(tabInfo);
     }
   }
 
@@ -276,21 +221,10 @@ class Feature {
   async sendTelemetry(payload) {
     const stringToStringMap = {};
     // Report these prefs with each telemetry ping.
-    payload.browser_contentblocking_enabled = await browser.prefs.getBoolPref("browser.contentblocking.enabled");
     payload.privacy_trackingprotection_enabled = await browser.prefs.getBoolPref("privacy.trackingprotection.enabled");
     payload.network_cookie_cookieBehavior = await browser.prefs.getIntPref("network.cookie.cookieBehavior");
-    payload.browser_contentblocking_ui_enabled = await browser.prefs.getBoolPref("browser.contentblocking.ui.enabled");
-    payload.browser_contentblocking_rejecttrackers_ui_recommended = await browser.prefs.getBoolPref("browser.contentblocking.rejecttrackers.ui.recommended");
-    payload.browser_contentblocking_rejecttrackers_control_center_ui_enabled = await browser.prefs.getBoolPref("browser.contentblocking.rejecttrackers.control-center.ui.enabled");
-    payload.browser_contentblocking_cookies_site_data_ui_reject_trackers_enabled = await browser.prefs.getBoolPref("browser.contentblocking.cookies-site-data.ui.reject-trackers.enabled");
-    payload.browser_contentblocking_cookies_site_data_ui_reject_trackers_recommended = await browser.prefs.getBoolPref("browser.contentblocking.cookies-site-data.ui.reject-trackers.recommended");
-    payload.browser_contentblocking_reportBreakage_enabled = await browser.prefs.getBoolPref("browser.contentblocking.reportBreakage.enabled");
     payload.urlclassifier_trackingAnnotationTable = await browser.prefs.getStringPref("urlclassifier.trackingAnnotationTable");
     payload.urlclassifier_trackingAnnotationWhitelistTable = await browser.prefs.getStringPref("urlclassifier.trackingAnnotationWhitelistTable");
-    payload.browser_contentblocking_fastblock_ui_enabled = await browser.prefs.getBoolPref("browser.contentblocking.fastblock.ui.enabled");
-    payload.browser_contentblocking_trackingprotection_ui_enabled = await browser.prefs.getBoolPref("browser.contentblocking.trackingprotection.ui.enabled");
-    payload.browser_contentblocking_fastblock_control_center_ui_enabled = await browser.prefs.getBoolPref("browser.contentblocking.fastblock.control-center.ui.enabled");
-    payload.browser_contentblocking_trackingprotection_control_center_ui_enabled = await browser.prefs.getBoolPref("browser.contentblocking.trackingprotection.control-center.ui.enabled");
 
     // Shield Telemetry deals with flat string-string mappings.
     for (const key of Object.keys(payload)) {

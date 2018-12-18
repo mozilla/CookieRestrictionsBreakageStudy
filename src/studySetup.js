@@ -29,9 +29,9 @@ const baseStudySetup = {
   // telemetry
   telemetry: {
     // default false. Actually send pings.
-    send: true,
+    send: false,
     // Marks pings with testing=true.  Set flag to `true` before final release
-    removeTestingFlag: true,
+    removeTestingFlag: false,
   },
 
   // We don't have a survey at the ending

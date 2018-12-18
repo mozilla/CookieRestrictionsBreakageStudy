@@ -16,7 +16,7 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/BrowserWindowTracker.jsm",
 );
 
-class TrackersEventEmitter extends EventEmitter {
+class PageMonitorEventEmitter extends EventEmitter {
   emitIdentityPopupShown(tabId) {
     this.emit("identity-popup-shown", tabId);
   }
@@ -35,13 +35,16 @@ class TrackersEventEmitter extends EventEmitter {
   emitPageDOMContentLoaded(tabId) {
     this.emit("page-DOMContentLoaded", tabId);
   }
+  emitErrorDetected(error, tabId) {
+    this.emit("page-error-detected", error, tabId);
+  }
 }
 
 /* https://firefox-source-docs.mozilla.org/toolkit/components/extensions/webextensions/functions.html */
-this.trackers = class extends ExtensionAPI {
+this.pageMonitor = class extends ExtensionAPI {
   constructor(extension) {
     super(extension);
-    this.framescriptUrl = extension.getURL("privileged/trackers/framescript.js");
+    this.framescriptUrl = extension.getURL("privileged/pageMonitor/framescript.js");
   }
 
 
@@ -55,25 +58,24 @@ this.trackers = class extends ExtensionAPI {
   }
 
   getAPI(context) {
-    const trackersEventEmitter = new TrackersEventEmitter();
+    const pageMonitorEventEmitter = new PageMonitorEventEmitter();
     /* global EveryWindow */
     Services.scriptloader.loadSubScript(
-      context.extension.getURL("privileged/trackers/EveryWindow.js"));
+      context.extension.getURL("privileged/pageMonitor/EveryWindow.js"));
     return {
-      trackers: {
+      pageMonitor: {
         async unmount(win) {
           const mm = win.ownerGlobal.getGroupMessageManager("browsers");
           mm.removeMessageListener("CookieRestrictions:unload", this.pageUnloadCallback);
           mm.removeMessageListener("CookieRestrictions:beforeunload", this.pageBeforeUnloadCallback);
           mm.removeMessageListener("CookieRestrictions:DOMContentLoaded", this.pageDOMContentLoadedCallback);
+          mm.removeMessageListener("CookieRestrictions:pageError", this.pageErrorCallback);
 
           win.gIdentityHandler._identityPopup.removeEventListener("popupshown", this.onIdentityPopupShownEvent);
-          const reportBreakageButton = win.document.getElementById("identity-popup-breakageReportView-submit");
-          reportBreakageButton.removeEventListener("command", this.onReportBreakageButtonCommand);
-          const addExceptionButton = win.document.getElementById("tracking-action-unblock");
-          addExceptionButton.removeEventListener("command", this.onToggleExceptionCommand);
-          const removeExceptionButton = win.document.getElementById("tracking-action-block");
-          removeExceptionButton.removeEventListener("command", this.onToggleExceptionCommand);
+        },
+        async pageErrorCallback(e) {
+          const tabId = tabTracker.getBrowserTabId(e.target);
+          pageMonitorEventEmitter.emitErrorDetected(e.data, tabId);
         },
         async pageBeforeUnloadCallback(e) {
           const tabId = tabTracker.getBrowserTabId(e.target);
@@ -90,7 +92,7 @@ this.trackers = class extends ExtensionAPI {
             Services.perms.testExactPermission(uri, "trackingprotection") === Services.perms.ALLOW_ACTION;
           e.data.telemetryData.completeLocation = null;
           uri = null;
-          trackersEventEmitter.emitPageBeforeUnload(tabId, e.data.telemetryData);
+          pageMonitorEventEmitter.emitPageBeforeUnload(tabId, e.data.telemetryData);
         },
         async pageUnloadCallback(e) {
           const tabId = tabTracker.getBrowserTabId(e.target);
@@ -105,27 +107,22 @@ this.trackers = class extends ExtensionAPI {
           // Browser is never private, so type can always be "trackingprotection"
           e.data.telemetryData.user_has_tracking_protection_exception =
             Services.perms.testExactPermission(uri, "trackingprotection") === Services.perms.ALLOW_ACTION;
-          trackersEventEmitter.emitPageUnload(tabId, e.data.telemetryData);
+          pageMonitorEventEmitter.emitPageUnload(tabId, e.data.telemetryData);
         },
         async pageDOMContentLoadedCallback(e) {
           const tabId = tabTracker.getBrowserTabId(e.target);
-          trackersEventEmitter.emitPageDOMContentLoaded(tabId);
+          pageMonitorEventEmitter.emitPageDOMContentLoaded(tabId);
         },
         onIdentityPopupShownEvent(e) {
           const win = e.target.ownerGlobal;
           const tabId = tabTracker.getBrowserTabId(win.gBrowser.selectedBrowser);
-          trackersEventEmitter.emitIdentityPopupShown(tabId);
-        },
-        onReportBreakageButtonCommand(e) {
-          const win = e.target.ownerGlobal;
-          const tabId = tabTracker.getBrowserTabId(win.gBrowser.selectedBrowser);
-          trackersEventEmitter.emitReportBreakage(tabId);
+          pageMonitorEventEmitter.emitIdentityPopupShown(tabId);
         },
         async onToggleExceptionCommand(e) {
           const win = e.target.ownerGlobal;
           const tabId = tabTracker.getBrowserTabId(win.gBrowser.selectedBrowser);
           const addedException = this.id === "tracking-action-unblock";
-          trackersEventEmitter.emitToggleException(tabId, addedException);
+          pageMonitorEventEmitter.emitToggleException(tabId, addedException);
         },
         async setListeners(win) {
           const mm = win.getGroupMessageManager("browsers");
@@ -134,13 +131,12 @@ this.trackers = class extends ExtensionAPI {
           mm.addMessageListener("CookieRestrictions:beforeunload", this.pageBeforeUnloadCallback, true);
           mm.addMessageListener("CookieRestrictions:unload", this.pageUnloadCallback, true);
           mm.addMessageListener("CookieRestrictions:DOMContentLoaded", this.pageDOMContentLoadedCallback, true);
+          mm.addMessageListener("CookieRestrictions:pageError", this.pageErrorCallback);
 
-          mm.loadFrameScript(context.extension.getURL("privileged/trackers/framescript.js"), true);
+          mm.loadFrameScript(context.extension.getURL("privileged/pageMonitor/framescript.js"), true);
 
           win.gIdentityHandler._identityPopup.addEventListener("popupshown", this.onIdentityPopupShownEvent);
 
-          const reportBreakageButton = win.document.getElementById("identity-popup-breakageReportView-submit");
-          reportBreakageButton.addEventListener("command", this.onReportBreakageButtonCommand);
           // The user has clicked "disable protection for this site"
           const addExceptionButton = win.document.getElementById("tracking-action-unblock");
           addExceptionButton.addEventListener("command", this.onToggleExceptionCommand);
@@ -177,17 +173,17 @@ this.trackers = class extends ExtensionAPI {
 
         onPageUnload: new EventManager(
           context,
-          "trackers.onPageUnload",
+          "pageMonitor.onPageUnload",
           fire => {
             const listener = (value, tabId, data) => {
               fire.async(tabId, data);
             };
-            trackersEventEmitter.on(
+            pageMonitorEventEmitter.on(
               "page-unload",
               listener,
             );
             return () => {
-              trackersEventEmitter.off(
+              pageMonitorEventEmitter.off(
                 "page-unload",
                 listener,
               );
@@ -197,17 +193,17 @@ this.trackers = class extends ExtensionAPI {
 
         onPageBeforeUnload: new EventManager(
           context,
-          "trackers.onPageBeforeUnload",
+          "pageMonitor.onPageBeforeUnload",
           fire => {
             const listener = (value, tabId, data) => {
               fire.async(tabId, data);
             };
-            trackersEventEmitter.on(
+            pageMonitorEventEmitter.on(
               "page-before-unload",
               listener,
             );
             return () => {
-              trackersEventEmitter.off(
+              pageMonitorEventEmitter.off(
                 "page-before-unload",
                 listener,
               );
@@ -217,38 +213,18 @@ this.trackers = class extends ExtensionAPI {
 
         onIdentityPopupShown: new EventManager(
           context,
-          "trackers.onIdentityPopupShown",
+          "pageMonitor.onIdentityPopupShown",
           fire => {
             const listener = (value, tabId) => {
               fire.async(tabId);
             };
-            trackersEventEmitter.on(
+            pageMonitorEventEmitter.on(
               "identity-popup-shown",
               listener,
             );
             return () => {
-              trackersEventEmitter.off(
+              pageMonitorEventEmitter.off(
                 "identity-popup-shown",
-                listener,
-              );
-            };
-          },
-        ).api(),
-
-        onReportBreakage: new EventManager(
-          context,
-          "trackers.onReportBreakage",
-          fire => {
-            const listener = (value, tabId) => {
-              fire.async(tabId);
-            };
-            trackersEventEmitter.on(
-              "report-breakage",
-              listener,
-            );
-            return () => {
-              trackersEventEmitter.off(
-                "report-breakage",
                 listener,
               );
             };
@@ -262,12 +238,12 @@ this.trackers = class extends ExtensionAPI {
             const listener = (value, tabId, toggleValue) => {
               fire.async(tabId, toggleValue);
             };
-            trackersEventEmitter.on(
+            pageMonitorEventEmitter.on(
               "exception-toggled",
               listener,
             );
             return () => {
-              trackersEventEmitter.off(
+              pageMonitorEventEmitter.off(
                 "exception-toggled",
                 listener,
               );
@@ -277,18 +253,38 @@ this.trackers = class extends ExtensionAPI {
 
         onPageDOMContentLoaded: new EventManager(
           context,
-          "trackers.onPageDOMContentLoaded",
+          "pageMonitor.onPageDOMContentLoaded",
           fire => {
             const listener = (value, tabId) => {
               fire.async(tabId);
             };
-            trackersEventEmitter.on(
+            pageMonitorEventEmitter.on(
               "page-DOMContentLoaded",
               listener,
             );
             return () => {
-              trackersEventEmitter.off(
+              pageMonitorEventEmitter.off(
                 "page-DOMContentLoaded",
+                listener,
+              );
+            };
+          },
+        ).api(),
+
+        onErrorDetected: new EventManager(
+          context,
+          "pageMonitor.onErrorDetected",
+          fire => {
+            const listener = (value, error, tabId) => {
+              fire.async(error, tabId);
+            };
+            pageMonitorEventEmitter.on(
+              "page-error-detected",
+              listener,
+            );
+            return () => {
+              pageMonitorEventEmitter.off(
+                "page-error-detected",
                 listener,
               );
             };

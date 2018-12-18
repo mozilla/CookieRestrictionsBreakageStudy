@@ -3,6 +3,7 @@
 // This will be reset on page unload.
 let telemetryData = {};
 
+// We want a listener on clicking the button, not on reload.
 const reloadListener = {
   receiveMessage(message) {
     if (message.name === "Browser:Reload") {
@@ -40,14 +41,12 @@ addEventListener("DOMContentLoaded", function(e) {
   // use the "beforeunload" event (which is a little earlier) for recording
   // and use the "unload" event (or a tab close) for submitting the data.
   content.window.addEventListener("beforeunload", (event) => {
-    const doc = event.target.ownerDocument || event.target;
     const passwordFields = content.document.querySelectorAll("input[type='password']");
     telemetryData.login_form_on_page = !!passwordFields.length;
     telemetryData.password_field_was_filled_in = Array.from(passwordFields).some(input => {
       return !!input.value.length;
     });
     telemetryData.completeLocation = content.location.href;
-    telemetryData.num_blockable_trackers = doc.numTrackersFound;
 
     // Find all scripts on the page.
     const scripts = Array.prototype.slice
@@ -69,15 +68,17 @@ addEventListener("DOMContentLoaded", function(e) {
 
   content.window.addEventListener("unload", (event) => {
     telemetryData.completeLocation = content.location.href;
-    const doc = event.target.ownerDocument || event.target;
-    try {
-      telemetryData.num_blockable_trackers = doc.numTrackersFound;
-    } catch (error) {
-      // We've seen the document being destroyed at this point
-      // in the past, let's not risk that preventing us from
-      // submitting the ping.
-    }
     sendAsyncMessage("CookieRestrictions:unload", {telemetryData});
     telemetryData = {};
   }, {once: true});
+
+  // Listen for errors from the content.
+  content.window.addEventListener("error", function(event) {
+    // TODO should we handle these somehow?
+    if (!event.error) {
+      return;
+    }
+
+    sendAsyncMessage("CookieRestrictions:pageError", e.error.name);
+  });
 });

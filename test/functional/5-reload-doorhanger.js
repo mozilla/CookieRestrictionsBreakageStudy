@@ -12,7 +12,7 @@ const webdriver = require("selenium-webdriver");
 const By = webdriver.By;
 const DELAY = process.env.DELAY ? parseInt(process.env.DELAY) : 1500;
 
-describe("reload survey doorhanger", function() {
+xdescribe("reload survey doorhanger", function() {
   // This gives Firefox time to start, and us a bit longer during some of the tests.
   this.timeout(DELAY * 30);
 

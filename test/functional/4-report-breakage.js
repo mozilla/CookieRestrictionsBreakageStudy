@@ -11,7 +11,7 @@ const webdriver = require("selenium-webdriver");
 const By = webdriver.By;
 const until = webdriver.until;
 
-describe("report breakage button", function() {
+xdescribe("report breakage button", function() {
   // This gives Firefox time to start, and us a bit longer during some of the tests.
   this.timeout(15000);
 
@@ -74,7 +74,6 @@ describe("report breakage button", function() {
     it("correctly records that the user submit a breakage report", async () => {
       const ping = studyPings[0];
       const attributes = ping.payload.data.attributes;
-      assert.equal(attributes.user_reported_page_breakage, "true", "user reported breakage is included in the ping");
       assert.equal(attributes.user_opened_control_center, "true", "user opened the control center is included in the ping");
     });
 

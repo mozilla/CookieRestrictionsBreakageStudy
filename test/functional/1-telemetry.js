@@ -20,7 +20,7 @@ describe("telemetry", function() {
     driver = await utils.setupWebdriver.promiseSetupDriver(
       utils.FIREFOX_PREFERENCES,
     );
-    await utils.setPreference(driver, "extensions.cookie-restrictions_shield_mozilla_org.test.variationName", "CookiesBlocked");
+    await utils.setPreference(driver, "extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName", "ThirdPartyTracking");
     await utils.setupWebdriver.installAddon(driver);
   });
 
@@ -48,29 +48,10 @@ describe("telemetry", function() {
       assert.equal(parseInt(attributes.page_reloaded_survey), 0, "page reloaded survey not shown");
     });
 
-    it("correctly records the amount of trackers on the page", async function() {
-      if (nonTracking) {
-        this.skip();
-      }
-      const ping = studyPings[0];
-      const attributes = ping.payload.data.attributes;
-      assert.equal(attributes.num_blockable_trackers, "1", "found a blockable tracker");
-    });
-
-    it("correctly records no info on control center interaction", async () => {
-      const ping = studyPings[0];
-      const attributes = ping.payload.data.attributes;
-      assert.equal(attributes.user_opened_control_center, "false", "user opened the control center is not included in the ping");
-      assert.equal(attributes.user_toggled_exception, "0", "user toggled exception is not included in the ping");
-      assert.equal(attributes.user_reported_page_breakage, "false", "user reported page breakage exception is not included in the ping");
-    });
-
     it("correctly records the set preferences in the payload", async () => {
       const ping = studyPings[0];
       const attributes = ping.payload.data.attributes;
-      const browser_contentblocking_enabled = await utils.getPreference(driver, "browser.contentblocking.enabled");
       const privacy_trackingprotection_enabled = await utils.getPreference(driver, "privacy.trackingprotection.enabled");
-      assert.equal(attributes.browser_contentblocking_enabled, browser_contentblocking_enabled.toString(), "browser_contentblocking_enabled is set, and equals the pref");
       assert.equal(attributes.privacy_trackingprotection_enabled, privacy_trackingprotection_enabled.toString(), "privacy_trackingprotection_enabled is set, and equals the pref");
     });
   }

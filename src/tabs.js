@@ -8,32 +8,40 @@ window.TabRecords = {
   resetPayload(tabId) {
     const tabInfo = this._tabs.get(tabId);
     tabInfo.telemetryPayload = {
-      etld: null,
-      num_blockable_trackers: 0,
+      etld: 123,
       page_reloaded: false,
-      page_reloaded_survey: 0,
-      user_reported_page_breakage: false,
-      user_toggled_exception: 0,
-      user_opened_control_center: false,
+      survey_answer: 0,
       login_form_on_page: false,
       embedded_social_script: false,
+      // TODO Possibly remove this later - it may indicate they have previously
+      // used compat mode on this page. Or they may have an exception set previuosly.
+      // Should we filter userts who have previously set exceptions?
       user_has_tracking_protection_exception: false,
+      // Are we interested in this? they might be searching for a way to disable
+      user_opened_control_center: false,
       password_field_was_filled_in: false,
-      browser_contentblocking_enabled: true,
       privacy_trackingprotection_enabled: true,
-      network_cookie_cookieBehavior: 0,
-      browser_contentblocking_ui_enabled: false,
-      browser_contentblocking_rejecttrackers_ui_recommended: false,
-      browser_contentblocking_rejecttrackers_control_center_ui_enabled: false,
-      browser_contentblocking_cookies_site_data_ui_reject_trackers_enabled: false,
-      browser_contentblocking_cookies_site_data_ui_reject_trackers_recommended: false,
-      browser_contentblocking_reportBreakage_enabled: false,
+      network_cookie_cookieBehavior: -1,
       urlclassifier_trackingAnnotationTable: "",
       urlclassifier_trackingAnnotationWhitelistTable: "",
-      browser_contentblocking_fastblock_ui_enabled: false,
-      browser_contentblocking_trackingprotection_ui_enabled: false,
-      browser_contentblocking_fastblock_control_center_ui_enabled: false,
-      browser_contentblocking_trackingprotection_control_center_ui_enabled: false,
+
+      compat_on_num_EvalError: 0,
+      compat_on_num_InternalError: 0,
+      compat_on_num_RangeError: 0,
+      compat_on_num_ReferenceError: 0,
+      compat_on_num_SyntaxError: 0,
+      compat_on_num_TypeError: 0,
+      compat_on_num_URIError: 0,
+      compat_on_num_SecurityError: 0,
+
+      compat_off_num_EvalError: 0,
+      compat_off_num_InternalError: 0,
+      compat_off_num_RangeError: 0,
+      compat_off_num_ReferenceError: 0,
+      compat_off_num_SyntaxError: 0,
+      compat_off_num_TypeError: 0,
+      compat_off_num_URIError: 0,
+      compat_off_num_SecurityError: 0,
     };
 
     return tabInfo;
@@ -51,8 +59,7 @@ window.TabRecords = {
 
     tabInfo = {
       payloadWaitingForSurvey: null,
-      surveyShown: false,
-      reloadCount: 0,
+      compatModeWasJustEntered: null,
     };
 
     this._tabs.set(tabId, tabInfo);
