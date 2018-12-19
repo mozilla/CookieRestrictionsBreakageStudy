@@ -29,9 +29,6 @@ class PageMonitorEventEmitter extends EventEmitter {
   emitPageUnload(tabId, data) {
     this.emit("page-unload", tabId, data);
   }
-  emitToggleException(tabId, toggleValue) {
-    this.emit("exception-toggled", tabId, toggleValue);
-  }
   emitPageDOMContentLoaded(tabId) {
     this.emit("page-DOMContentLoaded", tabId);
   }
@@ -118,12 +115,6 @@ this.pageMonitor = class extends ExtensionAPI {
           const tabId = tabTracker.getBrowserTabId(win.gBrowser.selectedBrowser);
           pageMonitorEventEmitter.emitIdentityPopupShown(tabId);
         },
-        async onToggleExceptionCommand(e) {
-          const win = e.target.ownerGlobal;
-          const tabId = tabTracker.getBrowserTabId(win.gBrowser.selectedBrowser);
-          const addedException = this.id === "tracking-action-unblock";
-          pageMonitorEventEmitter.emitToggleException(tabId, addedException);
-        },
         async setListeners(win) {
           const mm = win.getGroupMessageManager("browsers");
           // We pass "true" as the third argument to signify that we want to listen
@@ -137,12 +128,10 @@ this.pageMonitor = class extends ExtensionAPI {
 
           win.gIdentityHandler._identityPopup.addEventListener("popupshown", this.onIdentityPopupShownEvent);
 
-          // The user has clicked "disable protection for this site"
-          const addExceptionButton = win.document.getElementById("tracking-action-unblock");
-          addExceptionButton.addEventListener("command", this.onToggleExceptionCommand);
-          // The user has clicked the "enable protection" button
-          const removeExceptionButton = win.document.getElementById("tracking-action-block");
-          removeExceptionButton.addEventListener("command", this.onToggleExceptionCommand);
+          let shieldIcon = win.document.getElementById("tracking-protection-icon-box");
+          let trackingProtectionSection = win.document.getElementById("tracking-protection-container");
+          shieldIcon.style.display = "none";
+          trackingProtectionSection.style.display = "none";
         },
 
         async init() {
@@ -225,26 +214,6 @@ this.pageMonitor = class extends ExtensionAPI {
             return () => {
               pageMonitorEventEmitter.off(
                 "identity-popup-shown",
-                listener,
-              );
-            };
-          },
-        ).api(),
-
-        onToggleException: new EventManager(
-          context,
-          "onToggleException",
-          fire => {
-            const listener = (value, tabId, toggleValue) => {
-              fire.async(tabId, toggleValue);
-            };
-            pageMonitorEventEmitter.on(
-              "exception-toggled",
-              listener,
-            );
-            return () => {
-              pageMonitorEventEmitter.off(
-                "exception-toggled",
                 listener,
               );
             };
