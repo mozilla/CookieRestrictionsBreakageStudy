@@ -15,7 +15,8 @@
   "browser_action": {
     "browser_style": true,
     "default_icon": "icons/moz-fav-bw-rgb.png",
-    "default_title": "test title"
+    "default_title": "test title",
+    "default_popup": "popup/compatMode.html"
   },
   "experiment_apis": {
     "popupNotification": {
@@ -62,7 +63,7 @@
   "web_accessible_resources": [
     "privileged/pageMonitor/framescript.js"
   ],
-  "permissions": ["management", "storage", "alarms", "webNavigation"],
+  "permissions": ["management", "storage", "alarms", "webNavigation", "tabs"],
   "background": {
     "scripts": ["variations.js", "studySetup.js", "feature.js", "background.js", "tabs.js"]
   }

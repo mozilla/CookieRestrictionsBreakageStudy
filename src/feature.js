@@ -1,7 +1,7 @@
 /* global TabRecords, VARIATIONS */
 
 // Constants for the survey_answer telemetry probe.
-const SURVEY_IGNORED = 1;
+// const SURVEY_IGNORED = 1;
 const SURVEY_PAGE_FIXED = 2;
 const SURVEY_PAGE_NOT_FIXED = 3;
 
@@ -10,7 +10,7 @@ class Feature {
 
   async configure(studyInfo) {
     let { variation } = studyInfo;
-    browser.browserAction.onClicked.addListener((tab) => this.handleButtonClick(tab.id));
+    browser.runtime.onMessage.addListener(this.onCompatMode);
 
     // The userid will be used to create a unique hash
     // for the etld + userid combination.
@@ -85,6 +85,7 @@ class Feature {
 
       await this.addMainTelemetryData(tabInfo, data, userid);
       if (tabInfo.compatModeWasJustEntered) {
+        tabInfo.compatModeWasJustEntered = false;
         return;
       } else if (tabInfo.payloadWaitingForSurvey) {
         // TODO: change this to send after answering survey
@@ -157,12 +158,13 @@ class Feature {
     }
   }
 
-  handleButtonClick(tabId) {
+  onCompatMode({tabId}) {
     const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
     // TODO: make this refresh and turn on compat mode
     // then show survey
     tabInfo.payloadWaitingForSurvey = Object.assign({}, tabInfo.telemetryPayload);
     tabInfo.compatModeWasJustEntered = true;
+    browser.tabs.reload(tabId);
   }
 
   submitPayloadWaitingForSurvey(tabInfo) {
