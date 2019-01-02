@@ -13,6 +13,28 @@ var {EventManager, EventEmitter} = ExtensionCommon;
 /* eslint-disable-next-line no-var */
 var {Management: {global: {tabTracker}}} = ChromeUtils.import("resource://gre/modules/Extension.jsm", {});
 
+function loadStyles(resourceURI) {
+  const styleSheetService = Cc["@mozilla.org/content/style-sheet-service;1"]
+    .getService(Ci.nsIStyleSheetService);
+  const styleURI = styleSheet(resourceURI);
+  const sheetType = styleSheetService.AGENT_SHEET;
+  styleSheetService.loadAndRegisterSheet(styleURI, sheetType);
+}
+
+function styleSheet(resourceURI) {
+  return Services.io.newURI("prompt.css", null, Services.io.newURI(resourceURI));
+}
+
+function unloadStyles(resourceURI) {
+  const styleURI = styleSheet(resourceURI);
+  const styleSheetService = Cc["@mozilla.org/content/style-sheet-service;1"]
+    .getService(Ci.nsIStyleSheetService);
+  const sheetType = styleSheetService.AGENT_SHEET;
+  if (styleSheetService.sheetRegistered(styleURI, sheetType)) {
+    styleSheetService.unregisterSheet(styleURI, sheetType);
+  }
+}
+
 // eslint-disable-next-line no-undef
 ChromeUtils.defineModuleGetter(
   this,
@@ -37,50 +59,49 @@ class PopupNotificationEventEmitter extends EventEmitter {
     const browser = recentWindow.gBrowser.selectedBrowser;
     const tabId = tabTracker.getBrowserTabId(browser);
 
-    const primaryAction =  {
-      disableHighlight: true,
-      label: "Page Was Broken",
-      accessKey: "f",
-      callback: () => {
-        const hasException = Services.perms.testExactPermissionFromPrincipal(recentWindow.gBrowser.contentPrincipal, "trackingprotection") === Services.perms.ALLOW_ACTION;
-        if (!hasException) {
-          const addExceptionButton = recentWindow.document.getElementById("tracking-action-unblock");
-          addExceptionButton.doCommand();
-        }
-        self.emit("page-broken", tabId);
-      },
-    };
-    const secondaryActions =  [
-      {
-        label: "Other Reason",
-        accessKey: "d",
-        callback: () => {
-          self.emit("page-not-broken", tabId);
+    const notificationBox = recentWindow.gBrowser.getNotificationBox();
+    notificationBox.appendNotification(
+      "Firefox tried to fix the site and reloaded the page. Is www.domain.com working properly now?", // message
+      "cookie-restrictions-breakage", // value
+      null, // icon
+      notificationBox.PRIORITY_INFO_HIGH,
+      [
+        {
+          disableHighlight: true,
+          label: "Yes",
+          accessKey: "y",
+          callback: () => {
+            console.log("clicked YES");
+            self.emit("page-broken", tabId); // TODO change this event
+          },
         },
-      },
-    ];
-
-    // option name is described as: "An optional string formatted to look bold and used in the
-    //                    notification description header text. Usually a host name or
-    //                    addon name."
-    // It is bold, but not used in a header, we're working with it anyway.
-    const options = {
-      hideClose: true,
-      persistent: true,
-      autofocus: true,
-      name: "Firefox Survey: ",
-      popupIconURL: "chrome://branding/content/icon64.png",
-    };
-    recentWindow.PopupNotifications.show(browser, "cookie-restriction", "<> Why did you reload this page?", null, primaryAction, secondaryActions, options);
+        {
+          label: "No",
+          accessKey: "n",
+          callback: () => {
+            console.log("clicked NO");
+            self.emit("page-not-broken", tabId); // TODO change this event
+          },
+        },
+      ],
+      // callback for nb events
+      null,
+    );
   }
 }
 
 this.popupNotification = class extends ExtensionAPI {
+  constructor(extension) {
+    super(extension);
+    this.extension = extension;
+    loadStyles(extension.baseURI.spec);
+  }
   /**
    * Extension Shutdown
    * Goes through each tab for each window and removes the notification, if it exists.
    */
   onShutdown(shutdownReason) {
+    unloadStyles(this.extension.baseURI.spec);
     for (const win of BrowserWindowTracker.orderedWindows) {
       for (const browser of win.gBrowser.browsers) {
         const notification = win.PopupNotifications.getNotification("cookie-restriction", browser);
