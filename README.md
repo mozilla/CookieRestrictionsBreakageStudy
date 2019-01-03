@@ -45,13 +45,15 @@ command with `--pref`.
 There are a 3 variations to study features and heuristics:
 
   * `Control`
-  * `ThirdPartyTracking`
-  * `Breakage`
+  * `ThirdPartyTrackingBasic`
+  * `ThirdPartyTrackingStrict`
+  * `AllThirdPartyCookies`
+  * `TPStrict`
 
 You can run a specific variation like so:
 
 ```shell
-npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=ThirdPartyTracking
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=ThirdPartyTrackingBasic
 ```
 
 ## User Scenarios
@@ -73,22 +75,34 @@ npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mo
 test.variationName=Control
 ```
 
-### Third Party Tracking
-In a Third Party Tracking [variation](#variations):
+### Third Party Tracking Basic
+In a Third Party Tracking Basic [variation](#variations):
 
 
 ```shell
 npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.
-test.variationName=ThirdPartyTracking
+test.variationName=ThirdPartyTrackingBasic
 ```
 
-### Breakage
+### Third Party Tracking Strict
+In a Third Party Tracking Strict [variation](#variations):
 
-In a Breakage [variation](#variations):
-
-  
 ```shell
-npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=Breakage
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=ThirdPartyTrackingStrict
+```
+### All Third Party Cookies
+In a All Third Party Cookies [variation](#variations):
+
+```shell
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=AllThirdPartyCookies
+```
+
+### Tracking Protection Strict
+
+In a Tracking Protection Strict [variation](#variations):
+
+```shell
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=TPStrict
 ```
 
 ### Testing Guide
@@ -96,7 +110,7 @@ npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mo
 In combination with the above instructions, add the pref `shieldStudy.logLevel=all` to the command to see extra logging. The logging will show the contents of the Telemetry ping, and the variation.
 
 ```shell
-npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=ThirdPartyTracking --pref=shieldStudy.logLevel=all
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=ThirdPartyTrackingBasic --pref=shieldStudy.logLevel=all
 ```
 
 ### After Study Survey

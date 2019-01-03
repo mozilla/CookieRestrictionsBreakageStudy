@@ -29,7 +29,7 @@
 * (Create profile: <https://developer.mozilla.org/Firefox/Multiple_profiles>, or via some other method)
 * Navigate to _about:config_ and set the following preferences. (If a preference does not exist, create it by right-clicking in the white area and selecting New -> String)
 * Set `shieldStudy.logLevel` to `All`. This permits shield-add-on log output in browser console.
-* Set `extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName` to `ThirdPartyTracking` (or any other study variation/branch to test specifically)
+* Set `extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName` to `ThirdPartyTrackingBasic` (or any other study variation/branch to test specifically)
 * Go to [this study's tracking bug](tbd: replace with your study's launch bug link in bugzilla) and install the latest add-on zip file
 
 ### Test Beta or other versions of Firefox
@@ -39,7 +39,7 @@ npm will launch the add-on in Nightly by default, but you may want to test it in
 Using `npm start` you may pass in the path or short name of the Firefox release you want to test with the `--firefox` option:
 
 ```shell
-npm start -- --firefox=beta --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=ThirdPartyTracking
+npm start -- --firefox=beta --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=ThirdPartyTrackingBasic
 ```
 
 See https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Getting_started_with_web-ext#Testing_in_different_versions_of_Firefox for more information.
@@ -49,13 +49,15 @@ See https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Getti
 There are a 2 variations to study features and heuristics:
 
   * `Control`
-  * `ThirdPartyTracking`
-  * `Breakage`
+  * `ThirdPartyTrackingBasic`
+  * `ThirdPartyTrackingStrict`
+  * `AllThirdPartyCookies`
+  * `TPStrict`
 
 You can run a specific variation like so:
 
 ```shell
-npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=ThirdPartyTracking
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=ThirdPartyTrackingBasic
 ```
 
 ## Expected User Experience / Functionality
@@ -74,25 +76,41 @@ In a Control [variation](#variations):
 npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=Control
 ```
 
-### Third Party Tracking
+### Third Party Tracking Basic
+In a Third Party Tracking Basic[variation](#variations):
+
+* TBD
 
  ```shell
- npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=ThirdPartyTracking
+ npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=ThirdPartyTrackingBasic
  ```
 
- In a Third Party Tracking [variation](#variations):
- 
- * TBD
-
-### Breakage 
-
-```shell
-npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=Breakage
-```
-
-In a Breakage [variation](#variations):
+### Third Party Tracking Strict
+In a Third Party Tracking Strict [variation](#variations):
 
    * TBD
+
+```shell
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=ThirdPartyTrackingStrict
+```
+
+### All Third Party Cookies
+In a All Third Party Cookies [variation](#variations):
+
+  * TBD
+
+```shell
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=AllThirdPartyCookies
+```
+
+### Tracking Protection Strict
+In a Tracking Protection Strict [variation](#variations):
+
+  * TBD
+
+```shell
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=TPStrict
+```
 
 ### Testing Guide
 

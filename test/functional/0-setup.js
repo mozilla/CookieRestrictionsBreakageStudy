@@ -62,9 +62,9 @@ describe("setup and teardown", function() {
       });
     });
 
-    describe("sets the correct prefs for variation ThirdPartyTracking", () => {
+    describe("sets the correct prefs for variation ThirdPartyTrackingBasic", () => {
       before(async () => {
-        await utils.setPreference(driver, "extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName", "ThirdPartyTracking");
+        await utils.setPreference(driver, "extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName", "ThirdPartyTrackingBasic");
         addonId = await utils.setupWebdriver.installAddon(driver);
         await driver.sleep(SETUP_DELAY);
       });
@@ -85,9 +85,9 @@ describe("setup and teardown", function() {
       });
     });
 
-    describe("sets the correct prefs for variation Breakage", () => {
+    describe("sets the correct prefs for variation ThirdPartyTrackingStrict", () => {
       before(async () => {
-        await utils.setPreference(driver, "extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName", "Breakage");
+        await utils.setPreference(driver, "extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName", "ThirdPartyTrackingStrict");
         addonId = await utils.setupWebdriver.installAddon(driver);
         await driver.sleep(SETUP_DELAY);
       });
