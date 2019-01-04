@@ -8,17 +8,25 @@
   </head>
 
 <body>
-  <div class="content">
-    <p>Problems with this site?</p>
-    <ul>
-      <li>Website looks broken or unusual</li>
-      <li>Can't log in</li>
-      <li>Can’t complete a form or transaction</li>
-      <li>Can’t view a video</li>
-      <li>Forms, comments, or widgets not loading</li>
-    </ul>
-    <p class="note">Fixing this site may require Firefox to adjust your privacy settings for <span>www.domain.com</span> only. <a href="">Learn More</a> about this study.<p>
+  <div id="basicBrowsing">
+    <div class="content">
+      <p>Problems with this site?</p>
+      <ul>
+        <li>Website looks broken or unusual</li>
+        <li>Can't log in</li>
+        <li>Can’t complete a form or transaction</li>
+        <li>Can’t view a video</li>
+        <li>Forms, comments, or widgets not loading</li>
+      </ul>
+      <p class="note">Fixing this site may require Firefox to adjust your privacy settings for <span>www.domain.com</span> only. <a href="">Learn More</a> about this study.<p>
+    </div>
+    <button id="fixThisSite" class="footer-button">Try to Fix This Site</button>
   </div>
-  <button id="FixThisSite">Try to Fix This Site</button>
+  <div id="privateBrowsing" hidden="true">
+    <div class="content">
+      <p>This study is disabled in Private Browsing tabs</p>
+    </div>
+    <button class="footer-button">More About This Study</button>
+  </div>
 </body>
 </html>
