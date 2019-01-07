@@ -32,7 +32,7 @@ These are the `payload` fields from the `shield-study-addon` bucket.
 telemetry: {
   "version": 3,
   "study_name": "cookie-restrictions-breakage@shield.mozilla.org",
-  "branch": "ThirdPartyTracking",
+  "branch": "ThirdPartyTrackingBasic",
   "addon_version": "2.0.0",
   "shield_version": "5.0.3",
   "type": "shield-study-addon",
