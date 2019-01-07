@@ -8,14 +8,14 @@ window.TabRecords = {
   resetPayload(tabId) {
     const tabInfo = this._tabs.get(tabId);
     tabInfo.telemetryPayload = {
-      etld: 123,
+      etld: 0,
       page_reloaded: false,
-      survey_answer: 0,
+      action: "",
       login_form_on_page: false,
       embedded_social_script: false,
       // TODO Possibly remove this later - it may indicate they have previously
       // used compat mode on this page. Or they may have an exception set previuosly.
-      // Should we filter userts who have previously set exceptions?
+      // Should we filter users who have previously set exceptions?
       user_has_tracking_protection_exception: false,
       // Are we interested in this? they might be searching for a way to disable
       user_opened_control_center: false,
@@ -33,6 +33,7 @@ window.TabRecords = {
       compat_on_num_TypeError: 0,
       compat_on_num_URIError: 0,
       compat_on_num_SecurityError: 0,
+      compat_on_num_other_error: 0,
 
       compat_off_num_EvalError: 0,
       compat_off_num_InternalError: 0,
@@ -42,6 +43,7 @@ window.TabRecords = {
       compat_off_num_TypeError: 0,
       compat_off_num_URIError: 0,
       compat_off_num_SecurityError: 0,
+      compat_off_num_other_error: 0,
     };
 
     return tabInfo;

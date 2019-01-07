@@ -16,6 +16,16 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/BrowserWindowTracker.jsm",
 );
 
+/** Return most recent NON-PRIVATE browser window, so that we can
+ * manipulate chrome elements on it.
+ */
+function getMostRecentBrowserWindow() {
+  return BrowserWindowTracker.getTopWindow({
+    private: false,
+    allowPopups: false,
+  });
+}
+
 class PageMonitorEventEmitter extends EventEmitter {
   emitIdentityPopupShown(tabId) {
     this.emit("identity-popup-shown", tabId);
@@ -33,7 +43,9 @@ class PageMonitorEventEmitter extends EventEmitter {
     this.emit("page-DOMContentLoaded", tabId);
   }
   emitErrorDetected(error, tabId) {
-    this.emit("page-error-detected", error, tabId);
+    const recentWindow = getMostRecentBrowserWindow();
+    const hasException = Services.perms.testExactPermissionFromPrincipal(recentWindow.gBrowser.contentPrincipal, "trackingprotection") === Services.perms.ALLOW_ACTION;
+    this.emit("page-error-detected", error, tabId, hasException);
   }
 }
 
@@ -128,8 +140,8 @@ this.pageMonitor = class extends ExtensionAPI {
 
           win.gIdentityHandler._identityPopup.addEventListener("popupshown", this.onIdentityPopupShownEvent);
 
-          let shieldIcon = win.document.getElementById("tracking-protection-icon-box");
-          let trackingProtectionSection = win.document.getElementById("tracking-protection-container");
+          const shieldIcon = win.document.getElementById("tracking-protection-icon-box");
+          const trackingProtectionSection = win.document.getElementById("tracking-protection-container");
           shieldIcon.style.display = "none";
           trackingProtectionSection.style.display = "none";
         },
@@ -244,8 +256,8 @@ this.pageMonitor = class extends ExtensionAPI {
           context,
           "pageMonitor.onErrorDetected",
           fire => {
-            const listener = (value, error, tabId) => {
-              fire.async(error, tabId);
+            const listener = (value, error, tabId, hasException) => {
+              fire.async(error, tabId, hasException);
             };
             pageMonitorEventEmitter.on(
               "page-error-detected",

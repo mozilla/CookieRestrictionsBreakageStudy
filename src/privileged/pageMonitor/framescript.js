@@ -79,6 +79,6 @@ addEventListener("DOMContentLoaded", function(e) {
       return;
     }
 
-    sendAsyncMessage("CookieRestrictions:pageError", e.error.name);
+    sendAsyncMessage("CookieRestrictions:pageError", event.error.name);
   });
 });

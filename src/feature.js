@@ -1,15 +1,19 @@
-/* global TabRecords, VARIATIONS */
+/* global TabRecords, VARIATIONS, Services */
 
-// Constants for the survey_answer telemetry probe.
-// const SURVEY_IGNORED = 1;
-const SURVEY_PAGE_FIXED = 2;
-const SURVEY_PAGE_NOT_FIXED = 3;
+// Constants for the action telemetry probe.
+const SURVEY_CLOSED = "survey_closed";
+const SURVEY_PAGE_FIXED = "survey_response_fixed";
+const SURVEY_PAGE_NOT_FIXED = "survey_response_not_fixed";
+// const SURVEY_IGNORED = "survey_ignored";
+const ENTER_COMPAT_MODE = "enter_compatibility_mode";
+// const NAVIGATE = "navigate";
 
 class Feature {
   constructor() {}
 
   async configure(studyInfo) {
     let { variation } = studyInfo;
+    this.onCompatMode = this.onCompatMode.bind(this);
     browser.runtime.onMessage.addListener(this.onCompatMode);
 
     // The userid will be used to create a unique hash
@@ -116,52 +120,74 @@ class Feature {
       }
     });
 
-
-    // Watch for the user pressing the "Yes this page is broken"
-    // button and record the answer.
-    browser.popupNotification.onReportPageBroken.addListener(
+    // Watch for the user pressing the "x" to close the banner.
+    browser.popupNotification.onReportClosed.addListener(
       (tabId) => {
         const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
         if (!tabInfo || !tabInfo.payloadWaitingForSurvey) {
           return;
         }
-        tabInfo.payloadWaitingForSurvey.survey_answer = SURVEY_PAGE_NOT_FIXED;
+        tabInfo.payloadWaitingForSurvey.action = SURVEY_CLOSED;
         this.submitPayloadWaitingForSurvey(tabInfo);
       },
     );
 
-    // Watch for the user pressing the "No this page is not broken"
+    // Watch for the user pressing the "Yes this page was fixed"
     // button and record the answer.
-    browser.popupNotification.onReportPageNotBroken.addListener(
+    browser.popupNotification.onReportPageFixed.addListener(
       (tabId) => {
         const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
         if (!tabInfo || !tabInfo.payloadWaitingForSurvey) {
           return;
         }
-        tabInfo.payloadWaitingForSurvey.survey_answer = SURVEY_PAGE_FIXED;
+        tabInfo.payloadWaitingForSurvey.action = SURVEY_PAGE_FIXED;
+        this.submitPayloadWaitingForSurvey(tabInfo);
+      },
+    );
+
+    // Watch for the user pressing the "No this page was not fixed"
+    // button and record the answer.
+    browser.popupNotification.onReportPageNotFixed.addListener(
+      (tabId) => {
+        const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
+        if (!tabInfo || !tabInfo.payloadWaitingForSurvey) {
+          return;
+        }
+        tabInfo.payloadWaitingForSurvey.action = SURVEY_PAGE_NOT_FIXED;
         this.submitPayloadWaitingForSurvey(tabInfo);
       },
     );
 
     browser.pageMonitor.onErrorDetected.addListener(
-      (error, tabId) => {
-        this.recordPageError(error, tabId);
+      (error, tabId, hasException) => {
+        this.recordPageError(error, tabId, hasException);
       }
     );
   }
 
-  recordPageError(error, tabId) {
+  recordPageError(error, tabId, hasException) {
     const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
-    // TODO if compat mode is on, put errors into `compat_on_num_${error}`
-    if (`compat_off_num_${error}` in tabInfo.telemetryPayload) {
-      tabInfo.telemetryPayload[`compat_off_num_${error}`] += 1;
+    // If an exception is set for this page, even if not from us,
+    // it is equivalent to compat mode being on, so treat it as on.
+    if (hasException) {
+      if (`compat_on_num_${error}` in tabInfo.telemetryPayload) {
+        tabInfo.telemetryPayload[`compat_on_num_${error}`] += 1;
+      } else {
+        tabInfo.telemetryPayload.compat_on_num_other_error += 1;
+      }
+    } else {
+      if (`compat_off_num_${error}` in tabInfo.telemetryPayload) {
+        tabInfo.telemetryPayload[`compat_off_num_${error}`] += 1;
+      } else {
+        tabInfo.telemetryPayload.compat_off_num_other_error += 1;
+      }
     }
   }
 
   onCompatMode({tabId}) {
     const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
-    // TODO: make this refresh and turn on compat mode
-    // then show survey
+    this.sendTelemetry({...tabInfo.telemetryPayload, action: ENTER_COMPAT_MODE});
+    // TODO: make this turn on compat mode
     tabInfo.payloadWaitingForSurvey = Object.assign({}, tabInfo.telemetryPayload);
     tabInfo.compatModeWasJustEntered = true;
     browser.tabs.reload(tabId);
@@ -225,8 +251,7 @@ class Feature {
     // Report these prefs with each telemetry ping.
     payload.privacy_trackingprotection_enabled = await browser.prefs.getBoolPref("privacy.trackingprotection.enabled");
     payload.network_cookie_cookieBehavior = await browser.prefs.getIntPref("network.cookie.cookieBehavior");
-    payload.urlclassifier_trackingAnnotationTable = await browser.prefs.getStringPref("urlclassifier.trackingAnnotationTable");
-    payload.urlclassifier_trackingAnnotationWhitelistTable = await browser.prefs.getStringPref("urlclassifier.trackingAnnotationWhitelistTable");
+    payload.urlclassifier_trackingTable = await browser.prefs.getStringPref("urlclassifier.trackingTable");
 
     // Shield Telemetry deals with flat string-string mappings.
     for (const key of Object.keys(payload)) {

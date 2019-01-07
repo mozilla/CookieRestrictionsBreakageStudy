@@ -39,7 +39,7 @@ telemetry: {
   "data": {
     "attributes": {
       "etld": "f231d141395abf6f4c98dd55fe8c37e2752e82d72e1ffd3b64bdc6c978692fc6",
-      "survey_answer": "1",
+      "action": "survey_response_fixed",
       
       // These measurements are untrustworthy, 
       // they will not catch every login form, nor every social script
@@ -62,6 +62,7 @@ telemetry: {
       "compat_on_num_TypeError": "0",
       "compat_on_num_URIError": "0",
       "compat_on_num_SecurityError": "0",
+      "compat_on_num_other_error": "0"
       "compat_off_num_EvalError": "0",
       "compat_off_num_InternalError": "0",
       "compat_off_num_RangeError": "0",
@@ -70,6 +71,7 @@ telemetry: {
       "compat_off_num_TypeError": "0",
       "compat_off_num_URIError": "0",
       "compat_off_num_SecurityError": "0",
+      "compat_off_num_other_error": "0",
       
       // We may or may not send these
       "page_reloaded": "true",

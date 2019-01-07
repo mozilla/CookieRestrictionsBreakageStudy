@@ -72,7 +72,7 @@ class PopupNotificationEventEmitter extends EventEmitter {
           accessKey: "y",
           callback: () => {
             console.log("clicked YES");
-            self.emit("page-broken", tabId); // TODO change this event
+            self.emit("page-fixed", tabId); // TODO change this event
           },
         },
         {
@@ -80,7 +80,7 @@ class PopupNotificationEventEmitter extends EventEmitter {
           accessKey: "n",
           callback: () => {
             console.log("clicked NO");
-            self.emit("page-not-broken", tabId); // TODO change this event
+            self.emit("page-not-fixed", tabId); // TODO change this event
           },
         },
       ],
@@ -119,39 +119,39 @@ this.popupNotification = class extends ExtensionAPI {
         show() {
           popupNotificationEventEmitter.emitShow();
         },
-        onReportPageBroken: new EventManager(
+        onReportPageFixed: new EventManager(
           context,
-          "popupNotification.onReportPageBroken",
+          "popupNotification.onReportPageFixed",
           fire => {
             const listener = (value, tabId) => {
               fire.async(tabId);
             };
             popupNotificationEventEmitter.on(
-              "page-broken",
+              "page-fixed",
               listener,
             );
             return () => {
               popupNotificationEventEmitter.off(
-                "page-broken",
+                "page-fixed",
                 listener,
               );
             };
           },
         ).api(),
-        onReportPageNotBroken: new EventManager(
+        onReportPageNotFixed: new EventManager(
           context,
-          "popupNotification.onReportPageNotBroken",
+          "popupNotification.onReportPageNotFixed",
           fire => {
             const listener = (value, tabId) => {
               fire.async(tabId);
             };
             popupNotificationEventEmitter.on(
-              "page-not-broken",
+              "page-not-fixed",
               listener,
             );
             return () => {
               popupNotificationEventEmitter.off(
-                "page-not-broken",
+                "page-not-fixed",
                 listener,
               );
             };
