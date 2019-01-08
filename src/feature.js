@@ -18,7 +18,7 @@ class Feature {
 
     // The userid will be used to create a unique hash
     // for the etld + userid combination.
-    let {userid} = await browser.storage.local.get("userid");
+    let { userid } = await browser.storage.local.get("userid");
     if (!userid) {
       userid = this.generateUUID();
       await browser.storage.local.set({userid});
@@ -72,33 +72,6 @@ class Feature {
       TabRecords.deleteTabEntry(tabId);
     });
 
-    // On unload, submit telemetry and reset.
-    browser.pageMonitor.onPageUnload.addListener(async (tabId, data) => {
-      const tabInfo = TabRecords.getTabInfo(tabId);
-      if (!tabInfo || !tabInfo.telemetryPayload.etld) {
-        return;
-      }
-      // The tab we are dealing with might have been unloaded because
-      // it was closed. In this case the onRemoved handler will
-      // deal with submitting telemetry.
-      try {
-        await browser.tabs.get(tabId);
-      } catch (e) {
-        return;
-      }
-
-      await this.addMainTelemetryData(tabInfo, data, userid);
-      if (tabInfo.compatModeWasJustEntered) {
-        tabInfo.compatModeWasJustEntered = false;
-        return;
-      } else if (tabInfo.payloadWaitingForSurvey) {
-        // TODO: change this to send after answering survey
-        this.submitPayloadWaitingForSurvey(tabInfo);
-      }
-
-      TabRecords.resetPayload(tabId);
-    });
-
     // Record when users opened the control center (identity popup).
     browser.pageMonitor.onIdentityPopupShown.addListener(
       tabId => {
@@ -111,10 +84,11 @@ class Feature {
       }
     );
 
-    // Listen for the page to load to show the "is this page broken?"
-    // survey for the previous (reloaded) page.
-    browser.pageMonitor.onPageDOMContentLoaded.addListener((tabId) => {
-      const tabInfo = TabRecords.getTabInfo(tabId);
+    // Listen for the page to load to show the banner
+    browser.pageMonitor.onPageDOMContentLoaded.addListener(async (tabId, data) => {
+      const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
+      await this.addMainTelemetryData(tabInfo, data, userid);
+
       if (tabInfo && tabInfo.payloadWaitingForSurvey) {
         this.showNotification(tabInfo);
       }
@@ -127,7 +101,7 @@ class Feature {
         if (!tabInfo || !tabInfo.payloadWaitingForSurvey) {
           return;
         }
-        tabInfo.payloadWaitingForSurvey.action = SURVEY_CLOSED;
+        tabInfo.telemetryPayload.action = SURVEY_CLOSED;
         this.submitPayloadWaitingForSurvey(tabInfo);
       },
     );
@@ -140,7 +114,7 @@ class Feature {
         if (!tabInfo || !tabInfo.payloadWaitingForSurvey) {
           return;
         }
-        tabInfo.payloadWaitingForSurvey.action = SURVEY_PAGE_FIXED;
+        tabInfo.telemetryPayload.action = SURVEY_PAGE_FIXED;
         this.submitPayloadWaitingForSurvey(tabInfo);
       },
     );
@@ -153,7 +127,7 @@ class Feature {
         if (!tabInfo || !tabInfo.payloadWaitingForSurvey) {
           return;
         }
-        tabInfo.payloadWaitingForSurvey.action = SURVEY_PAGE_NOT_FIXED;
+        tabInfo.telemetryPayload.action = SURVEY_PAGE_NOT_FIXED;
         this.submitPayloadWaitingForSurvey(tabInfo);
       },
     );
@@ -188,27 +162,42 @@ class Feature {
     const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
     this.sendTelemetry({...tabInfo.telemetryPayload, action: ENTER_COMPAT_MODE});
     // TODO: make this turn on compat mode
-    tabInfo.payloadWaitingForSurvey = Object.assign({}, tabInfo.telemetryPayload);
-    tabInfo.compatModeWasJustEntered = true;
+
+    // Only keep a record of the "off" page errors to pass forwards.
+    tabInfo.payloadWaitingForSurvey = {};
+    tabInfo.payloadWaitingForSurvey.compat_off_num_EvalError =
+      tabInfo.telemetryPayload.compat_off_num_EvalError;
+    tabInfo.payloadWaitingForSurvey.compat_off_num_InternalError =
+      tabInfo.telemetryPayload.compat_off_num_InternalError;
+    tabInfo.payloadWaitingForSurvey.compat_off_num_RangeError =
+      tabInfo.telemetryPayload.compat_off_num_RangeError;
+    tabInfo.payloadWaitingForSurvey.compat_off_num_ReferenceError =
+      tabInfo.telemetryPayload.compat_off_num_ReferenceError;
+    tabInfo.payloadWaitingForSurvey.compat_off_num_SyntaxError =
+      tabInfo.telemetryPayload.compat_off_num_SyntaxError;
+    tabInfo.payloadWaitingForSurvey.compat_off_num_TypeError =
+      tabInfo.telemetryPayload.compat_off_num_TypeError;
+    tabInfo.payloadWaitingForSurvey.compat_off_num_URIError =
+      tabInfo.telemetryPayload.compat_off_num_URIError;
+    tabInfo.payloadWaitingForSurvey.compat_off_num_SecurityError =
+      tabInfo.telemetryPayload.compat_off_num_SecurityError;
+    tabInfo.payloadWaitingForSurvey.compat_off_num_other_error =
+      tabInfo.telemetryPayload.compat_off_num_other_error;
     browser.tabs.reload(tabId);
   }
 
   submitPayloadWaitingForSurvey(tabInfo) {
-    this.sendTelemetry(tabInfo.payloadWaitingForSurvey);
+    this.sendTelemetry({...tabInfo.telemetryPayload, ...tabInfo.payloadWaitingForSurvey});
     tabInfo.payloadWaitingForSurvey = null;
   }
 
   async addMainTelemetryData(tabInfo, data, userid) {
-    for (const key in data.performanceEvents) {
-      tabInfo.telemetryPayload[key] = data.performanceEvents[key];
-    }
     const hash = await this.SHA256(userid + data.etld);
     tabInfo.telemetryPayload.etld = hash;
     tabInfo.telemetryPayload.page_reloaded = data.page_reloaded || false;
 
     tabInfo.telemetryPayload.embedded_social_script = data.embedded_social_script;
     tabInfo.telemetryPayload.login_form_on_page = data.login_form_on_page;
-    tabInfo.telemetryPayload.password_field_was_filled_in = data.password_field_was_filled_in;
     tabInfo.telemetryPayload.user_has_tracking_protection_exception =
       data.user_has_tracking_protection_exception;
   }
@@ -236,7 +225,6 @@ class Feature {
 
   async showNotification(tabInfo) {
     const payload = tabInfo.payloadWaitingForSurvey;
-
     if (payload) {
       browser.popupNotification.show();
     }

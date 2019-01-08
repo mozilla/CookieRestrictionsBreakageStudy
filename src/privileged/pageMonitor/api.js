@@ -36,11 +36,8 @@ class PageMonitorEventEmitter extends EventEmitter {
   emitPageBeforeUnload(tabId, data) {
     this.emit("page-before-unload", tabId, data);
   }
-  emitPageUnload(tabId, data) {
-    this.emit("page-unload", tabId, data);
-  }
-  emitPageDOMContentLoaded(tabId) {
-    this.emit("page-DOMContentLoaded", tabId);
+  emitPageDOMContentLoaded(tabId, data) {
+    this.emit("page-DOMContentLoaded", tabId, data);
   }
   emitErrorDetected(error, tabId) {
     const recentWindow = getMostRecentBrowserWindow();
@@ -75,7 +72,6 @@ this.pageMonitor = class extends ExtensionAPI {
       pageMonitor: {
         async unmount(win) {
           const mm = win.ownerGlobal.getGroupMessageManager("browsers");
-          mm.removeMessageListener("CookieRestrictions:unload", this.pageUnloadCallback);
           mm.removeMessageListener("CookieRestrictions:beforeunload", this.pageBeforeUnloadCallback);
           mm.removeMessageListener("CookieRestrictions:DOMContentLoaded", this.pageDOMContentLoadedCallback);
           mm.removeMessageListener("CookieRestrictions:pageError", this.pageErrorCallback);
@@ -103,7 +99,7 @@ this.pageMonitor = class extends ExtensionAPI {
           uri = null;
           pageMonitorEventEmitter.emitPageBeforeUnload(tabId, e.data.telemetryData);
         },
-        async pageUnloadCallback(e) {
+        async pageDOMContentLoadedCallback(e) {
           const tabId = tabTracker.getBrowserTabId(e.target);
           let uri;
           try {
@@ -116,11 +112,10 @@ this.pageMonitor = class extends ExtensionAPI {
           // Browser is never private, so type can always be "trackingprotection"
           e.data.telemetryData.user_has_tracking_protection_exception =
             Services.perms.testExactPermission(uri, "trackingprotection") === Services.perms.ALLOW_ACTION;
-          pageMonitorEventEmitter.emitPageUnload(tabId, e.data.telemetryData);
-        },
-        async pageDOMContentLoadedCallback(e) {
-          const tabId = tabTracker.getBrowserTabId(e.target);
-          pageMonitorEventEmitter.emitPageDOMContentLoaded(tabId);
+          e.data.telemetryData.completeLocation = null;
+          uri = null;
+
+          pageMonitorEventEmitter.emitPageDOMContentLoaded(tabId, e.data.telemetryData);
         },
         onIdentityPopupShownEvent(e) {
           const win = e.target.ownerGlobal;
@@ -132,7 +127,6 @@ this.pageMonitor = class extends ExtensionAPI {
           // We pass "true" as the third argument to signify that we want to listen
           // to messages even when the framescript is unloading, to catch tabs closing.
           mm.addMessageListener("CookieRestrictions:beforeunload", this.pageBeforeUnloadCallback, true);
-          mm.addMessageListener("CookieRestrictions:unload", this.pageUnloadCallback, true);
           mm.addMessageListener("CookieRestrictions:DOMContentLoaded", this.pageDOMContentLoadedCallback, true);
           mm.addMessageListener("CookieRestrictions:pageError", this.pageErrorCallback);
 
@@ -171,26 +165,6 @@ this.pageMonitor = class extends ExtensionAPI {
           // from UI. If we don't do this, the user has a chance to "undo".
           addon.uninstall();
         },
-
-        onPageUnload: new EventManager(
-          context,
-          "pageMonitor.onPageUnload",
-          fire => {
-            const listener = (value, tabId, data) => {
-              fire.async(tabId, data);
-            };
-            pageMonitorEventEmitter.on(
-              "page-unload",
-              listener,
-            );
-            return () => {
-              pageMonitorEventEmitter.off(
-                "page-unload",
-                listener,
-              );
-            };
-          },
-        ).api(),
 
         onPageBeforeUnload: new EventManager(
           context,
@@ -236,8 +210,8 @@ this.pageMonitor = class extends ExtensionAPI {
           context,
           "pageMonitor.onPageDOMContentLoaded",
           fire => {
-            const listener = (value, tabId) => {
-              fire.async(tabId);
+            const listener = (value, tabId, data) => {
+              fire.async(tabId, data);
             };
             pageMonitorEventEmitter.on(
               "page-DOMContentLoaded",

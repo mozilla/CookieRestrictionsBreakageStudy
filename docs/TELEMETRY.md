@@ -45,7 +45,6 @@ telemetry: {
       // they will not catch every login form, nor every social script
       "embedded_social_script": "false",
       "login_form_on_page": "false",
-      "password_field_was_filled_in": "false",
       
       // Reporting the status of of prefs we are interested in
       "network_cookie_cookieBehavior": "4",

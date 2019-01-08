@@ -87,6 +87,9 @@ class PopupNotificationEventEmitter extends EventEmitter {
       // callback for nb events
       null,
     );
+    // Add listener for clicking close button to send telemetry when user manually dismisses.
+    const closeButton = notificationBox.getNotificationWithValue("cookie-restrictions-breakage").querySelector(".messageCloseButton");
+    closeButton.addEventListener("click", () => { self.emit("banner-closed", tabId); });
   }
 }
 
@@ -152,6 +155,25 @@ this.popupNotification = class extends ExtensionAPI {
             return () => {
               popupNotificationEventEmitter.off(
                 "page-not-fixed",
+                listener,
+              );
+            };
+          },
+        ).api(),
+        onReportClosed: new EventManager(
+          context,
+          "popupNotification.onReportClosed",
+          fire => {
+            const listener = (value, tabId) => {
+              fire.async(tabId);
+            };
+            popupNotificationEventEmitter.on(
+              "banner-closed",
+              listener,
+            );
+            return () => {
+              popupNotificationEventEmitter.off(
+                "banner-closed",
                 listener,
               );
             };

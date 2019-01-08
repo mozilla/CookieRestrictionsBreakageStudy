@@ -19,7 +19,6 @@ window.TabRecords = {
       user_has_tracking_protection_exception: false,
       // Are we interested in this? they might be searching for a way to disable
       user_opened_control_center: false,
-      password_field_was_filled_in: false,
       privacy_trackingprotection_enabled: true,
       network_cookie_cookieBehavior: -1,
       urlclassifier_trackingAnnotationTable: "",
