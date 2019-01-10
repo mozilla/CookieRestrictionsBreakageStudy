@@ -87,10 +87,12 @@ class Feature {
     // Listen for the page to load to show the banner
     browser.pageMonitor.onPageDOMContentLoaded.addListener(async (tabId, data) => {
       const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
+      const location = /[^?]*/.exec(data.completeLocation)[0];
+      data.completeLocation = null;
       await this.addMainTelemetryData(tabInfo, data, userid);
 
       if (tabInfo && tabInfo.payloadWaitingForSurvey) {
-        this.showNotification(tabInfo);
+        browser.popupNotification.show(location);
       }
     });
 
@@ -221,13 +223,6 @@ class Feature {
       const hashHex = hashArray.map(b => ("00" + b.toString(16)).slice(-2)).join("");
       return hashHex;
     });
-  }
-
-  async showNotification(tabInfo) {
-    const payload = tabInfo.payloadWaitingForSurvey;
-    if (payload) {
-      browser.popupNotification.show();
-    }
   }
 
   /**
