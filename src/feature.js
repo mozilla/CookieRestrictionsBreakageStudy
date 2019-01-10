@@ -111,11 +111,14 @@ class Feature {
     // Watch for the user pressing the "Yes this page was fixed"
     // button and record the answer.
     browser.popupNotification.onReportPageFixed.addListener(
-      (tabId) => {
+      (tabId, location) => {
         const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
         if (!tabInfo || !tabInfo.payloadWaitingForSurvey) {
           return;
         }
+        
+        // Location is either an empty string or a URL if the user has given permission.
+        tabInfo.telemetryPayload.plain_text_url = location;
         tabInfo.telemetryPayload.action = SURVEY_PAGE_FIXED;
         this.submitPayloadWaitingForSurvey(tabInfo);
       },

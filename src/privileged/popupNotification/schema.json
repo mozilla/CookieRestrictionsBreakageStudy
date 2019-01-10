@@ -20,7 +20,8 @@
         "type": "function",
         "description": "The user clicked 'yes', the page has been fixed.",
         "parameters": [
-          {"type": "integer", "name": "tabId", "minimum": 0}
+          {"type": "integer", "name": "tabId", "minimum": 0},
+          {"type": "string", "name": "location"}
         ]
       },
       {
