@@ -9,7 +9,9 @@
         "type": "function",
         "description": "Show the notification to the user.",
         "async": true,
-        "parameters": []
+        "parameters": [
+          {"type": "string", "name": "location"}
+        ]
       }
     ],
     "events": [
