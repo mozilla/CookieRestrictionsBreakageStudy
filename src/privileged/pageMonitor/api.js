@@ -16,6 +16,16 @@ ChromeUtils.defineModuleGetter(
   "resource:///modules/BrowserWindowTracker.jsm",
 );
 
+/** Return most recent NON-PRIVATE browser window, so that we can
+ * manipulate chrome elements on it.
+ */
+function getMostRecentBrowserWindow() {
+  return BrowserWindowTracker.getTopWindow({
+    private: false,
+    allowPopups: false,
+  });
+}
+
 class PageMonitorEventEmitter extends EventEmitter {
   emitIdentityPopupShown(tabId) {
     this.emit("identity-popup-shown", tabId);
@@ -26,14 +36,13 @@ class PageMonitorEventEmitter extends EventEmitter {
   emitPageBeforeUnload(tabId, data) {
     this.emit("page-before-unload", tabId, data);
   }
-  emitPageUnload(tabId, data) {
-    this.emit("page-unload", tabId, data);
-  }
-  emitPageDOMContentLoaded(tabId) {
-    this.emit("page-DOMContentLoaded", tabId);
+  emitPageDOMContentLoaded(tabId, data) {
+    this.emit("page-DOMContentLoaded", tabId, data);
   }
   emitErrorDetected(error, tabId) {
-    this.emit("page-error-detected", error, tabId);
+    const recentWindow = getMostRecentBrowserWindow();
+    const hasException = Services.perms.testExactPermissionFromPrincipal(recentWindow.gBrowser.contentPrincipal, "trackingprotection") === Services.perms.ALLOW_ACTION;
+    this.emit("page-error-detected", error, tabId, hasException);
   }
 }
 
@@ -63,7 +72,6 @@ this.pageMonitor = class extends ExtensionAPI {
       pageMonitor: {
         async unmount(win) {
           const mm = win.ownerGlobal.getGroupMessageManager("browsers");
-          mm.removeMessageListener("CookieRestrictions:unload", this.pageUnloadCallback);
           mm.removeMessageListener("CookieRestrictions:beforeunload", this.pageBeforeUnloadCallback);
           mm.removeMessageListener("CookieRestrictions:DOMContentLoaded", this.pageDOMContentLoadedCallback);
           mm.removeMessageListener("CookieRestrictions:pageError", this.pageErrorCallback);
@@ -91,7 +99,7 @@ this.pageMonitor = class extends ExtensionAPI {
           uri = null;
           pageMonitorEventEmitter.emitPageBeforeUnload(tabId, e.data.telemetryData);
         },
-        async pageUnloadCallback(e) {
+        async pageDOMContentLoadedCallback(e) {
           const tabId = tabTracker.getBrowserTabId(e.target);
           let uri;
           try {
@@ -104,11 +112,10 @@ this.pageMonitor = class extends ExtensionAPI {
           // Browser is never private, so type can always be "trackingprotection"
           e.data.telemetryData.user_has_tracking_protection_exception =
             Services.perms.testExactPermission(uri, "trackingprotection") === Services.perms.ALLOW_ACTION;
-          pageMonitorEventEmitter.emitPageUnload(tabId, e.data.telemetryData);
-        },
-        async pageDOMContentLoadedCallback(e) {
-          const tabId = tabTracker.getBrowserTabId(e.target);
-          pageMonitorEventEmitter.emitPageDOMContentLoaded(tabId);
+          e.data.telemetryData.completeLocation = null;
+          uri = null;
+
+          pageMonitorEventEmitter.emitPageDOMContentLoaded(tabId, e.data.telemetryData);
         },
         onIdentityPopupShownEvent(e) {
           const win = e.target.ownerGlobal;
@@ -120,7 +127,6 @@ this.pageMonitor = class extends ExtensionAPI {
           // We pass "true" as the third argument to signify that we want to listen
           // to messages even when the framescript is unloading, to catch tabs closing.
           mm.addMessageListener("CookieRestrictions:beforeunload", this.pageBeforeUnloadCallback, true);
-          mm.addMessageListener("CookieRestrictions:unload", this.pageUnloadCallback, true);
           mm.addMessageListener("CookieRestrictions:DOMContentLoaded", this.pageDOMContentLoadedCallback, true);
           mm.addMessageListener("CookieRestrictions:pageError", this.pageErrorCallback);
 
@@ -128,8 +134,8 @@ this.pageMonitor = class extends ExtensionAPI {
 
           win.gIdentityHandler._identityPopup.addEventListener("popupshown", this.onIdentityPopupShownEvent);
 
-          let shieldIcon = win.document.getElementById("tracking-protection-icon-box");
-          let trackingProtectionSection = win.document.getElementById("tracking-protection-container");
+          const shieldIcon = win.document.getElementById("tracking-protection-icon-box");
+          const trackingProtectionSection = win.document.getElementById("tracking-protection-container");
           shieldIcon.style.display = "none";
           trackingProtectionSection.style.display = "none";
         },
@@ -159,26 +165,6 @@ this.pageMonitor = class extends ExtensionAPI {
           // from UI. If we don't do this, the user has a chance to "undo".
           addon.uninstall();
         },
-
-        onPageUnload: new EventManager(
-          context,
-          "pageMonitor.onPageUnload",
-          fire => {
-            const listener = (value, tabId, data) => {
-              fire.async(tabId, data);
-            };
-            pageMonitorEventEmitter.on(
-              "page-unload",
-              listener,
-            );
-            return () => {
-              pageMonitorEventEmitter.off(
-                "page-unload",
-                listener,
-              );
-            };
-          },
-        ).api(),
 
         onPageBeforeUnload: new EventManager(
           context,
@@ -224,8 +210,8 @@ this.pageMonitor = class extends ExtensionAPI {
           context,
           "pageMonitor.onPageDOMContentLoaded",
           fire => {
-            const listener = (value, tabId) => {
-              fire.async(tabId);
+            const listener = (value, tabId, data) => {
+              fire.async(tabId, data);
             };
             pageMonitorEventEmitter.on(
               "page-DOMContentLoaded",
@@ -244,8 +230,8 @@ this.pageMonitor = class extends ExtensionAPI {
           context,
           "pageMonitor.onErrorDetected",
           fire => {
-            const listener = (value, error, tabId) => {
-              fire.async(error, tabId);
+            const listener = (value, error, tabId, hasException) => {
+              fire.async(error, tabId, hasException);
             };
             pageMonitorEventEmitter.on(
               "page-error-detected",

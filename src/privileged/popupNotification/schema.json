@@ -14,17 +14,25 @@
     ],
     "events": [
       {
-        "name": "onReportPageBroken",
+        "name": "onReportPageFixed",
         "type": "function",
-        "description": "The user clicked 'yes', this page was broken.",
+        "description": "The user clicked 'yes', the page has been fixed.",
         "parameters": [
           {"type": "integer", "name": "tabId", "minimum": 0}
         ]
       },
       {
-        "name": "onReportPageNotBroken",
+        "name": "onReportPageNotFixed",
         "type": "function",
-        "description": "The user clicked 'no', this page was not broken.",
+        "description": "The user clicked 'no', this page was not fixed.",
+        "parameters": [
+          {"type": "integer", "name": "tabId", "minimum": 0}
+        ]
+      },
+      {
+        "name": "onReportClosed",
+        "type": "function",
+        "description": "The user clicked 'x', and closed the banner without answering.",
         "parameters": [
           {"type": "integer", "name": "tabId", "minimum": 0}
         ]

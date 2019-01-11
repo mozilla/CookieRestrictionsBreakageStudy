@@ -26,6 +26,9 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 8,
     sourceType: "module",
+    ecmaFeatures: {
+      "experimentalObjectRestSpread": true,
+    },
   },
   plugins: ["json", "mozilla"],
   root: true,
@@ -55,5 +58,6 @@ module.exports = {
     "prefer-spread": "error",
     "semi": ["error", "always"],
     "valid-jsdoc": "off",
+    "no-lonely-if": "off",
   },
 };
