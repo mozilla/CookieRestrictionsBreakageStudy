@@ -53,6 +53,11 @@ function getMostRecentBrowserWindow() {
 }
 
 class PopupNotificationEventEmitter extends EventEmitter {
+  emitClose() {
+    if (this.cookieRestrictionsBanner) {
+      this.cookieRestrictionsBanner.close();
+    }
+  }
   emitShow(location) {
     const self = this;
     const recentWindow = getMostRecentBrowserWindow();
@@ -141,7 +146,7 @@ class PopupNotificationEventEmitter extends EventEmitter {
 
     const label = `Firefox tried to fix the site and reloaded the page. Is ${location} working properly now?`;
     const notificationBox = recentWindow.gBrowser.getNotificationBox();
-    notificationBox.appendNotification(
+    self.cookieRestrictionsBanner = notificationBox.appendNotification(
       label, // message
       "cookie-restrictions-breakage", // value
       null, // icon
@@ -162,9 +167,11 @@ class PopupNotificationEventEmitter extends EventEmitter {
       // callback for nb events
       null,
     );
-    const cookieRestrictionsBanner = notificationBox.getNotificationWithValue("cookie-restrictions-breakage");
+
+    // Banner will persist across navigations 100 times.
+    self.cookieRestrictionsBanner.persistence = 100;
     // Add listener for clicking close button to send telemetry when user manually dismisses.
-    const closeButton = cookieRestrictionsBanner.querySelector(".messageCloseButton");
+    const closeButton = self.cookieRestrictionsBanner.querySelector(".messageCloseButton");
     closeButton.addEventListener("click", () => { self.emit("banner-closed", tabId); });
   }
 }
@@ -197,6 +204,9 @@ this.popupNotification = class extends ExtensionAPI {
       popupNotification: {
         show(location) {
           popupNotificationEventEmitter.emitShow(location);
+        },
+        close() {
+          popupNotificationEventEmitter.emitClose();
         },
         onReportPageFixed: new EventManager(
           context,

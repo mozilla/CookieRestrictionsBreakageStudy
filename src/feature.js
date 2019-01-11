@@ -89,9 +89,14 @@ class Feature {
       const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
       const location = /[^?]*/.exec(data.completeLocation)[0];
       data.completeLocation = null;
+      tabInfo.currentDomain = data.hostname;
+      if (tabInfo.currentDomain !== tabInfo.currentDomainReported) {
+        browser.popupNotification.close();
+      }
       await this.addMainTelemetryData(tabInfo, data, userid);
 
-      if (tabInfo && tabInfo.payloadWaitingForSurvey) {
+      if (tabInfo && tabInfo.payloadWaitingForSurvey && tabInfo.compatModeWasJustEntered) {
+        tabInfo.compatModeWasJustEntered = false;
         browser.popupNotification.show(location);
       }
     });
@@ -166,6 +171,7 @@ class Feature {
   onCompatMode({tabId}) {
     const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
     this.sendTelemetry({...tabInfo.telemetryPayload, action: ENTER_COMPAT_MODE});
+    tabInfo.currentDomainReported = tabInfo.currentDomain;
     // TODO: make this turn on compat mode
 
     // Only keep a record of the "off" page errors to pass forwards.
@@ -188,6 +194,8 @@ class Feature {
       tabInfo.telemetryPayload.compat_off_num_SecurityError;
     tabInfo.payloadWaitingForSurvey.compat_off_num_other_error =
       tabInfo.telemetryPayload.compat_off_num_other_error;
+
+    tabInfo.compatModeWasJustEntered = true;
     browser.tabs.reload(tabId);
   }
 

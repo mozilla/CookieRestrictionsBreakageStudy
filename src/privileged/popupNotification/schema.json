@@ -12,6 +12,13 @@
         "parameters": [
           {"type": "string", "name": "location"}
         ]
+      },
+      {
+        "name": "close",
+        "type": "function",
+        "description": "Close the notification.",
+        "async": true,
+        "parameters": []
       }
     ],
     "events": [
