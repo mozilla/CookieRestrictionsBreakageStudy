@@ -147,6 +147,12 @@ class Feature {
         this.recordPageError(error, tabId, hasException);
       }
     );
+
+    browser.pageMonitor.onExceptionAdded.addListener(
+      (tabId) => {
+        this.recordExceptionAdded(tabId);
+      }
+    );
   }
 
   recordPageError(error, tabId, hasException) {
@@ -166,6 +172,16 @@ class Feature {
         tabInfo.telemetryPayload.compat_off_num_other_error += 1;
       }
     }
+  }
+
+  async recordExceptionAdded(tabId) {
+    const tabInfo = TabRecords.getTabInfo(tabId);
+    let {extensionSetExceptions} = await browser.storage.local.get("extensionSetExceptions");
+    if (!extensionSetExceptions) {
+      extensionSetExceptions = [];
+    }
+    extensionSetExceptions.push(tabInfo.currentDomain);
+    await browser.storage.local.set({extensionSetExceptions});
   }
 
   onCompatMode({tabId}) {
@@ -196,6 +212,7 @@ class Feature {
       tabInfo.telemetryPayload.compat_off_num_other_error;
 
     tabInfo.compatModeWasJustEntered = true;
+    browser.pageMonitor.addException();
     browser.tabs.reload(tabId);
   }
 

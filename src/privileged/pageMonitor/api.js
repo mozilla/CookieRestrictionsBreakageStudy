@@ -44,6 +44,9 @@ class PageMonitorEventEmitter extends EventEmitter {
     const hasException = Services.perms.testExactPermissionFromPrincipal(recentWindow.gBrowser.contentPrincipal, "trackingprotection") === Services.perms.ALLOW_ACTION;
     this.emit("page-error-detected", error, tabId, hasException);
   }
+  emitExceptionSuccessfullyAdded(tabId) {
+    this.emit("exception-added", tabId);
+  }
 }
 
 /* https://firefox-source-docs.mozilla.org/toolkit/components/extensions/webextensions/functions.html */
@@ -146,6 +149,17 @@ this.pageMonitor = class extends ExtensionAPI {
           AddonManager.addAddonListener(this);
         },
 
+        async addException() {
+          const recentWindow = getMostRecentBrowserWindow();
+          const tabId = tabTracker.getBrowserTabId(recentWindow.gBrowser.selectedBrowser);
+          const hasException = Services.perms.testExactPermissionFromPrincipal(recentWindow.gBrowser.contentPrincipal, "trackingprotection") === Services.perms.ALLOW_ACTION;
+          if (!hasException) {
+            const addExceptionButton = recentWindow.document.getElementById("tracking-action-unblock");
+            addExceptionButton.doCommand();
+            pageMonitorEventEmitter.emitExceptionSuccessfullyAdded(tabId);
+          }
+        },
+
         onUninstalling(addon) {
           this.handleDisableOrUninstall(addon);
         },
@@ -239,6 +253,26 @@ this.pageMonitor = class extends ExtensionAPI {
             return () => {
               pageMonitorEventEmitter.off(
                 "page-error-detected",
+                listener,
+              );
+            };
+          },
+        ).api(),
+
+        onExceptionAdded: new EventManager(
+          context,
+          "pageMonitor.onExceptionAdded",
+          fire => {
+            const listener = (value, tabId, hasException) => {
+              fire.async(tabId, hasException);
+            };
+            pageMonitorEventEmitter.on(
+              "exception-added",
+              listener,
+            );
+            return () => {
+              pageMonitorEventEmitter.off(
+                "exception-added",
                 listener,
               );
             };
