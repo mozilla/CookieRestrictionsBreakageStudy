@@ -56,7 +56,6 @@ this.pageMonitor = class extends ExtensionAPI {
     this.framescriptUrl = extension.getURL("privileged/pageMonitor/framescript.js");
   }
 
-
   onShutdown(shutdownReason) {
     EveryWindow.unregisterCallback("set-content-listeners");
     for (const win of [...BrowserWindowTracker.orderedWindows]) {
@@ -142,21 +141,29 @@ this.pageMonitor = class extends ExtensionAPI {
           trackingProtectionSection.style.display = "none";
         },
 
-        async init() {
+        async init(extensionSetExceptions) {
+          this.extensionSetExceptions = extensionSetExceptions;
           EveryWindow.registerCallback("set-content-listeners", this.setListeners.bind(this), this.unmount.bind(this));
 
           // Listen for addon disabling or uninstall.
           AddonManager.addAddonListener(this);
         },
 
-        async addException() {
+        async addException(currentDomain) {
           const recentWindow = getMostRecentBrowserWindow();
           const tabId = tabTracker.getBrowserTabId(recentWindow.gBrowser.selectedBrowser);
           const hasException = Services.perms.testExactPermissionFromPrincipal(recentWindow.gBrowser.contentPrincipal, "trackingprotection") === Services.perms.ALLOW_ACTION;
           if (!hasException) {
             const addExceptionButton = recentWindow.document.getElementById("tracking-action-unblock");
             addExceptionButton.doCommand();
+            this.extensionSetExceptions.push(currentDomain);
             pageMonitorEventEmitter.emitExceptionSuccessfullyAdded(tabId);
+          }
+        },
+
+        removeExceptions(domains) {
+          for (const domain of domains) {
+            Services.perms.remove(Services.io.newURI(domain), "trackingprotection");
           }
         },
 
@@ -169,6 +176,7 @@ this.pageMonitor = class extends ExtensionAPI {
         },
 
         handleDisableOrUninstall(addon) {
+          this.removeExceptions(this.extensionSetExceptions);
           if (addon.id !== context.extension.id) {
             return;
           }

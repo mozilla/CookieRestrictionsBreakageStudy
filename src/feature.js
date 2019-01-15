@@ -40,8 +40,16 @@ class Feature {
       }
     }
 
+    // Get the current state of the exceptions list and pass to chrome code to keep both in sync,
+    // init as an array if it doesn't exist.
+    let {extensionSetExceptions} = await browser.storage.local.get("extensionSetExceptions");
+    if (!extensionSetExceptions) {
+      extensionSetExceptions = [];
+    }
+    await browser.storage.local.set({extensionSetExceptions});
+
     // Initialize listeners in privileged code.
-    browser.pageMonitor.init();
+    browser.pageMonitor.init(extensionSetExceptions);
 
     // We receive most of the critical site information in beforeunload
     // and send it either on unload or on tab close.
@@ -88,8 +96,9 @@ class Feature {
     browser.pageMonitor.onPageDOMContentLoaded.addListener(async (tabId, data) => {
       const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
       const location = /[^?]*/.exec(data.completeLocation)[0];
+
       data.completeLocation = null;
-      tabInfo.currentDomain = data.hostname;
+      tabInfo.currentDomain = location;
       if (tabInfo.currentDomain !== tabInfo.currentDomainReported) {
         browser.popupNotification.close();
       }
@@ -176,10 +185,7 @@ class Feature {
 
   async recordExceptionAdded(tabId) {
     const tabInfo = TabRecords.getTabInfo(tabId);
-    let {extensionSetExceptions} = await browser.storage.local.get("extensionSetExceptions");
-    if (!extensionSetExceptions) {
-      extensionSetExceptions = [];
-    }
+    const {extensionSetExceptions} = await browser.storage.local.get("extensionSetExceptions");
     extensionSetExceptions.push(tabInfo.currentDomain);
     await browser.storage.local.set({extensionSetExceptions});
   }
@@ -212,7 +218,7 @@ class Feature {
       tabInfo.telemetryPayload.compat_off_num_other_error;
 
     tabInfo.compatModeWasJustEntered = true;
-    browser.pageMonitor.addException();
+    browser.pageMonitor.addException(tabInfo.currentDomain);
     browser.tabs.reload(tabId);
   }
 
