@@ -40,11 +40,12 @@ telemetry: {
     "attributes": {
       "etld": "f231d141395abf6f4c98dd55fe8c37e2752e82d72e1ffd3b64bdc6c978692fc6",
       "action": "survey_response_fixed",
-      
       // These measurements are untrustworthy, 
       // they will not catch every login form, nor every social script
       "embedded_social_script": "false",
       "login_form_on_page": "false",
+      // This is optional, it will either be a blank string, or a url if the user gives explicit permission.
+      "plain_text_url": "",
       
       // Reporting the status of of prefs we are interested in
       "network_cookie_cookieBehavior": "4",

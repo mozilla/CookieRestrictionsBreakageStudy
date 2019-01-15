@@ -59,8 +59,87 @@ class PopupNotificationEventEmitter extends EventEmitter {
     const browser = recentWindow.gBrowser.selectedBrowser;
     const tabId = tabTracker.getBrowserTabId(browser);
 
-    const label = `Firefox tried to fix the site and reloaded the page. Is ${location} working properly now?`;
+    const userWillSubmit = () => {
+      self.emit("page-fixed", tabId, location);
+      notificationBox.appendNotification(
+        "Thanks for helping us improve Firefox.", // message
+        "cookie-restrictions-breakage-thanks", // value
+        null, // icon
+        notificationBox.PRIORITY_INFO_HIGH,
+        [
+          {
+            disableHighlight: true,
+            label: "Close",
+            accessKey: "c",
+            callback: () => {},
+          },
+        ],
+        null,
+      );
+    };
 
+    const userWillNotSubmit = () => {
+      self.emit("page-fixed", tabId, "");
+      notificationBox.appendNotification(
+        "Domain not sent. We respect your privacy!", // message
+        "cookie-restrictions-breakage-not-sent", // value
+        null, // icon
+        notificationBox.PRIORITY_INFO_HIGH,
+        [
+          {
+            disableHighlight: true,
+            label: "Close",
+            accessKey: "c",
+            callback: () => {},
+          },
+        ],
+        null,
+      );
+    };
+
+    const pageWasFixedCB = () => {
+      notificationBox.appendNotification(
+        `Submit ${location} to Firefox? This will help us learn more about what broke.`, // message
+        "cookie-restrictions-breakage-report-url", // value
+        null, // icon
+        notificationBox.PRIORITY_INFO_HIGH,
+        [
+          {
+            disableHighlight: true,
+            label: "Yes",
+            accessKey: "y",
+            callback: userWillSubmit,
+          },
+          {
+            label: "No",
+            accessKey: "n",
+            callback: userWillNotSubmit,
+          },
+        ],
+        null,
+      );
+    };
+
+    const pageNotFixedCB = () => {
+      self.emit("page-not-fixed", tabId);
+      notificationBox.appendNotification(
+        `Sorry we couldn't fix ${location}. This means Firefox privacy settings likely didn't cause the problem.`, // message
+        "cookie-restrictions-breakage-not-fixed", // value
+        null, // icon
+        notificationBox.PRIORITY_INFO_HIGH,
+        [
+          {
+            disableHighlight: true,
+            label: "Close",
+            accessKey: "c",
+            callback: () => {},
+          },
+        ],
+        null,
+      );
+    };
+
+    const label = `Firefox tried to fix the site and reloaded the page. Is ${location} working properly now?`;
     const notificationBox = recentWindow.gBrowser.getNotificationBox();
     notificationBox.appendNotification(
       label, // message
@@ -72,18 +151,12 @@ class PopupNotificationEventEmitter extends EventEmitter {
           disableHighlight: true,
           label: "Yes",
           accessKey: "y",
-          callback: () => {
-            console.log("clicked YES");
-            self.emit("page-fixed", tabId); // TODO change this event
-          },
+          callback: pageWasFixedCB,
         },
         {
           label: "No",
           accessKey: "n",
-          callback: () => {
-            console.log("clicked NO");
-            self.emit("page-not-fixed", tabId); // TODO change this event
-          },
+          callback: pageNotFixedCB,
         },
       ],
       // callback for nb events
@@ -91,7 +164,7 @@ class PopupNotificationEventEmitter extends EventEmitter {
     );
     const cookieRestrictionsBanner = notificationBox.getNotificationWithValue("cookie-restrictions-breakage");
     // Add listener for clicking close button to send telemetry when user manually dismisses.
-    const closeButton = notificationBox.getNotificationWithValue("cookie-restrictions-breakage").querySelector(".messageCloseButton");
+    const closeButton = cookieRestrictionsBanner.querySelector(".messageCloseButton");
     closeButton.addEventListener("click", () => { self.emit("banner-closed", tabId); });
   }
 }
@@ -129,8 +202,8 @@ this.popupNotification = class extends ExtensionAPI {
           context,
           "popupNotification.onReportPageFixed",
           fire => {
-            const listener = (value, tabId) => {
-              fire.async(tabId);
+            const listener = (value, tabId, location) => {
+              fire.async(tabId, location);
             };
             popupNotificationEventEmitter.on(
               "page-fixed",
