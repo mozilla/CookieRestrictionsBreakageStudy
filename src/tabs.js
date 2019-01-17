@@ -18,8 +18,6 @@ window.TabRecords = {
       // used compat mode on this page. Or they may have an exception set previuosly.
       // Should we filter users who have previously set exceptions?
       user_has_tracking_protection_exception: false,
-      // Are we interested in this? they might be searching for a way to disable
-      user_opened_control_center: false,
       privacy_trackingprotection_enabled: true,
       network_cookie_cookieBehavior: -1,
       urlclassifier_trackingAnnotationTable: "",

@@ -4,7 +4,7 @@
 const SURVEY_CLOSED = "survey_closed";
 const SURVEY_PAGE_FIXED = "survey_response_fixed";
 const SURVEY_PAGE_NOT_FIXED = "survey_response_not_fixed";
-// const SURVEY_IGNORED = "survey_ignored";
+const SURVEY_IGNORED = "survey_ignored";
 const ENTER_COMPAT_MODE = "enter_compatibility_mode";
 // const NAVIGATE = "navigate";
 
@@ -70,27 +70,13 @@ class Feature {
         return;
       }
 
+      // payloadWaitingForSurvey means user has entered compat mode on this tab, but not answered the survey. Send telemetry action=SURVEY_IGNORED.
       if (tabInfo.payloadWaitingForSurvey) {
+        tabInfo.payloadWaitingForSurvey.action = SURVEY_IGNORED;
         this.submitPayloadWaitingForSurvey(tabInfo);
-      }
-      // Only submit telemetry if we have recorded load info
-      if (tabInfo.telemetryPayload.etld) {
-        this.sendTelemetry(tabInfo.telemetryPayload);
       }
       TabRecords.deleteTabEntry(tabId);
     });
-
-    // Record when users opened the control center (identity popup).
-    browser.pageMonitor.onIdentityPopupShown.addListener(
-      tabId => {
-        if (tabId < 0) {
-          return;
-        }
-
-        const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
-        tabInfo.telemetryPayload.user_opened_control_center = true;
-      }
-    );
 
     // Listen for the page to load to show the banner
     browser.pageMonitor.onPageDOMContentLoaded.addListener(async (tabId, data) => {
@@ -99,7 +85,7 @@ class Feature {
       const location = /[^?]*/.exec(data.completeLocation)[0];
 
       data.completeLocation = null;
-      tabInfo.currenOrigin = location;
+      tabInfo.currenOrigin = data.origin;
       if (tabInfo.currenOrigin !== tabInfo.currenOriginReported) {
         browser.popupNotification.close();
       }
@@ -217,6 +203,7 @@ class Feature {
       tabInfo.telemetryPayload.compat_off_num_SecurityError;
     tabInfo.payloadWaitingForSurvey.compat_off_num_other_error =
       tabInfo.telemetryPayload.compat_off_num_other_error;
+    tabInfo.payloadWaitingForSurvey.etld = tabInfo.telemetryPayload.etld;
 
     tabInfo.compatModeWasJustEntered = true;
     browser.pageMonitor.addException(tabInfo.currenOrigin);

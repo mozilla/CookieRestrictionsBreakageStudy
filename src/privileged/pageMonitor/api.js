@@ -27,9 +27,6 @@ function getMostRecentBrowserWindow() {
 }
 
 class PageMonitorEventEmitter extends EventEmitter {
-  emitIdentityPopupShown(tabId) {
-    this.emit("identity-popup-shown", tabId);
-  }
   emitReportBreakage(tabId) {
     this.emit("report-breakage", tabId);
   }
@@ -77,8 +74,6 @@ this.pageMonitor = class extends ExtensionAPI {
           mm.removeMessageListener("CookieRestrictions:beforeunload", this.pageBeforeUnloadCallback);
           mm.removeMessageListener("CookieRestrictions:DOMContentLoaded", this.pageDOMContentLoadedCallback);
           mm.removeMessageListener("CookieRestrictions:pageError", this.pageErrorCallback);
-
-          win.gIdentityHandler._identityPopup.removeEventListener("popupshown", this.onIdentityPopupShownEvent);
         },
         async pageErrorCallback(e) {
           const tabId = tabTracker.getBrowserTabId(e.target);
@@ -119,11 +114,6 @@ this.pageMonitor = class extends ExtensionAPI {
 
           pageMonitorEventEmitter.emitPageDOMContentLoaded(tabId, e.data.telemetryData);
         },
-        onIdentityPopupShownEvent(e) {
-          const win = e.target.ownerGlobal;
-          const tabId = tabTracker.getBrowserTabId(win.gBrowser.selectedBrowser);
-          pageMonitorEventEmitter.emitIdentityPopupShown(tabId);
-        },
         async setListeners(win) {
           const mm = win.getGroupMessageManager("browsers");
           // We pass "true" as the third argument to signify that we want to listen
@@ -133,8 +123,6 @@ this.pageMonitor = class extends ExtensionAPI {
           mm.addMessageListener("CookieRestrictions:pageError", this.pageErrorCallback);
 
           mm.loadFrameScript(context.extension.getURL("privileged/pageMonitor/framescript.js"), true);
-
-          win.gIdentityHandler._identityPopup.addEventListener("popupshown", this.onIdentityPopupShownEvent);
 
           const shieldIcon = win.document.getElementById("tracking-protection-icon-box");
           const trackingProtectionSection = win.document.getElementById("tracking-protection-container");
@@ -202,26 +190,6 @@ this.pageMonitor = class extends ExtensionAPI {
             return () => {
               pageMonitorEventEmitter.off(
                 "page-before-unload",
-                listener,
-              );
-            };
-          },
-        ).api(),
-
-        onIdentityPopupShown: new EventManager(
-          context,
-          "pageMonitor.onIdentityPopupShown",
-          fire => {
-            const listener = (value, tabId) => {
-              fire.async(tabId);
-            };
-            pageMonitorEventEmitter.on(
-              "identity-popup-shown",
-              listener,
-            );
-            return () => {
-              pageMonitorEventEmitter.off(
-                "identity-popup-shown",
                 listener,
               );
             };

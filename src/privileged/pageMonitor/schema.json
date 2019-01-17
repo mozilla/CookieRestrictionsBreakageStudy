@@ -33,14 +33,6 @@
         ]
       },
       {
-        "name": "onIdentityPopupShown",
-        "type": "function",
-        "description": "The control center/identity popup was shown on this tab.",
-        "parameters": [
-          {"type": "integer", "name": "tabId", "minimum": 0}
-        ]
-      },
-      {
         "name": "onPageDOMContentLoaded",
         "type": "function",
         "description": "When the page has loaded the DOM.",

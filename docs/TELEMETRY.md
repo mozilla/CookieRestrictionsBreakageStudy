@@ -75,7 +75,6 @@ telemetry: {
       
       // We may or may not send these
       "page_reloaded": "true",
-      "user_opened_control_center": "false",
     }
   }
 }
