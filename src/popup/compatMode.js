@@ -14,7 +14,7 @@ button.addEventListener("click", (e) => {
   getCurrentWindowActiveTab().then((tabList) => {
     const activeTabID = tabList[0].id;
     // Send message to feature.js to turn on compat mode.
-    browser.runtime.sendMessage({tabId: activeTabID});
+    browser.runtime.sendMessage({msg: "compat_mode", tabId: activeTabID});
   });
   window.close();
 });

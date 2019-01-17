@@ -12,9 +12,33 @@ class Feature {
   constructor() {}
 
   async configure(studyInfo) {
+    // Open onboarding page, if user does not agree to join, then do not begin study.
+    browser.tabs.create({
+      url: browser.runtime.getURL("./onboarding/index.html"),
+    });
+    // On receiving an action from the onboarding page, we begin, or end the study.
+    browser.runtime.onMessage.addListener((data) => {
+      const {user_joined} = data;
+      browser.storage.local.set({user_joined});
+      if (data.msg === "user_permission" && data.user_joined) {
+        this.sendTelemetry({"action": "info_page_user_enrolled"});
+        this.beginStudy(studyInfo);
+      } else if (data.msg === "user_permission" && !data.user_joined) {
+        this.sendTelemetry({"action": "info_page_user_unerolled"});
+        // TODO do we uninstall the entire addon here,
+        // or give them a chance to remain on the page?
+        // this.unenrollUser();
+      }
+    });
+  }
+  async beginStudy(studyInfo) {
     let { variation } = studyInfo;
     this.onCompatMode = this.onCompatMode.bind(this);
-    browser.runtime.onMessage.addListener(this.onCompatMode);
+    browser.runtime.onMessage.addListener((data) => {
+      if (data.msg === "compat_mode") {
+        this.onCompatMode();
+      }
+    });
 
     // The userid will be used to create a unique hash
     // for the etld + userid combination.
