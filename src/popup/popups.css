@@ -17,6 +17,7 @@ ul {
   color: #FFF;
   text-align: center;
   font-size: 13px;
+  margin: 0;
 }
 
 .footer-button:hover {
@@ -32,6 +33,26 @@ ul {
     0 0 0 1px #0a84ff inset,
     0 0 0 1px #0a84ff,
     0 0 0 4px rgba(10, 132, 255, 0.3)
+}
+
+.footer-button.half {
+  float: right;
+  width: 50%;
+}
+
+.footer-button.negative {
+  float: left;
+  background-color: rgba(12, 12, 13, 0.1);
+  color: #0c0c0d;
+  box-shadow: none;
+}
+
+.footer-button.negative:hover {
+  background-color: rgba(12, 12, 13, 0.2);
+}
+
+.footer-button.negative:active {
+  background-color: rgba(12, 12, 13, 0.3);
 }
 
 .content {
