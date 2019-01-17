@@ -40,8 +40,16 @@ class Feature {
       }
     }
 
+    // Get the current state of the exceptions list and pass to chrome code to keep both in sync,
+    // init as an array if it doesn't exist.
+    let {extensionSetExceptions} = await browser.storage.local.get("extensionSetExceptions");
+    if (!extensionSetExceptions) {
+      extensionSetExceptions = [];
+    }
+    await browser.storage.local.set({extensionSetExceptions});
+
     // Initialize listeners in privileged code.
-    browser.pageMonitor.init();
+    browser.pageMonitor.init(extensionSetExceptions);
 
     // We receive most of the critical site information in beforeunload
     // and send it either on unload or on tab close.
@@ -87,11 +95,18 @@ class Feature {
     // Listen for the page to load to show the banner
     browser.pageMonitor.onPageDOMContentLoaded.addListener(async (tabId, data) => {
       const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
+      // Remove any query params from the url.
       const location = /[^?]*/.exec(data.completeLocation)[0];
+
       data.completeLocation = null;
+      tabInfo.currenOrigin = location;
+      if (tabInfo.currenOrigin !== tabInfo.currenOriginReported) {
+        browser.popupNotification.close();
+      }
       await this.addMainTelemetryData(tabInfo, data, userid);
 
-      if (tabInfo && tabInfo.payloadWaitingForSurvey) {
+      if (tabInfo && tabInfo.payloadWaitingForSurvey && tabInfo.compatModeWasJustEntered) {
+        tabInfo.compatModeWasJustEntered = false;
         browser.popupNotification.show(location);
       }
     });
@@ -116,7 +131,7 @@ class Feature {
         if (!tabInfo || !tabInfo.payloadWaitingForSurvey) {
           return;
         }
-        
+
         // Location is either an empty string or a URL if the user has given permission.
         tabInfo.telemetryPayload.plain_text_url = location;
         tabInfo.telemetryPayload.action = SURVEY_PAGE_FIXED;
@@ -142,6 +157,12 @@ class Feature {
         this.recordPageError(error, tabId, hasException);
       }
     );
+
+    browser.pageMonitor.onExceptionAdded.addListener(
+      (tabId) => {
+        this.recordExceptionAdded(tabId);
+      }
+    );
   }
 
   recordPageError(error, tabId, hasException) {
@@ -163,9 +184,17 @@ class Feature {
     }
   }
 
+  async recordExceptionAdded(tabId) {
+    const tabInfo = TabRecords.getTabInfo(tabId);
+    const {extensionSetExceptions} = await browser.storage.local.get("extensionSetExceptions");
+    extensionSetExceptions.push(tabInfo.currenOrigin);
+    await browser.storage.local.set({extensionSetExceptions});
+  }
+
   onCompatMode({tabId}) {
     const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
     this.sendTelemetry({...tabInfo.telemetryPayload, action: ENTER_COMPAT_MODE});
+    tabInfo.currenOriginReported = tabInfo.currenOrigin;
     // TODO: make this turn on compat mode
 
     // Only keep a record of the "off" page errors to pass forwards.
@@ -188,6 +217,9 @@ class Feature {
       tabInfo.telemetryPayload.compat_off_num_SecurityError;
     tabInfo.payloadWaitingForSurvey.compat_off_num_other_error =
       tabInfo.telemetryPayload.compat_off_num_other_error;
+
+    tabInfo.compatModeWasJustEntered = true;
+    browser.pageMonitor.addException(tabInfo.currenOrigin);
     browser.tabs.reload(tabId);
   }
 

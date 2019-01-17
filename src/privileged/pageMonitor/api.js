@@ -44,6 +44,9 @@ class PageMonitorEventEmitter extends EventEmitter {
     const hasException = Services.perms.testExactPermissionFromPrincipal(recentWindow.gBrowser.contentPrincipal, "trackingprotection") === Services.perms.ALLOW_ACTION;
     this.emit("page-error-detected", error, tabId, hasException);
   }
+  emitExceptionSuccessfullyAdded(tabId) {
+    this.emit("exception-added", tabId);
+  }
 }
 
 /* https://firefox-source-docs.mozilla.org/toolkit/components/extensions/webextensions/functions.html */
@@ -52,7 +55,6 @@ this.pageMonitor = class extends ExtensionAPI {
     super(extension);
     this.framescriptUrl = extension.getURL("privileged/pageMonitor/framescript.js");
   }
-
 
   onShutdown(shutdownReason) {
     EveryWindow.unregisterCallback("set-content-listeners");
@@ -88,7 +90,7 @@ this.pageMonitor = class extends ExtensionAPI {
           try {
             uri = Services.io.newURI(e.data.telemetryData.completeLocation);
             e.data.telemetryData.etld =
-              Services.eTLD.getBaseDomainFromHost(e.data.telemetryData.hostname);
+              Services.eTLD.getBaseDomainFromHost(e.data.telemetryData.origin);
           } catch (error) {
             return;
           }
@@ -105,10 +107,11 @@ this.pageMonitor = class extends ExtensionAPI {
           try {
             uri = Services.io.newURI(e.data.telemetryData.completeLocation);
             e.data.telemetryData.etld =
-              Services.eTLD.getBaseDomainFromHost(e.data.telemetryData.hostname);
+              Services.eTLD.getBaseDomainFromHost(e.data.telemetryData.origin);
           } catch (error) {
             return;
           }
+
           // Browser is never private, so type can always be "trackingprotection"
           e.data.telemetryData.user_has_tracking_protection_exception =
             Services.perms.testExactPermission(uri, "trackingprotection") === Services.perms.ALLOW_ACTION;
@@ -139,11 +142,30 @@ this.pageMonitor = class extends ExtensionAPI {
           trackingProtectionSection.style.display = "none";
         },
 
-        async init() {
+        async init(extensionSetExceptions) {
+          this.extensionSetExceptions = extensionSetExceptions;
           EveryWindow.registerCallback("set-content-listeners", this.setListeners.bind(this), this.unmount.bind(this));
 
           // Listen for addon disabling or uninstall.
           AddonManager.addAddonListener(this);
+        },
+
+        async addException(currenOrigin) {
+          const recentWindow = getMostRecentBrowserWindow();
+          const tabId = tabTracker.getBrowserTabId(recentWindow.gBrowser.selectedBrowser);
+          const hasException = Services.perms.testExactPermissionFromPrincipal(recentWindow.gBrowser.contentPrincipal, "trackingprotection") === Services.perms.ALLOW_ACTION;
+          if (!hasException) {
+            const addExceptionButton = recentWindow.document.getElementById("tracking-action-unblock");
+            addExceptionButton.doCommand();
+            this.extensionSetExceptions.push(currenOrigin);
+            pageMonitorEventEmitter.emitExceptionSuccessfullyAdded(tabId);
+          }
+        },
+
+        removeExceptions(domains) {
+          for (const domain of domains) {
+            Services.perms.remove(Services.io.newURI(domain), "trackingprotection");
+          }
         },
 
         onUninstalling(addon) {
@@ -155,6 +177,7 @@ this.pageMonitor = class extends ExtensionAPI {
         },
 
         handleDisableOrUninstall(addon) {
+          this.removeExceptions(this.extensionSetExceptions);
           if (addon.id !== context.extension.id) {
             return;
           }
@@ -239,6 +262,26 @@ this.pageMonitor = class extends ExtensionAPI {
             return () => {
               pageMonitorEventEmitter.off(
                 "page-error-detected",
+                listener,
+              );
+            };
+          },
+        ).api(),
+
+        onExceptionAdded: new EventManager(
+          context,
+          "pageMonitor.onExceptionAdded",
+          fire => {
+            const listener = (value, tabId, hasException) => {
+              fire.async(tabId, hasException);
+            };
+            pageMonitorEventEmitter.on(
+              "exception-added",
+              listener,
+            );
+            return () => {
+              pageMonitorEventEmitter.off(
+                "exception-added",
                 listener,
               );
             };

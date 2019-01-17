@@ -8,7 +8,18 @@
         "type": "function",
         "description": "init listeners to listen for changes and errors in the content",
         "async": true,
-        "parameters": []
+        "parameters": [
+          {"type": "any", "name": "extensionSetExceptions"}
+        ]
+      },
+      {
+        "name": "addException",
+        "type": "function",
+        "description": "Add a content blocking exception for this domain if it does not exist.",
+        "async": true,
+        "parameters": [
+          {"type": "string", "name": "currenOrigin"}
+        ]
       }
     ],
     "events": [
@@ -46,6 +57,14 @@
           {"type": "string", "name": "error"},
           {"type": "integer", "name": "tabId", "minimum": 0},
           {"type": "boolean", "name": "hasException"}
+        ]
+      },
+      {
+        "name": "onExceptionAdded",
+        "type": "function",
+        "description": "We added an content blocking exception for this page",
+        "parameters": [
+          {"type": "integer", "name": "tabId", "minimum": 0}
         ]
       }
     ]
