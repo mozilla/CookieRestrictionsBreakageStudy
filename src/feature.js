@@ -16,6 +16,7 @@ class Feature {
     browser.tabs.create({
       url: browser.runtime.getURL("./onboarding/index.html"),
     });
+
     // On receiving an action from the onboarding page, we begin, or end the study.
     browser.runtime.onMessage.addListener((data) => {
       const {user_joined} = data;
@@ -25,12 +26,12 @@ class Feature {
         this.beginStudy(studyInfo);
       } else if (data.msg === "user_permission" && !data.user_joined) {
         this.sendTelemetry({"action": "info_page_user_unerolled"});
-        // TODO do we uninstall the entire addon here,
-        // or give them a chance to remain on the page?
-        // this.unenrollUser();
+        // Actually uninstall addon. User has confirmed.
+        browser.management.uninstallSelf();
       }
     });
   }
+
   async beginStudy(studyInfo) {
     let { variation } = studyInfo;
     this.onCompatMode = this.onCompatMode.bind(this);
