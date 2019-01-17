@@ -95,11 +95,12 @@ class Feature {
     // Listen for the page to load to show the banner
     browser.pageMonitor.onPageDOMContentLoaded.addListener(async (tabId, data) => {
       const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
+      // Remove any query params from the url.
       const location = /[^?]*/.exec(data.completeLocation)[0];
 
       data.completeLocation = null;
-      tabInfo.currentDomain = location;
-      if (tabInfo.currentDomain !== tabInfo.currentDomainReported) {
+      tabInfo.currenOrigin = location;
+      if (tabInfo.currenOrigin !== tabInfo.currenOriginReported) {
         browser.popupNotification.close();
       }
       await this.addMainTelemetryData(tabInfo, data, userid);
@@ -130,7 +131,7 @@ class Feature {
         if (!tabInfo || !tabInfo.payloadWaitingForSurvey) {
           return;
         }
-        
+
         // Location is either an empty string or a URL if the user has given permission.
         tabInfo.telemetryPayload.plain_text_url = location;
         tabInfo.telemetryPayload.action = SURVEY_PAGE_FIXED;
@@ -186,14 +187,14 @@ class Feature {
   async recordExceptionAdded(tabId) {
     const tabInfo = TabRecords.getTabInfo(tabId);
     const {extensionSetExceptions} = await browser.storage.local.get("extensionSetExceptions");
-    extensionSetExceptions.push(tabInfo.currentDomain);
+    extensionSetExceptions.push(tabInfo.currenOrigin);
     await browser.storage.local.set({extensionSetExceptions});
   }
 
   onCompatMode({tabId}) {
     const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
     this.sendTelemetry({...tabInfo.telemetryPayload, action: ENTER_COMPAT_MODE});
-    tabInfo.currentDomainReported = tabInfo.currentDomain;
+    tabInfo.currenOriginReported = tabInfo.currenOrigin;
     // TODO: make this turn on compat mode
 
     // Only keep a record of the "off" page errors to pass forwards.
@@ -218,7 +219,7 @@ class Feature {
       tabInfo.telemetryPayload.compat_off_num_other_error;
 
     tabInfo.compatModeWasJustEntered = true;
-    browser.pageMonitor.addException(tabInfo.currentDomain);
+    browser.pageMonitor.addException(tabInfo.currenOrigin);
     browser.tabs.reload(tabId);
   }
 

@@ -90,7 +90,7 @@ this.pageMonitor = class extends ExtensionAPI {
           try {
             uri = Services.io.newURI(e.data.telemetryData.completeLocation);
             e.data.telemetryData.etld =
-              Services.eTLD.getBaseDomainFromHost(e.data.telemetryData.hostname);
+              Services.eTLD.getBaseDomainFromHost(e.data.telemetryData.origin);
           } catch (error) {
             return;
           }
@@ -107,10 +107,11 @@ this.pageMonitor = class extends ExtensionAPI {
           try {
             uri = Services.io.newURI(e.data.telemetryData.completeLocation);
             e.data.telemetryData.etld =
-              Services.eTLD.getBaseDomainFromHost(e.data.telemetryData.hostname);
+              Services.eTLD.getBaseDomainFromHost(e.data.telemetryData.origin);
           } catch (error) {
             return;
           }
+
           // Browser is never private, so type can always be "trackingprotection"
           e.data.telemetryData.user_has_tracking_protection_exception =
             Services.perms.testExactPermission(uri, "trackingprotection") === Services.perms.ALLOW_ACTION;
@@ -149,14 +150,14 @@ this.pageMonitor = class extends ExtensionAPI {
           AddonManager.addAddonListener(this);
         },
 
-        async addException(currentDomain) {
+        async addException(currenOrigin) {
           const recentWindow = getMostRecentBrowserWindow();
           const tabId = tabTracker.getBrowserTabId(recentWindow.gBrowser.selectedBrowser);
           const hasException = Services.perms.testExactPermissionFromPrincipal(recentWindow.gBrowser.contentPrincipal, "trackingprotection") === Services.perms.ALLOW_ACTION;
           if (!hasException) {
             const addExceptionButton = recentWindow.document.getElementById("tracking-action-unblock");
             addExceptionButton.doCommand();
-            this.extensionSetExceptions.push(currentDomain);
+            this.extensionSetExceptions.push(currenOrigin);
             pageMonitorEventEmitter.emitExceptionSuccessfullyAdded(tabId);
           }
         },

@@ -18,7 +18,7 @@
         "description": "Add a content blocking exception for this domain if it does not exist.",
         "async": true,
         "parameters": [
-          {"type": "string", "name": "currentDomain"}
+          {"type": "string", "name": "currenOrigin"}
         ]
       }
     ],

@@ -25,7 +25,7 @@ addEventListener("DOMContentLoaded", function(e) {
     return;
   }
 
-  telemetryData.hostname = content.location.hostname;
+  telemetryData.origin = content.location.origin;
   telemetryData.completeLocation = content.location.href;
   // Check if there is a password field on the page, this gives the best
   // indication that this might be a login page
