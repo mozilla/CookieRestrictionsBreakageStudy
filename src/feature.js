@@ -19,25 +19,36 @@ class Feature {
 
     // On receiving an action from the onboarding page, we begin, or end the study.
     browser.runtime.onMessage.addListener((data) => {
-      const {user_joined} = data;
-      browser.storage.local.set({user_joined});
       if (data.msg === "user_permission" && data.user_joined) {
+        browser.storage.local.set({user_joined: data.user_joined});
         this.sendTelemetry({"action": "info_page_user_enrolled"});
         this.beginStudy(studyInfo);
       } else if (data.msg === "user_permission" && !data.user_joined) {
         this.sendTelemetry({"action": "info_page_user_unerolled"});
         // Actually uninstall addon. User has confirmed.
         browser.management.uninstallSelf();
+      } else if (data.msg === "window_closed") {
+        browser.storage.local.get("user_joined").then(({user_joined}) => {
+          if (!user_joined) {
+            browser.management.uninstallSelf();
+          }
+        });
       }
     });
+
+    const userPreviouslyJoined = await browser.storage.local.get("user_joined").user_joined;
+    if (userPreviouslyJoined) {
+      this.beginStudy(studyInfo);
+    }
   }
 
   async beginStudy(studyInfo) {
+    browser.browserAction.setPopup({popup: "../popup/compatMode.html"});
     let { variation } = studyInfo;
     this.onCompatMode = this.onCompatMode.bind(this);
     browser.runtime.onMessage.addListener((data) => {
       if (data.msg === "compat_mode") {
-        this.onCompatMode();
+        this.onCompatMode(data.tabId);
       }
     });
 
@@ -110,8 +121,8 @@ class Feature {
       const location = /[^?]*/.exec(data.completeLocation)[0];
 
       data.completeLocation = null;
-      tabInfo.currenOrigin = data.origin;
-      if (tabInfo.currenOrigin !== tabInfo.currenOriginReported) {
+      tabInfo.currentOrigin = data.origin;
+      if (tabInfo.currentOrigin !== tabInfo.currentOriginReported) {
         browser.popupNotification.close();
       }
       await this.addMainTelemetryData(tabInfo, data, userid);
@@ -198,15 +209,14 @@ class Feature {
   async recordExceptionAdded(tabId) {
     const tabInfo = TabRecords.getTabInfo(tabId);
     const {extensionSetExceptions} = await browser.storage.local.get("extensionSetExceptions");
-    extensionSetExceptions.push(tabInfo.currenOrigin);
+    extensionSetExceptions.push(tabInfo.currentOrigin);
     await browser.storage.local.set({extensionSetExceptions});
   }
 
-  onCompatMode({tabId}) {
+  onCompatMode(tabId) {
     const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
     this.sendTelemetry({...tabInfo.telemetryPayload, action: ENTER_COMPAT_MODE});
-    tabInfo.currenOriginReported = tabInfo.currenOrigin;
-    // TODO: make this turn on compat mode
+    tabInfo.currentOriginReported = tabInfo.currentOrigin;
 
     // Only keep a record of the "off" page errors to pass forwards.
     tabInfo.payloadWaitingForSurvey = {};
@@ -231,7 +241,7 @@ class Feature {
     tabInfo.payloadWaitingForSurvey.etld = tabInfo.telemetryPayload.etld;
 
     tabInfo.compatModeWasJustEntered = true;
-    browser.pageMonitor.addException(tabInfo.currenOrigin);
+    browser.pageMonitor.addException(tabInfo.currentOrigin);
     browser.tabs.reload(tabId);
   }
 

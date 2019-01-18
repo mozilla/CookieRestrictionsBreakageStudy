@@ -138,14 +138,14 @@ this.pageMonitor = class extends ExtensionAPI {
           AddonManager.addAddonListener(this);
         },
 
-        async addException(currenOrigin) {
+        async addException(currentOrigin) {
           const recentWindow = getMostRecentBrowserWindow();
           const tabId = tabTracker.getBrowserTabId(recentWindow.gBrowser.selectedBrowser);
           const hasException = Services.perms.testExactPermissionFromPrincipal(recentWindow.gBrowser.contentPrincipal, "trackingprotection") === Services.perms.ALLOW_ACTION;
           if (!hasException) {
             const addExceptionButton = recentWindow.document.getElementById("tracking-action-unblock");
             addExceptionButton.doCommand();
-            this.extensionSetExceptions.push(currenOrigin);
+            this.extensionSetExceptions.push(currentOrigin);
             pageMonitorEventEmitter.emitExceptionSuccessfullyAdded(tabId);
           }
         },

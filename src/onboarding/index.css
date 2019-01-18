@@ -108,8 +108,20 @@ h2 {
   font-size: 16px;
 }
 
+.content .leave {
+  display: none;
+}
+
 .content.joined a {
   display: none;
+}
+
+.content.joined .join {
+  display: none;
+}
+
+.content.joined .leave {
+  display: inline-block;
 }
 
 .icon {
