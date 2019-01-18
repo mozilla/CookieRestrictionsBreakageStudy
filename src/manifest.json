@@ -10,11 +10,12 @@
     }
   },
   "icons": {
-    "48": "icons/moz-fav-bw-rgb.png"
+    "48": "icons/study-icon.svg",
+    "96": "icons/study-icon.svg"
   },
   "browser_action": {
     "browser_style": true,
-    "default_icon": "icons/moz-fav-bw-rgb.png",
+    "default_icon": "icons/study-icon.svg",
     "default_title": "test title",
     "default_popup": "popup/compatMode.html"
   },
