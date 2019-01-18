@@ -1,8 +1,6 @@
 browser.windows.getCurrent().then((windowInfo) => {
-  if (windowInfo.incognito) {
-    document.getElementById("basicBrowsing").hidden = true;
-    document.getElementById("privateBrowsing").hidden = false;
-  }
+  document.body.classList.toggle("basic", !windowInfo.incognito);
+  document.body.classList.toggle("private", windowInfo.incognito);
 });
 
 const getCurrentWindowActiveTab = () => {
@@ -43,4 +41,9 @@ getCurrentWindowActiveTab().then((tabList) => {
   const url = tabList[0].url;
   const hostname = extractHostname(url);
   document.getElementById("domainName").textContent = hostname;
+  browser.pageMonitor.testPermission(url);
+});
+
+browser.pageMonitor.onHasExceptionResults.addListener(async (hasException) => {
+  document.body.classList.toggle("exception", hasException);
 });

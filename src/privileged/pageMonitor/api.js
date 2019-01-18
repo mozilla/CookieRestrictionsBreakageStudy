@@ -44,6 +44,9 @@ class PageMonitorEventEmitter extends EventEmitter {
   emitExceptionSuccessfullyAdded(tabId) {
     this.emit("exception-added", tabId);
   }
+  emitHasException(hasException) {
+    this.emit("has-exception", hasException);
+  }
 }
 
 /* https://firefox-source-docs.mozilla.org/toolkit/components/extensions/webextensions/functions.html */
@@ -156,6 +159,12 @@ this.pageMonitor = class extends ExtensionAPI {
           }
         },
 
+        testPermission(url) {
+          const recentWindow = getMostRecentBrowserWindow();
+          const hasException = Services.perms.testExactPermissionFromPrincipal(recentWindow.gBrowser.contentPrincipal, "trackingprotection") === Services.perms.ALLOW_ACTION;
+          pageMonitorEventEmitter.emitHasException(hasException);
+        },
+
         onUninstalling(addon) {
           this.handleDisableOrUninstall(addon);
         },
@@ -175,6 +184,26 @@ this.pageMonitor = class extends ExtensionAPI {
           // from UI. If we don't do this, the user has a chance to "undo".
           addon.uninstall();
         },
+
+        onHasExceptionResults: new EventManager(
+          context,
+          "pageMonitor.onHasExceptionResults",
+          fire => {
+            const listener = (value, hasException) => {
+              fire.async(hasException);
+            };
+            pageMonitorEventEmitter.on(
+              "has-exception",
+              listener,
+            );
+            return () => {
+              pageMonitorEventEmitter.off(
+                "has-exception",
+                listener,
+              );
+            };
+          },
+        ).api(),
 
         onPageBeforeUnload: new EventManager(
           context,

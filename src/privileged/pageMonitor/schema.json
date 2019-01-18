@@ -20,6 +20,15 @@
         "parameters": [
           {"type": "string", "name": "currentOrigin"}
         ]
+      },
+      {
+        "name": "testPermission",
+        "type": "function",
+        "description": "Check if a content blocking exception for this domain exists.",
+        "async": true,
+        "parameters": [
+          {"type": "string", "name": "url"}
+        ]
       }
     ],
     "events": [
@@ -57,6 +66,14 @@
         "description": "We added an content blocking exception for this page",
         "parameters": [
           {"type": "integer", "name": "tabId", "minimum": 0}
+        ]
+      },
+      {
+        "name": "onHasExceptionResults",
+        "type": "function",
+        "description": "We checked if there was an exception, and send the results.",
+        "parameters": [
+          {"type": "boolean", "name": "hasException"}
         ]
       }
     ]

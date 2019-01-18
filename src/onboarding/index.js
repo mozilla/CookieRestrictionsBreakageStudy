@@ -3,7 +3,7 @@ const content = document.querySelector(".content");
 const anchors = document.querySelectorAll(".join-study");
 
 // If this page is arrived at from learn more link,
-// or user refreshes, make sur eit is showing the ocrrect state.
+// or user refreshes, make sure it is showing the correct state.
 browser.storage.local.get("user_joined").then(({user_joined}) => {
   if (user_joined) {
     content.classList.add("joined");

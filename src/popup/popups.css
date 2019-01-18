@@ -79,3 +79,26 @@ ul {
   background-size: contain;
   margin-bottom: -3px;
 }
+
+.basic #privateBrowsing,
+.exception #privateBrowsing {
+  display: none;
+}
+
+.private #basicBrowsing,
+.exception #basicBrowsing {
+  display: none;
+}
+
+.private #basicBrowsing,
+.exception #basicBrowsing {
+  display: none;
+}
+
+#exceptionAdded {
+  display: none;
+}
+
+.exception #exceptionAdded {
+  display: block;
+}
