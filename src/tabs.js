@@ -62,6 +62,8 @@ window.TabRecords = {
       compatModeWasJustEntered: null,
       currentOrigin: null,
       currentOriginReported: null,
+      bannerTimer: null,
+      waitingForReturn: null,
     };
 
     this._tabs.set(tabId, tabInfo);

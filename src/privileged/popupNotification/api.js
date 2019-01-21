@@ -63,6 +63,7 @@ class PopupNotificationEventEmitter extends EventEmitter {
     const recentWindow = getMostRecentBrowserWindow();
     const browser = recentWindow.gBrowser.selectedBrowser;
     const tabId = tabTracker.getBrowserTabId(browser);
+    const notificationBox = recentWindow.gBrowser.getNotificationBox();
 
     const userWillSubmit = () => {
       self.emit("page-fixed", tabId, location);
@@ -145,7 +146,6 @@ class PopupNotificationEventEmitter extends EventEmitter {
     };
 
     const label = `Firefox tried to fix the site and reloaded the page. Is ${location} working properly now?`;
-    const notificationBox = recentWindow.gBrowser.getNotificationBox();
     self.cookieRestrictionsBanner = notificationBox.appendNotification(
       label, // message
       "cookie-restrictions-breakage", // value
