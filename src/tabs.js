@@ -14,10 +14,7 @@ window.TabRecords = {
       login_form_on_page: false,
       embedded_social_script: false,
       plain_text_url: "",
-      // TODO Possibly remove this later - it may indicate they have previously
-      // used compat mode on this page. Or they may have an exception set previuosly.
-      // Should we filter users who have previously set exceptions?
-      user_has_tracking_protection_exception: false,
+
       privacy_trackingprotection_enabled: true,
       network_cookie_cookieBehavior: -1,
       urlclassifier_trackingAnnotationTable: "",

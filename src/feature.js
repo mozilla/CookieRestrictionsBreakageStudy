@@ -238,7 +238,13 @@ class Feature {
       tabInfo.telemetryPayload.compat_off_num_SecurityError;
     tabInfo.payloadWaitingForSurvey.compat_off_num_other_error =
       tabInfo.telemetryPayload.compat_off_num_other_error;
+
     tabInfo.payloadWaitingForSurvey.etld = tabInfo.telemetryPayload.etld;
+    tabInfo.payloadWaitingForSurvey.page_reloaded = tabInfo.telemetryPayload.page_reloaded;
+    tabInfo.payloadWaitingForSurvey.embedded_social_script =
+      tabInfo.telemetryPayload.embedded_social_script;
+    tabInfo.payloadWaitingForSurvey.login_form_on_page =
+      tabInfo.telemetryPayload.login_form_on_page;
 
     tabInfo.compatModeWasJustEntered = true;
     browser.pageMonitor.addException(tabInfo.currentOrigin);
@@ -257,8 +263,6 @@ class Feature {
 
     tabInfo.telemetryPayload.embedded_social_script = data.embedded_social_script;
     tabInfo.telemetryPayload.login_form_on_page = data.login_form_on_page;
-    tabInfo.telemetryPayload.user_has_tracking_protection_exception =
-      data.user_has_tracking_protection_exception;
   }
 
   // Adapted from https://gist.github.com/jed/982883
