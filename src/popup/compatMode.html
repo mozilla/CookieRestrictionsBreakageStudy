@@ -3,7 +3,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="compatMode.css"/>
+    <link rel="stylesheet" href="popups.css"/>
     <script src="compatMode.js" defer></script>
   </head>
 
@@ -18,15 +18,21 @@
         <li>Can’t view a video</li>
         <li>Forms, comments, or widgets not loading</li>
       </ul>
-      <p class="note">Fixing this site may require Firefox to adjust your privacy settings for <span>www.domain.com</span> only. <a href="">Learn More</a> about this study.<p>
+      <p class="note">Fixing this site may require Firefox to adjust your privacy settings for <span id="domainName"></span> only. <a class="learn-more" target="_blank">Learn More</a> about this study.<p>
     </div>
     <button id="fixThisSite" class="footer-button">Try to Fix This Site</button>
   </div>
-  <div id="privateBrowsing" hidden="true">
+  <div id="privateBrowsing">
     <div class="content">
       <p>This study is disabled in Private Browsing tabs</p>
+      <p class="note"><a class="learn-more" target="_blank">Learn More</a> about this study.<p>
     </div>
-    <button class="footer-button">More About This Study</button>
+  </div>
+  <div id="exceptionAdded">
+    <div class="content">
+      <p>Firefox has already tried to fix <span id="domainName"></span> by adjusting your settings on this site</p>
+      <p class="note"><a class="learn-more" target="_blank">Learn More</a> about this study.<p>
+    </div>
   </div>
 </body>
 </html>

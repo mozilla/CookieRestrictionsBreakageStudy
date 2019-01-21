@@ -1,7 +1,7 @@
 {
-  "name": "Mozilla Cookie Restrictions Breakage Study",
-  "description": "A Mozilla study created to learn the positive and negative effects of blocking tracking cookies.",
-  "version": "1.0.5",
+  "name": "Firefox Privacy Study",
+  "description": "Report broken sites in Firefox.",
+  "version": "1.0.0",
   "manifest_version": 2,
   "applications": {
     "gecko": {
@@ -10,13 +10,13 @@
     }
   },
   "icons": {
-    "48": "icons/moz-fav-bw-rgb.png"
+    "48": "icons/study-icon.svg",
+    "96": "icons/study-icon.svg"
   },
   "browser_action": {
     "browser_style": true,
-    "default_icon": "icons/moz-fav-bw-rgb.png",
-    "default_title": "test title",
-    "default_popup": "popup/compatMode.html"
+    "default_icon": "icons/study-icon.svg",
+    "default_title": "Firefox Privacy Study"
   },
   "experiment_apis": {
     "popupNotification": {

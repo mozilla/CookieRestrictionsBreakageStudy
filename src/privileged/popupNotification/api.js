@@ -58,7 +58,7 @@ class PopupNotificationEventEmitter extends EventEmitter {
       this.cookieRestrictionsBanner.close();
     }
   }
-  emitShow(location) {
+  emitShow(location, iconURL) {
     const self = this;
     const recentWindow = getMostRecentBrowserWindow();
     const browser = recentWindow.gBrowser.selectedBrowser;
@@ -69,7 +69,7 @@ class PopupNotificationEventEmitter extends EventEmitter {
       notificationBox.appendNotification(
         "Thanks for helping us improve Firefox.", // message
         "cookie-restrictions-breakage-thanks", // value
-        null, // icon
+        iconURL, // icon
         notificationBox.PRIORITY_INFO_HIGH,
         [
           {
@@ -88,7 +88,7 @@ class PopupNotificationEventEmitter extends EventEmitter {
       notificationBox.appendNotification(
         "Domain not sent. We respect your privacy!", // message
         "cookie-restrictions-breakage-not-sent", // value
-        null, // icon
+        iconURL, // icon
         notificationBox.PRIORITY_INFO_HIGH,
         [
           {
@@ -106,7 +106,7 @@ class PopupNotificationEventEmitter extends EventEmitter {
       notificationBox.appendNotification(
         `Submit ${location} to Firefox? This will help us learn more about what broke.`, // message
         "cookie-restrictions-breakage-report-url", // value
-        null, // icon
+        iconURL, // icon
         notificationBox.PRIORITY_INFO_HIGH,
         [
           {
@@ -130,7 +130,7 @@ class PopupNotificationEventEmitter extends EventEmitter {
       notificationBox.appendNotification(
         `Sorry we couldn't fix ${location}. This means Firefox privacy settings likely didn't cause the problem.`, // message
         "cookie-restrictions-breakage-not-fixed", // value
-        null, // icon
+        iconURL, // icon
         notificationBox.PRIORITY_INFO_HIGH,
         [
           {
@@ -149,7 +149,7 @@ class PopupNotificationEventEmitter extends EventEmitter {
     self.cookieRestrictionsBanner = notificationBox.appendNotification(
       label, // message
       "cookie-restrictions-breakage", // value
-      null, // icon
+      iconURL, // icon
       notificationBox.PRIORITY_INFO_HIGH,
       [
         {
@@ -190,20 +190,22 @@ this.popupNotification = class extends ExtensionAPI {
     unloadStyles(this.extension.baseURI.spec);
     for (const win of BrowserWindowTracker.orderedWindows) {
       for (const browser of win.gBrowser.browsers) {
-        const notification = win.PopupNotifications.getNotification("cookie-restriction", browser);
-        if (notification) {
-          win.PopupNotifications.remove(notification);
-        }
+        win.PopupNotifications.remove(win.PopupNotifications.getNotification("cookie-restrictions-breakage", browser));
+        win.PopupNotifications.remove(win.PopupNotifications.getNotification("cookie-restrictions-breakage-not-fixed", browser));
+        win.PopupNotifications.remove(win.PopupNotifications.getNotification("cookie-restrictions-breakage-report-url", browser));
+        win.PopupNotifications.remove(win.PopupNotifications.getNotification("cookie-restrictions-breakage-not-sent", browser));
+        win.PopupNotifications.remove(win.PopupNotifications.getNotification("cookie-restrictions-thanks", browser));
       }
     }
   }
 
   getAPI(context) {
     const popupNotificationEventEmitter = new PopupNotificationEventEmitter();
+    const self = this;
     return {
       popupNotification: {
         show(location) {
-          popupNotificationEventEmitter.emitShow(location);
+          popupNotificationEventEmitter.emitShow(location, self.extension.getURL("../../icons/study-icon.svg"));
         },
         close() {
           popupNotificationEventEmitter.emitClose();

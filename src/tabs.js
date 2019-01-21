@@ -60,8 +60,8 @@ window.TabRecords = {
     tabInfo = {
       payloadWaitingForSurvey: null,
       compatModeWasJustEntered: null,
-      currenOrigin: null,
-      currenOriginReported: null,
+      currentOrigin: null,
+      currentOriginReported: null,
     };
 
     this._tabs.set(tabId, tabInfo);

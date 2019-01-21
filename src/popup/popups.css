@@ -1,0 +1,104 @@
+html, body {
+  width: 322px;
+}
+
+ul {
+  padding-left: 25px;
+}
+
+.footer-button {
+  -moz-appearance: none;
+  width: 100%;
+  height: 41px;
+  background-color: #0060DF;
+  box-shadow: inset 0 1px 0 0 #003EAA;
+  border: none;
+  border-radius: 0 2px 2px 0;
+  color: #FFF;
+  text-align: center;
+  font-size: 13px;
+  margin: 0;
+}
+
+.footer-button:hover {
+  background-color: #003eaa;
+}
+
+.footer-button:active {
+  background-color: #002275;
+}
+
+.footer-button:focus {
+  box-shadow:
+    0 0 0 1px #0a84ff inset,
+    0 0 0 1px #0a84ff,
+    0 0 0 4px rgba(10, 132, 255, 0.3)
+}
+
+.footer-button.half {
+  float: right;
+  width: 50%;
+}
+
+.footer-button.negative {
+  float: left;
+  background-color: rgba(12, 12, 13, 0.1);
+  color: #0c0c0d;
+  box-shadow: none;
+}
+
+.footer-button.negative:hover {
+  background-color: rgba(12, 12, 13, 0.2);
+}
+
+.footer-button.negative:active {
+  background-color: rgba(12, 12, 13, 0.3);
+}
+
+.content {
+  padding: 10px 15px;
+}
+
+.note {
+  color: #737373;
+  font-size: 11px;
+  line-height: 15px;
+}
+
+.note span,
+.note a {
+  color: #0060DF;
+}
+
+.icon {
+  background-image: url(../icons/study-icon.svg);
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  display: inline-block;
+  background-size: contain;
+  margin-bottom: -3px;
+}
+
+.basic #privateBrowsing,
+.exception #privateBrowsing {
+  display: none;
+}
+
+.private #basicBrowsing,
+.exception #basicBrowsing {
+  display: none;
+}
+
+.private #basicBrowsing,
+.exception #basicBrowsing {
+  display: none;
+}
+
+#exceptionAdded {
+  display: none;
+}
+
+.exception #exceptionAdded {
+  display: block;
+}
