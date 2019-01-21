@@ -190,10 +190,11 @@ this.popupNotification = class extends ExtensionAPI {
     unloadStyles(this.extension.baseURI.spec);
     for (const win of BrowserWindowTracker.orderedWindows) {
       for (const browser of win.gBrowser.browsers) {
-        const notification = win.PopupNotifications.getNotification("cookie-restriction", browser);
-        if (notification) {
-          win.PopupNotifications.remove(notification);
-        }
+        win.PopupNotifications.remove(win.PopupNotifications.getNotification("cookie-restrictions-breakage", browser));
+        win.PopupNotifications.remove(win.PopupNotifications.getNotification("cookie-restrictions-breakage-not-fixed", browser));
+        win.PopupNotifications.remove(win.PopupNotifications.getNotification("cookie-restrictions-breakage-report-url", browser));
+        win.PopupNotifications.remove(win.PopupNotifications.getNotification("cookie-restrictions-breakage-not-sent", browser));
+        win.PopupNotifications.remove(win.PopupNotifications.getNotification("cookie-restrictions-thanks", browser));
       }
     }
   }
