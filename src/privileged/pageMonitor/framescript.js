@@ -18,10 +18,10 @@ addEventListener("unload", function() {
   removeMessageListener("Browser:Reload", reloadListener);
 });
 
-addEventListener("DOMContentLoaded", function(e) {
+const telemetryAndSendLoadEvent = (e) => {
   // Ignore frames or non-web-sites.
-  if (e.target.defaultView.top !== e.target.defaultView ||
-      !e.target.documentURI.startsWith("http")) {
+  if ((!content.location.href.startsWith("http")) ||
+      (e && e.target.defaultView.top !== e.target.defaultView)) {
     return;
   }
 
@@ -66,4 +66,9 @@ addEventListener("DOMContentLoaded", function(e) {
 
     sendAsyncMessage("CookieRestrictions:pageError", event.error.name);
   });
-});
+};
+
+addEventListener("DOMContentLoaded", telemetryAndSendLoadEvent);
+if (content.document.readyState === "complete") {
+  telemetryAndSendLoadEvent();
+}
