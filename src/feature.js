@@ -133,6 +133,8 @@ class Feature {
         tabInfo.payloadWaitingForSurvey.navigated_internal += 1;
       }
 
+      await this.addMainTelemetryData(tabInfo, data, userid);
+
       // compatModeWasJustEntered - show the banner as a response to clicking the icon.
       if (tabInfo && tabInfo.compatModeWasJustEntered) {
         // Clear the old timer if we report a second site within the 15 min.
@@ -196,7 +198,13 @@ class Feature {
         // Location is either an empty string or a URL if the user has given permission.
         tabInfo.telemetryPayload.plain_text_url = location;
         tabInfo.telemetryPayload.action = SURVEY_PAGE_FIXED;
-        this.submitPayloadWaitingForSurvey(tabInfo);
+
+        // This will trigger twice, this is due to sending a message when the user answers and also
+        // sending a message when it is ignored. The "ignored" event will fire no matter what happens.
+        // we only want the "ignored" event if the first event does not happen.
+        if (tabInfo.payloadWaitingForSurvey) {
+          this.submitPayloadWaitingForSurvey(tabInfo);
+        }
       },
     );
 

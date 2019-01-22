@@ -99,7 +99,7 @@ class PopupNotificationEventEmitter extends EventEmitter {
             callback: () => {},
           },
         ],
-        null,
+        (e) => {self.emit("page-fixed", tabId, "")},
       );
     };
 
@@ -122,7 +122,7 @@ class PopupNotificationEventEmitter extends EventEmitter {
             callback: userWillNotSubmit,
           },
         ],
-        null,
+        (e) =>  {self.emit("page-fixed", tabId, "")},
       );
     };
 
