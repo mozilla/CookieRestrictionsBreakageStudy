@@ -122,13 +122,40 @@ class Feature {
 
       data.completeLocation = null;
       tabInfo.currentOrigin = data.origin;
-      if (tabInfo.currentOrigin !== tabInfo.currentOriginReported) {
-        browser.popupNotification.close();
-      }
-      await this.addMainTelemetryData(tabInfo, data, userid);
 
-      if (tabInfo && tabInfo.payloadWaitingForSurvey && tabInfo.compatModeWasJustEntered) {
+      // compatModeWasJustEntered - show the banner as a response to clicking the icon.
+      if (tabInfo && tabInfo.compatModeWasJustEntered) {
+        // Clear the old timer if we report a second site within the 15 min.
+        if (tabInfo.bannerTimer) {
+          clearTimeout(tabInfo.bannerTimer);
+        }
+        await this.addMainTelemetryData(tabInfo, data, userid);
         tabInfo.compatModeWasJustEntered = false;
+        tabInfo.waitingForReturn = false;
+        browser.popupNotification.show(location);
+
+      // If user has left the reported domain.
+      } else if (tabInfo.currentOriginReported &&
+          tabInfo.currentOrigin !== tabInfo.currentOriginReported &&
+          !tabInfo.waitingForReturn) {
+        // If the user does not return within 15 min, clear the data, the user has ignored the banner.
+        tabInfo.bannerTimer = setTimeout(function() {
+          tabInfo.payloadWaitingForSurvey = null;
+          tabInfo.currentOriginReported = null;
+          tabInfo.waitingForReturn = null;
+        }, 900000); // 900000 = 15 min
+        browser.popupNotification.close();
+        tabInfo.waitingForReturn = true;
+
+      // If user has returned in time.
+      } else if (tabInfo &&
+                 tabInfo.currentOrigin === tabInfo.currentOriginReported &&
+                 tabInfo.payloadWaitingForSurvey &&
+                 tabInfo.waitingForReturn &&
+                 !tabInfo.compatModeWasJustEntered) {
+        tabInfo.waitingForReturn = false;
+        clearTimeout(tabInfo.bannerTimer);
+        // Show the banner because we have returned to the reported site within 15 min.
         browser.popupNotification.show(location);
       }
     });
