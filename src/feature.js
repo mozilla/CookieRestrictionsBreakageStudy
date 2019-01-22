@@ -123,11 +123,22 @@ class Feature {
       data.completeLocation = null;
       tabInfo.currentOrigin = data.origin;
 
+      // Increment external and internal navigations between reporting broken and answering the survey.
+      if (tabInfo.currentOriginReported &&
+          tabInfo.currentOrigin !== tabInfo.currentOriginReported) {
+        tabInfo.payloadWaitingForSurvey.navigated_external += 1;
+      } else if (tabInfo.currentOriginReported &&
+                 tabInfo.currentOrigin === tabInfo.currentOriginReported &&
+                 !tabInfo.compatModeWasJustEntered) {
+        tabInfo.payloadWaitingForSurvey.navigated_internal += 1;
+      }
+
       // compatModeWasJustEntered - show the banner as a response to clicking the icon.
       if (tabInfo && tabInfo.compatModeWasJustEntered) {
         // Clear the old timer if we report a second site within the 15 min.
         if (tabInfo.bannerTimer) {
           clearTimeout(tabInfo.bannerTimer);
+          tabInfo.bannerTimer = null;
         }
         await this.addMainTelemetryData(tabInfo, data, userid);
         tabInfo.compatModeWasJustEntered = false;
@@ -143,6 +154,7 @@ class Feature {
           tabInfo.payloadWaitingForSurvey = null;
           tabInfo.currentOriginReported = null;
           tabInfo.waitingForReturn = null;
+          tabInfo.bannerTimer = null;
         }, 900000); // 900000 = 15 min
         browser.popupNotification.close();
         tabInfo.waitingForReturn = true;
@@ -245,33 +257,24 @@ class Feature {
     this.sendTelemetry({...tabInfo.telemetryPayload, action: ENTER_COMPAT_MODE});
     tabInfo.currentOriginReported = tabInfo.currentOrigin;
 
-    // Only keep a record of the "off" page errors to pass forwards.
-    tabInfo.payloadWaitingForSurvey = {};
-    tabInfo.payloadWaitingForSurvey.compat_off_num_EvalError =
-      tabInfo.telemetryPayload.compat_off_num_EvalError;
-    tabInfo.payloadWaitingForSurvey.compat_off_num_InternalError =
-      tabInfo.telemetryPayload.compat_off_num_InternalError;
-    tabInfo.payloadWaitingForSurvey.compat_off_num_RangeError =
-      tabInfo.telemetryPayload.compat_off_num_RangeError;
-    tabInfo.payloadWaitingForSurvey.compat_off_num_ReferenceError =
-      tabInfo.telemetryPayload.compat_off_num_ReferenceError;
-    tabInfo.payloadWaitingForSurvey.compat_off_num_SyntaxError =
-      tabInfo.telemetryPayload.compat_off_num_SyntaxError;
-    tabInfo.payloadWaitingForSurvey.compat_off_num_TypeError =
-      tabInfo.telemetryPayload.compat_off_num_TypeError;
-    tabInfo.payloadWaitingForSurvey.compat_off_num_URIError =
-      tabInfo.telemetryPayload.compat_off_num_URIError;
-    tabInfo.payloadWaitingForSurvey.compat_off_num_SecurityError =
-      tabInfo.telemetryPayload.compat_off_num_SecurityError;
-    tabInfo.payloadWaitingForSurvey.compat_off_num_other_error =
-      tabInfo.telemetryPayload.compat_off_num_other_error;
-
-    tabInfo.payloadWaitingForSurvey.etld = tabInfo.telemetryPayload.etld;
-    tabInfo.payloadWaitingForSurvey.page_reloaded = tabInfo.telemetryPayload.page_reloaded;
-    tabInfo.payloadWaitingForSurvey.embedded_social_script =
-      tabInfo.telemetryPayload.embedded_social_script;
-    tabInfo.payloadWaitingForSurvey.login_form_on_page =
-      tabInfo.telemetryPayload.login_form_on_page;
+    // Only keep a record of the particular info we want.
+    tabInfo.payloadWaitingForSurvey = {
+      navigated_external: 0,
+      navigated_internal: 0,
+      compat_off_num_EvalError: tabInfo.telemetryPayload.compat_off_num_EvalError,
+      compat_off_num_InternalError: tabInfo.telemetryPayload.compat_off_num_InternalError,
+      compat_off_num_RangeError: tabInfo.telemetryPayload.compat_off_num_RangeError,
+      compat_off_num_ReferenceError: tabInfo.telemetryPayload.compat_off_num_ReferenceError,
+      compat_off_num_SyntaxError: tabInfo.telemetryPayload.compat_off_num_SyntaxError,
+      compat_off_num_TypeError: tabInfo.telemetryPayload.compat_off_num_TypeError,
+      compat_off_num_URIError: tabInfo.telemetryPayload.compat_off_num_URIError,
+      compat_off_num_SecurityError: tabInfo.telemetryPayload.compat_off_num_SecurityError,
+      compat_off_num_other_error: tabInfo.telemetryPayload.compat_off_num_other_error,
+      etld: tabInfo.telemetryPayload.etld,
+      page_reloaded: tabInfo.telemetryPayload.page_reloaded,
+      embedded_social_script: tabInfo.telemetryPayload.embedded_social_script,
+      login_form_on_page: tabInfo.telemetryPayload.login_form_on_page,
+    };
 
     tabInfo.compatModeWasJustEntered = true;
     browser.pageMonitor.addException(tabInfo.currentOrigin);

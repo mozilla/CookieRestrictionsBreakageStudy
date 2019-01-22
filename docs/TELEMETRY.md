@@ -46,6 +46,8 @@ telemetry: {
       "login_form_on_page": "false",
       // This is optional, it will either be a blank string, or a url if the user gives explicit permission.
       "plain_text_url": "",
+      "navigated_external": "0",
+      "navigated_internal": "0",
       
       // Reporting the status of of prefs we are interested in
       "network_cookie_cookieBehavior": "4",
