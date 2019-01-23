@@ -16,3 +16,8 @@ confirm.addEventListener("click", () => {
   browser.runtime.sendMessage({msg: "user_permission", user_joined: false});
   window.close();
 });
+
+browser.pageMonitor.onPlatformResult.addListener(async (platform) => {
+  document.body.classList.add(platform);
+});
+browser.pageMonitor.testPlatform();

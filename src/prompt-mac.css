@@ -1,0 +1,7 @@
+notification[value="cookie-restrictions-breakage"] .notification-button,
+notification[value="cookie-restrictions-breakage-report-url"] .notification-button,
+notification[value="cookie-restrictions-breakage-not-fixed"] .notification-button,
+notification[value="cookie-restrictions-breakage-not-sent"] .notification-button,
+notification[value="cookie-restrictions-breakage-thanks"] .notification-button {
+  border-radius: 2px !important;
+}

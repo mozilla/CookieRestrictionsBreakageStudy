@@ -13,7 +13,7 @@ notification[value="cookie-restrictions-breakage-not-fixed"] .notification-butto
 notification[value="cookie-restrictions-breakage-not-sent"] .notification-button,
 notification[value="cookie-restrictions-breakage-thanks"] .notification-button {
   border: 0 !important;
-  border-radius: 2px !important;
+  border-radius: 0px !important;
   height: 32px;
   width: 80px;
   background: rgba(12, 12, 13, 0.1) !important;

@@ -29,6 +29,13 @@
         "parameters": [
           {"type": "string", "name": "url"}
         ]
+      },
+      {
+        "name": "testPlatform",
+        "type": "function",
+        "description": "Check the plaform the user is on.",
+        "async": true,
+        "parameters": []
       }
     ],
     "events": [
@@ -74,6 +81,14 @@
         "description": "We checked if there was an exception, and send the results.",
         "parameters": [
           {"type": "boolean", "name": "hasException"}
+        ]
+      },
+      {
+        "name": "onPlatformResult",
+        "type": "function",
+        "description": "We checked the platform, and send the results.",
+        "parameters": [
+          {"type": "string", "name": "platform"}
         ]
       }
     ]
