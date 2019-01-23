@@ -26,7 +26,6 @@ const telemetryAndSendLoadEvent = (e) => {
   }
 
   telemetryData.origin = content.location.origin;
-  telemetryData.completeLocation = content.location.href;
   // Check if there is a password field on the page, this gives the best
   // indication that this might be a login page
   const passwordFields = content.document.querySelectorAll("input[type='password']");

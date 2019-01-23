@@ -13,9 +13,12 @@ class Feature {
 
   async configure(studyInfo) {
     // Open onboarding page, if user does not agree to join, then do not begin study.
-    browser.tabs.create({
-      url: browser.runtime.getURL("./onboarding/index.html"),
-    });
+    (this.openOnboardingTab = () => {
+      browser.tabs.create({
+        url: browser.runtime.getURL("./onboarding/index.html"),
+      });
+    })();
+    browser.browserAction.onClicked.addListener(this.openOnboardingTab);
 
     // On receiving an action from the onboarding page, we begin, or end the study.
     browser.runtime.onMessage.addListener((data) => {
@@ -43,6 +46,7 @@ class Feature {
   }
 
   async beginStudy(studyInfo) {
+    browser.browserAction.onClicked.removeListener(this.openOnboardingTab);
     browser.browserAction.setPopup({popup: "../popup/compatMode.html"});
     let { variation } = studyInfo;
     this.onCompatMode = this.onCompatMode.bind(this);
@@ -117,10 +121,7 @@ class Feature {
     // Listen for the page to load to show the banner
     browser.pageMonitor.onPageDOMContentLoaded.addListener(async (tabId, data) => {
       const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
-      // Remove any query params from the url.
-      const location = /[^?]*/.exec(data.completeLocation)[0];
 
-      data.completeLocation = null;
       tabInfo.currentOrigin = data.origin;
 
       // Increment external and internal navigations between reporting broken and answering the survey.
@@ -145,7 +146,7 @@ class Feature {
         await this.addMainTelemetryData(tabInfo, data, userid);
         tabInfo.compatModeWasJustEntered = false;
         tabInfo.waitingForReturn = false;
-        browser.popupNotification.show(location);
+        browser.popupNotification.show(tabInfo.currentOrigin);
 
       // If user has left the reported domain.
       } else if (tabInfo.currentOriginReported &&
@@ -170,7 +171,7 @@ class Feature {
         tabInfo.waitingForReturn = false;
         clearTimeout(tabInfo.bannerTimer);
         // Show the banner because we have returned to the reported site within 15 min.
-        browser.popupNotification.show(location);
+        browser.popupNotification.show(tabInfo.currentOrigin);
       }
     });
 

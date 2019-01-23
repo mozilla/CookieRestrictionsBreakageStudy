@@ -4,6 +4,7 @@
 ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.defineModuleGetter(this, "AddonManager", "resource://gre/modules/AddonManager.jsm");
+ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 /* eslint-disable-next-line no-var */
 var {EventManager, EventEmitter} = ExtensionCommon;
@@ -46,6 +47,9 @@ class PageMonitorEventEmitter extends EventEmitter {
   }
   emitHasException(hasException) {
     this.emit("has-exception", hasException);
+  }
+  emitPlatform(platform) {
+    this.emit("platform-found", platform);
   }
 }
 
@@ -90,8 +94,6 @@ this.pageMonitor = class extends ExtensionAPI {
           } catch (error) {
             return;
           }
-          // Browser is never private, so type can always be "trackingprotection"
-          e.data.telemetryData.completeLocation = null;
           pageMonitorEventEmitter.emitPageBeforeUnload(tabId, e.data.telemetryData);
         },
         async pageDOMContentLoadedCallback(e) {
@@ -153,6 +155,10 @@ this.pageMonitor = class extends ExtensionAPI {
           pageMonitorEventEmitter.emitHasException(hasException);
         },
 
+        testPlatform() {
+          pageMonitorEventEmitter.emitPlatform(AppConstants.platform);
+        },
+
         onUninstalling(addon) {
           this.handleDisableOrUninstall(addon);
         },
@@ -187,6 +193,26 @@ this.pageMonitor = class extends ExtensionAPI {
             return () => {
               pageMonitorEventEmitter.off(
                 "has-exception",
+                listener,
+              );
+            };
+          },
+        ).api(),
+
+        onPlatformResult: new EventManager(
+          context,
+          "pageMonitor.onPlatformResult",
+          fire => {
+            const listener = (value, platform) => {
+              fire.async(platform);
+            };
+            pageMonitorEventEmitter.on(
+              "platform-found",
+              listener,
+            );
+            return () => {
+              pageMonitorEventEmitter.off(
+                "platform-found",
                 listener,
               );
             };

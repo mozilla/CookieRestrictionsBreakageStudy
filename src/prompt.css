@@ -13,7 +13,7 @@ notification[value="cookie-restrictions-breakage-not-fixed"] .notification-butto
 notification[value="cookie-restrictions-breakage-not-sent"] .notification-button,
 notification[value="cookie-restrictions-breakage-thanks"] .notification-button {
   border: 0 !important;
-  border-radius: 2px !important;
+  border-radius: 0px !important;
   height: 32px;
   width: 80px;
   background: rgba(12, 12, 13, 0.1) !important;
@@ -36,14 +36,6 @@ notification[value="cookie-restrictions-breakage-thanks"] .notification-button:a
   color: black !important;
 }
 
-notification[value="cookie-restrictions-breakage"] .messageDetails,
-notification[value="cookie-restrictions-breakage-report-url"]  .messageDetails,
-notification[value="cookie-restrictions-breakage-not-fixed"] .messageDetails,
-notification[value="cookie-restrictions-breakage-not-sent"] .messageDetails,
-notification[value="cookie-restrictions-breakage-thanks"] .messageDetails {
-  margin: 0 150px;
-}
-
 notification[value="cookie-restrictions-breakage"] .messageText,
 notification[value="cookie-restrictions-breakage-report-url"] .messageText,
 notification[value="cookie-restrictions-breakage-not-fixed"] .messageText,
@@ -51,4 +43,32 @@ notification[value="cookie-restrictions-breakage-not-sent"] .messageText,
 notification[value="cookie-restrictions-breakage-thanks"] .messageText {
   max-width: 500px;
   font-size: 13px;
+}
+
+notification[value="cookie-restrictions-breakage"] .messageDetails,
+notification[value="cookie-restrictions-breakage-report-url"]  .messageDetails,
+notification[value="cookie-restrictions-breakage-not-fixed"] .messageDetails,
+notification[value="cookie-restrictions-breakage-not-sent"] .messageDetails,
+notification[value="cookie-restrictions-breakage-thanks"] .messageDetails {
+  margin: 0 210px;
+}
+
+@media (max-width: 1000px) {
+  notification[value="cookie-restrictions-breakage"] .messageDetails,
+  notification[value="cookie-restrictions-breakage-report-url"]  .messageDetails,
+  notification[value="cookie-restrictions-breakage-not-fixed"] .messageDetails,
+  notification[value="cookie-restrictions-breakage-not-sent"] .messageDetails,
+  notification[value="cookie-restrictions-breakage-thanks"] .messageDetails {
+    margin: 0 80px;
+  }
+}
+
+@media (min-width: 1800px) {
+  notification[value="cookie-restrictions-breakage"] .messageDetails,
+  notification[value="cookie-restrictions-breakage-report-url"]  .messageDetails,
+  notification[value="cookie-restrictions-breakage-not-fixed"] .messageDetails,
+  notification[value="cookie-restrictions-breakage-not-sent"] .messageDetails,
+  notification[value="cookie-restrictions-breakage-thanks"] .messageDetails {
+    margin: 0 400px;
+  }
 }

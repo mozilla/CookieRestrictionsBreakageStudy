@@ -7,26 +7,27 @@ ChromeUtils.import("resource://gre/modules/Services.jsm");
 ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
 ChromeUtils.import("resource://gre/modules/ExtensionCommon.jsm");
 ChromeUtils.import("resource://gre/modules/ExtensionUtils.jsm");
+ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
 
 /* eslint-disable-next-line */
 var {EventManager, EventEmitter} = ExtensionCommon;
 /* eslint-disable-next-line no-var */
 var {Management: {global: {tabTracker}}} = ChromeUtils.import("resource://gre/modules/Extension.jsm", {});
 
-function loadStyles(resourceURI) {
+function loadStyles(resourceURI, sheet) {
   const styleSheetService = Cc["@mozilla.org/content/style-sheet-service;1"]
     .getService(Ci.nsIStyleSheetService);
-  const styleURI = styleSheet(resourceURI);
+  const styleURI = styleSheet(resourceURI, sheet);
   const sheetType = styleSheetService.AGENT_SHEET;
   styleSheetService.loadAndRegisterSheet(styleURI, sheetType);
 }
 
-function styleSheet(resourceURI) {
-  return Services.io.newURI("prompt.css", null, Services.io.newURI(resourceURI));
+function styleSheet(resourceURI, sheet) {
+  return Services.io.newURI(sheet, null, Services.io.newURI(resourceURI));
 }
 
-function unloadStyles(resourceURI) {
-  const styleURI = styleSheet(resourceURI);
+function unloadStyles(resourceURI, sheet) {
+  const styleURI = styleSheet(resourceURI, sheet);
   const styleSheetService = Cc["@mozilla.org/content/style-sheet-service;1"]
     .getService(Ci.nsIStyleSheetService);
   const sheetType = styleSheetService.AGENT_SHEET;
@@ -180,14 +181,21 @@ this.popupNotification = class extends ExtensionAPI {
   constructor(extension) {
     super(extension);
     this.extension = extension;
-    loadStyles(extension.baseURI.spec);
+    loadStyles(this.extension.baseURI.spec, "prompt.css");
+    this.platform = AppConstants.platform;
+    if (this.platform === "macosx") {
+      loadStyles(this.extension.baseURI.spec, "prompt-mac.css");
+    }
   }
   /**
    * Extension Shutdown
    * Goes through each tab for each window and removes the notification, if it exists.
    */
   onShutdown(shutdownReason) {
-    unloadStyles(this.extension.baseURI.spec);
+    unloadStyles(this.extension.baseURI.spec, "prompt.css");
+    if (this.platform === "macosx") {
+      unloadStyles(this.extension.baseURI.spec, "prompt-mac.css");
+    }
     for (const win of BrowserWindowTracker.orderedWindows) {
       for (const browser of win.gBrowser.browsers) {
         win.PopupNotifications.remove(win.PopupNotifications.getNotification("cookie-restrictions-breakage", browser));
