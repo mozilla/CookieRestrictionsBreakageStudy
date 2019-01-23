@@ -127,6 +127,12 @@ h2 {
   display: inline-block;
 }
 
+.content img {
+  margin: 20px 0 0 -20px;
+  width: 800px;
+  height: auto;
+}
+
 .icon {
   background-image: url(../icons/study-icon.svg);
   width: 16px;
