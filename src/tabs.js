@@ -17,8 +17,7 @@ window.TabRecords = {
 
       privacy_trackingprotection_enabled: true,
       network_cookie_cookieBehavior: -1,
-      urlclassifier_trackingAnnotationTable: "",
-      urlclassifier_trackingAnnotationWhitelistTable: "",
+      urlclassifier_trackingTable: "",
 
       compat_on_num_EvalError: 0,
       compat_on_num_InternalError: 0,

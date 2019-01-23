@@ -52,8 +52,8 @@ telemetry: {
       // Reporting the status of of prefs we are interested in
       "network_cookie_cookieBehavior": "4",
       "privacy_trackingprotection_enabled": "false",
-      "urlclassifier_trackingAnnotationTable": "test-track-simple,base-track-digest256",
-      "urlclassifier_trackingAnnotationWhitelistTable": "test-trackwhite-simple,mozstd-trackwhite-digest256",
+      "urlclassifier_trackingTable": "test-track-simple,base-track-digest256",
+
       
       // Reporting any page Javascript errors before and after entering compat mode
       "compat_on_num_EvalError": "0",
