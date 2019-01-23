@@ -13,9 +13,12 @@ class Feature {
 
   async configure(studyInfo) {
     // Open onboarding page, if user does not agree to join, then do not begin study.
-    browser.tabs.create({
-      url: browser.runtime.getURL("./onboarding/index.html"),
-    });
+    (this.openOnboardingTab = () => {
+      browser.tabs.create({
+        url: browser.runtime.getURL("./onboarding/index.html"),
+      });
+    })();
+    browser.browserAction.onClicked.addListener(this.openOnboardingTab);
 
     // On receiving an action from the onboarding page, we begin, or end the study.
     browser.runtime.onMessage.addListener((data) => {
@@ -43,6 +46,7 @@ class Feature {
   }
 
   async beginStudy(studyInfo) {
+    browser.browserAction.onClicked.removeListener(this.openOnboardingTab);
     browser.browserAction.setPopup({popup: "../popup/compatMode.html"});
     let { variation } = studyInfo;
     this.onCompatMode = this.onCompatMode.bind(this);
