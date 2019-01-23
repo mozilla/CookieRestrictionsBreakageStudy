@@ -16,6 +16,7 @@ h3 {
 h2 {
   font-size: 36px;
   font-weight: 200;
+  margin-top: 60px;
 }
 
 .header {
@@ -63,9 +64,10 @@ h2 {
 
 .banner {
   margin-top: 90px;
+  margin-bottom: -20px;
   background-image: url(../icons/waves.svg), linear-gradient(177deg, #9400ff, #0a84ff);
   background-repeat: no-repeat;
-  background-size: contain;
+  background-size: cover;
   height: 320px;
   width: 100%;
   display: inline-block;
@@ -105,6 +107,7 @@ h2 {
 }
 
 .content h3 {
+  font-weight: 500;
   font-size: 16px;
 }
 
@@ -132,4 +135,21 @@ h2 {
   display: inline-block;
   background-size: contain;
   margin-bottom: -3px;
+}
+
+a {
+  color: #0060df;
+  text-decoration: none;
+}
+
+a:hover{
+  text-decoration: underline;
+}
+
+a:active {
+  color: #003eaa;
+}
+
+a:focus {
+  box-shadow: 0 0 0 2px #0a84ff, 0 0 0 6px rgba(10, 132, 255, 0.3)
 }
