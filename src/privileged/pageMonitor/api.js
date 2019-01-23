@@ -90,8 +90,6 @@ this.pageMonitor = class extends ExtensionAPI {
           } catch (error) {
             return;
           }
-          // Browser is never private, so type can always be "trackingprotection"
-          e.data.telemetryData.completeLocation = null;
           pageMonitorEventEmitter.emitPageBeforeUnload(tabId, e.data.telemetryData);
         },
         async pageDOMContentLoadedCallback(e) {

@@ -117,10 +117,7 @@ class Feature {
     // Listen for the page to load to show the banner
     browser.pageMonitor.onPageDOMContentLoaded.addListener(async (tabId, data) => {
       const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
-      // Remove any query params from the url.
-      const location = /[^?]*/.exec(data.completeLocation)[0];
 
-      data.completeLocation = null;
       tabInfo.currentOrigin = data.origin;
 
       // Increment external and internal navigations between reporting broken and answering the survey.
@@ -145,7 +142,7 @@ class Feature {
         await this.addMainTelemetryData(tabInfo, data, userid);
         tabInfo.compatModeWasJustEntered = false;
         tabInfo.waitingForReturn = false;
-        browser.popupNotification.show(location);
+        browser.popupNotification.show(tabInfo.currentOrigin);
 
       // If user has left the reported domain.
       } else if (tabInfo.currentOriginReported &&
@@ -170,7 +167,7 @@ class Feature {
         tabInfo.waitingForReturn = false;
         clearTimeout(tabInfo.bannerTimer);
         // Show the banner because we have returned to the reported site within 15 min.
-        browser.popupNotification.show(location);
+        browser.popupNotification.show(tabInfo.currentOrigin);
       }
     });
 
