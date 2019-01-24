@@ -60,7 +60,7 @@ class PopupNotificationEventEmitter extends EventEmitter {
     const recentWindow = getMostRecentBrowserWindow();
     const browser = recentWindow.gBrowser.selectedBrowser;
     const tabId = tabTracker.getBrowserTabId(browser);
-    const notificationBox = recentWindow.gBrowser.getNotificationBox();
+    const notificationBox = recentWindow.gBrowser.getNotificationBox(browser);
 
     const userWillSubmit = () => {
       self.emit("page-fixed", tabId, location);

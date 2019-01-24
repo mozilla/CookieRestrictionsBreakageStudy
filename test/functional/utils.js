@@ -6,6 +6,7 @@ require("geckodriver");
 
 const firefox = require("selenium-webdriver/firefox");
 const Context = firefox.Context;
+const SETUP_DELAY = 500;
 
 // Preferences set during testing
 const FIREFOX_PREFERENCES = {
@@ -91,6 +92,16 @@ async function removeCurrentTab(driver) {
   `);
 }
 
+async function joinStudy(driver) {
+  await driver.sleep(SETUP_DELAY);
+  driver.setContext(Context.CHROME);
+  const tabs = await driver.getAllWindowHandles();
+  driver.setContext(Context.CONTENT);
+  driver.switchTo().window(tabs[1]);
+  await driver.sleep(SETUP_DELAY);
+  await driver.executeScript(`document.querySelector("#joinStudy").click()`);
+}
+
 // What we expose to our add-on-specific tests
 module.exports = {
   FIREFOX_PREFERENCES,
@@ -105,4 +116,5 @@ module.exports = {
   prefHasUserValue,
   openNewTab,
   removeCurrentTab,
+  joinStudy,
 };
