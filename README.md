@@ -27,7 +27,7 @@ To run the tests, use
 
 ```shell
 npm run build
-npm run test:func
+npm run test
 ```
 
 Note that you have to re-run `npm run build` when making changes to study code because the tests use a bundled version of the add-on.
@@ -48,7 +48,6 @@ There are a 3 variations to study features and heuristics:
   * `ThirdPartyTrackingBasic`
   * `ThirdPartyTrackingStrict`
   * `AllThirdPartyCookies`
-  * `TPStrict`
 
 You can run a specific variation like so:
 
@@ -95,14 +94,6 @@ In a All Third Party Cookies [variation](#variations):
 
 ```shell
 npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=AllThirdPartyCookies
-```
-
-### Tracking Protection Strict
-
-In a Tracking Protection Strict [variation](#variations):
-
-```shell
-npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=TPStrict
 ```
 
 ### Testing Guide

@@ -52,7 +52,6 @@ There are a 2 variations to study features and heuristics:
   * `ThirdPartyTrackingBasic`
   * `ThirdPartyTrackingStrict`
   * `AllThirdPartyCookies`
-  * `TPStrict`
 
 You can run a specific variation like so:
 
@@ -101,15 +100,6 @@ In a All Third Party Cookies [variation](#variations):
 
 ```shell
 npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=AllThirdPartyCookies
-```
-
-### Tracking Protection Strict
-In a Tracking Protection Strict [variation](#variations):
-
-  * TBD
-
-```shell
-npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=TPStrict
 ```
 
 ### Testing Guide
