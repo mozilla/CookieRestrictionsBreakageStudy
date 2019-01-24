@@ -81,6 +81,11 @@ this.pageMonitor = class extends ExtensionAPI {
           mm.removeMessageListener("CookieRestrictions:beforeunload", this.pageBeforeUnloadCallback);
           mm.removeMessageListener("CookieRestrictions:DOMContentLoaded", this.pageDOMContentLoadedCallback);
           mm.removeMessageListener("CookieRestrictions:pageError", this.pageErrorCallback);
+
+          const shieldIcon = win.document.getElementById("tracking-protection-icon-box");
+          const trackingProtectionSection = win.document.getElementById("tracking-protection-container");
+          shieldIcon.style.display = "";
+          trackingProtectionSection.style.display = "";
         },
         async pageErrorCallback(e) {
           const tabId = tabTracker.getBrowserTabId(e.target);

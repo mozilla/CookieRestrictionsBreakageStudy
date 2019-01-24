@@ -17,7 +17,10 @@ confirm.addEventListener("click", () => {
   window.close();
 });
 
-browser.pageMonitor.onPlatformResult.addListener(async (platform) => {
-  document.body.classList.add(platform);
+browser.runtime.onMessage.addListener((data) => {
+  if (data.msg === "platform") {
+    document.body.classList.add(data.platform);
+  }
 });
-browser.pageMonitor.testPlatform();
+
+browser.runtime.sendMessage({msg: "test-platform"});

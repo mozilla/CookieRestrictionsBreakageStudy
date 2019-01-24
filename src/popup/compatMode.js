@@ -26,9 +26,12 @@ getCurrentWindowActiveTab().then((tabList) => {
   const url = tabList[0].url;
   const hostname = new URL(url).hostname;
   document.getElementById("domainName").textContent = hostname;
-  browser.pageMonitor.testPermission();
 });
 
-browser.pageMonitor.onHasExceptionResults.addListener(async (hasException) => {
-  document.body.classList.toggle("exception", hasException);
+browser.runtime.onMessage.addListener((data) => {
+  if (data.msg === "hasException") {
+    document.body.classList.toggle("exception", data.hasException);
+  }
 });
+
+browser.runtime.sendMessage({msg: "test-permission"});
