@@ -149,7 +149,7 @@ this.pageMonitor = class extends ExtensionAPI {
           }
         },
 
-        testPermission(url) {
+        testPermission() {
           const recentWindow = getMostRecentBrowserWindow();
           const hasException = Services.perms.testExactPermissionFromPrincipal(recentWindow.gBrowser.contentPrincipal, "trackingprotection") === Services.perms.ALLOW_ACTION;
           pageMonitorEventEmitter.emitHasException(hasException);

@@ -26,9 +26,7 @@
         "type": "function",
         "description": "Check if a content blocking exception for this domain exists.",
         "async": true,
-        "parameters": [
-          {"type": "string", "name": "url"}
-        ]
+        "parameters": []
       },
       {
         "name": "testPlatform",

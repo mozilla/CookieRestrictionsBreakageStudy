@@ -279,7 +279,7 @@ class Feature {
       compat_off_num_URIError: tabInfo.telemetryPayload.compat_off_num_URIError,
       compat_off_num_SecurityError: tabInfo.telemetryPayload.compat_off_num_SecurityError,
       compat_off_num_other_error: tabInfo.telemetryPayload.compat_off_num_other_error,
-      etld: tabInfo.telemetryPayload.etld,
+      compat_etld: tabInfo.telemetryPayload.etld,
       page_reloaded: tabInfo.telemetryPayload.page_reloaded,
       embedded_social_script: tabInfo.telemetryPayload.embedded_social_script,
       login_form_on_page: tabInfo.telemetryPayload.login_form_on_page,

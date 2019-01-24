@@ -22,26 +22,11 @@ for (const anchor of anchors) {
   anchor.href = browser.runtime.getURL("./onboarding/index.html");
 }
 
-const extractHostname = (url) => {
-  let hostname;
-  // Find & remove protocol and get hostname
-  if (url.indexOf("//") > -1) {
-    hostname = url.split("/")[2];
-  } else {
-    hostname = url.split("/")[0];
-  }
-  // Find & remove port number
-  hostname = hostname.split(":")[0];
-  // Find & remove "?"
-  hostname = hostname.split("?")[0];
-  return hostname;
-};
-
 getCurrentWindowActiveTab().then((tabList) => {
   const url = tabList[0].url;
-  const hostname = extractHostname(url);
+  const hostname = new URL(url).hostname;
   document.getElementById("domainName").textContent = hostname;
-  browser.pageMonitor.testPermission(url);
+  browser.pageMonitor.testPermission();
 });
 
 browser.pageMonitor.onHasExceptionResults.addListener(async (hasException) => {

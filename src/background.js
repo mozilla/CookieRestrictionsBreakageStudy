@@ -75,7 +75,6 @@ class StudyLifeCycleHandler {
    */
   enableFeature(studyInfo) {
     console.log("Enabling experiment", studyInfo);
-    browser.prefs.setStringPref("extensions.cookie-restrictions.wasEnabled", studyInfo.variation.name);
     const { delayInMinutes } = studyInfo;
     if (delayInMinutes !== undefined) {
       const alarmName = `${browser.runtime.id}:studyExpiration`;
