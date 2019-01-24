@@ -6,6 +6,7 @@ window.VARIATIONS = {
       "network.cookie.cookieBehavior": 0,   // Default, Block no cookies
       // Default basic list
       "urlclassifier.trackingTable": "test-track-simple,base-track-digest256",
+      "browser.contentblocking.ui.enabled": false, // Turn off UI tour
     },
   },
 
@@ -16,6 +17,7 @@ window.VARIATIONS = {
       "network.cookie.cookieBehavior": 4, // Block third party tracking cookies
       // Default basic list
       "urlclassifier.trackingTable": "test-track-simple,base-track-digest256",
+      "browser.contentblocking.ui.enabled": false, // Turn off UI tour
     },
   },
 
@@ -26,6 +28,7 @@ window.VARIATIONS = {
       "network.cookie.cookieBehavior": 4, // Block third party tracking cookies
       // Strict list
       "urlclassifier.trackingTable": "test-track-simple,base-track-digest256,content-track-digest256",
+      "browser.contentblocking.ui.enabled": false, // Turn off UI tour
     },
   },
 
@@ -36,6 +39,7 @@ window.VARIATIONS = {
       "network.cookie.cookieBehavior": 1, // Block all third party cookies.
       // Default basic list
       "urlclassifier.trackingTable": "test-track-simple,base-track-digest256",
+      "browser.contentblocking.ui.enabled": false, // Turn off UI tour
     },
   },
 };
