@@ -67,6 +67,9 @@ const telemetryAndSendLoadEvent = (e) => {
   });
 };
 
+// Add listener to fire every time the page is loaded.
+// If the addon is installed after the page is already loaded, we need to
+// call it once on this page since there won't be a DOMContentLoaded event.
 addEventListener("DOMContentLoaded", telemetryAndSendLoadEvent);
 if (content.document.readyState === "complete") {
   telemetryAndSendLoadEvent();
