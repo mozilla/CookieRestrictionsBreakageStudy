@@ -32,6 +32,7 @@ class Feature {
         this.beginStudy(studyInfo);
       } else if (data.msg === "user_permission" && !data.user_joined) {
         this.sendTelemetry({"action": "info_page_user_unerolled"});
+
         // Actually uninstall addon. User has confirmed.
         browser.management.uninstallSelf();
       } else if (data.msg === "window_closed") {

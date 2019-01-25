@@ -197,12 +197,21 @@ this.popupNotification = class extends ExtensionAPI {
       unloadStyles(this.extension.baseURI.spec, "prompt-mac.css");
     }
     for (const win of BrowserWindowTracker.orderedWindows) {
-      for (const browser of win.gBrowser.browsers) {
-        win.PopupNotifications.remove(win.PopupNotifications.getNotification("cookie-restrictions-breakage", browser));
-        win.PopupNotifications.remove(win.PopupNotifications.getNotification("cookie-restrictions-breakage-not-fixed", browser));
-        win.PopupNotifications.remove(win.PopupNotifications.getNotification("cookie-restrictions-breakage-report-url", browser));
-        win.PopupNotifications.remove(win.PopupNotifications.getNotification("cookie-restrictions-breakage-not-sent", browser));
-        win.PopupNotifications.remove(win.PopupNotifications.getNotification("cookie-restrictions-thanks", browser));
+      const notificationBox = win.gBrowser.getNotificationBox();
+      if (notificationBox.getNotificationWithValue("cookie-restrictions-breakage")) {
+        notificationBox.getNotificationWithValue("cookie-restrictions-breakage").close();
+      }
+      if (notificationBox.getNotificationWithValue("cookie-restrictions-breakage-not-fixed")) {
+        notificationBox.getNotificationWithValue("cookie-restrictions-breakage-not-fixed").close();
+      }
+      if (notificationBox.getNotificationWithValue("cookie-restrictions-breakage-report-url")) {
+        notificationBox.getNotificationWithValue("cookie-restrictions-breakage-report-url").close();
+      }
+      if (notificationBox.getNotificationWithValue("cookie-restrictions-breakage-not-sent")) {
+        notificationBox.getNotificationWithValue("cookie-restrictions-breakage-not-sent").close();
+      }
+      if (notificationBox.getNotificationWithValue("cookie-restrictions-thanks")) {
+        notificationBox.getNotificationWithValue("cookie-restrictions-thanks").close();
       }
     }
   }
