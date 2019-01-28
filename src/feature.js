@@ -6,7 +6,6 @@ const SURVEY_PAGE_FIXED = "survey_response_fixed";
 const SURVEY_PAGE_NOT_FIXED = "survey_response_not_fixed";
 const SURVEY_IGNORED = "survey_ignored";
 const ENTER_COMPAT_MODE = "enter_compatibility_mode";
-// const NAVIGATE = "navigate";
 
 class Feature {
   constructor() {}
@@ -289,7 +288,6 @@ class Feature {
       compat_off_num_SecurityError: tabInfo.telemetryPayload.compat_off_num_SecurityError,
       compat_off_num_other_error: tabInfo.telemetryPayload.compat_off_num_other_error,
       compat_etld: tabInfo.telemetryPayload.etld,
-      page_reloaded: tabInfo.telemetryPayload.page_reloaded,
       embedded_social_script: tabInfo.telemetryPayload.embedded_social_script,
       login_form_on_page: tabInfo.telemetryPayload.login_form_on_page,
     };
@@ -307,7 +305,6 @@ class Feature {
   async addMainTelemetryData(tabInfo, data, userid) {
     const hash = await this.SHA256(userid + data.etld);
     tabInfo.telemetryPayload.etld = hash;
-    tabInfo.telemetryPayload.page_reloaded = data.page_reloaded || false;
 
     tabInfo.telemetryPayload.embedded_social_script = data.embedded_social_script;
     tabInfo.telemetryPayload.login_form_on_page = data.login_form_on_page;

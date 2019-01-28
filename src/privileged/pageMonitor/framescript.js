@@ -3,21 +3,6 @@
 // This will be reset on page unload.
 let telemetryData = {};
 
-// We want a listener on clicking the button, not on reload.
-const reloadListener = {
-  receiveMessage(message) {
-    if (message.name === "Browser:Reload") {
-      telemetryData.page_reloaded = true;
-    }
-  },
-};
-
-addMessageListener("Browser:Reload", reloadListener);
-
-addEventListener("unload", function() {
-  removeMessageListener("Browser:Reload", reloadListener);
-});
-
 const telemetryAndSendLoadEvent = (e) => {
   // Ignore frames or non-web-sites.
   if ((!content.location.href.startsWith("http")) ||

@@ -35,7 +35,7 @@ h2 {
 .firefox-logo {
   height: 50px;
   width: 150px;
-  background-image: url(../icons/firefox_logo.png);
+  background-image: url(../icons/firefox_logo.svg);
   background-repeat: no-repeat;
   background-size: contain;
   float: left;

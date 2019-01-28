@@ -9,7 +9,6 @@ window.TabRecords = {
     const tabInfo = this._tabs.get(tabId);
     tabInfo.telemetryPayload = {
       etld: 0,
-      page_reloaded: false,
       action: "",
       login_form_on_page: false,
       embedded_social_script: false,

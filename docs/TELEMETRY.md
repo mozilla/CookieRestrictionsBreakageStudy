@@ -74,9 +74,6 @@ telemetry: {
       "compat_off_num_URIError": "0",
       "compat_off_num_SecurityError": "0",
       "compat_off_num_other_error": "0",
-      
-      // We may or may not send these
-      "page_reloaded": "true",
     }
   }
 }
