@@ -12,16 +12,15 @@ browser.storage.local.get("user_joined").then(({user_joined}) => {
 });
 
 const joinedStudy = () => {
-  browser.browserAction.setPopup({popup: "../popup/onboarding.html"});
   if (joinButton.textContent === "Join Study") {
+    browser.browserAction.setPopup({popup: "../popup/onboarding-join.html"});
     content.classList.add("joined");
     joinButton.textContent = "Leave Study";
     browser.runtime.sendMessage({msg: "user_permission", user_joined: true});
   } else {
+    browser.browserAction.setPopup({popup: "../popup/onboarding-leave.html"});
     // No need to change the button nor copy back to default,
     // if the user actually leaves, the tab will close upon uninstall.
-    // Set the storage, but don't send a message to uninstall yet.
-    browser.storage.local.set({user_joined: false});
   }
   browser.browserAction.openPopup();
   // Popup reverts back to default, only show this special
@@ -34,7 +33,14 @@ for (const anchor of anchors) {
   anchor.addEventListener("click", joinedStudy);
 }
 
-// Send message when window closes, so we know to uninstall addon skeleton if user has not agreed.
-window.onunload = () => {
-  browser.runtime.sendMessage({msg: "window_closed"});
+// Send message when window closes, so we know to uninstall addon skeleton
+// if user has not agreed.
+window.onbeforeunload = () => {
+  // Check user_joined and send message only if the user has
+  // not joined the study yet.
+  browser.storage.local.get("user_joined").then(({user_joined}) => {
+    if (!user_joined) {
+      browser.runtime.sendMessage({msg: "window_closed"});
+    }
+  });
 };

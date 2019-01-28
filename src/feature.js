@@ -20,6 +20,10 @@ class Feature {
     })();
     browser.browserAction.onClicked.addListener(this.openOnboardingTab);
 
+    browser.pageMonitor.onPlatformResult.addListener((platform) => {
+      browser.runtime.sendMessage({msg: "platform", platform});
+    });
+
     // On receiving an action from the onboarding page, we begin, or end the study.
     browser.runtime.onMessage.addListener((data) => {
       if (data.msg === "user_permission" && data.user_joined) {
@@ -28,14 +32,13 @@ class Feature {
         this.beginStudy(studyInfo);
       } else if (data.msg === "user_permission" && !data.user_joined) {
         this.sendTelemetry({"action": "info_page_user_unerolled"});
+
         // Actually uninstall addon. User has confirmed.
         browser.management.uninstallSelf();
       } else if (data.msg === "window_closed") {
-        browser.storage.local.get("user_joined").then(({user_joined}) => {
-          if (!user_joined) {
-            browser.management.uninstallSelf();
-          }
-        });
+        browser.management.uninstallSelf();
+      } else if (data.msg === "test-platform") {
+        browser.pageMonitor.testPlatform();
       }
     });
 
@@ -53,7 +56,13 @@ class Feature {
     browser.runtime.onMessage.addListener((data) => {
       if (data.msg === "compat_mode") {
         this.onCompatMode(data.tabId);
+      } else if (data.msg === "test-permission") {
+        browser.pageMonitor.testPermission();
       }
+    });
+
+    browser.pageMonitor.onHasExceptionResults.addListener((hasException) => {
+      browser.runtime.sendMessage({msg: "hasException", hasException});
     });
 
     // The userid will be used to create a unique hash

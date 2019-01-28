@@ -1,9 +1,3 @@
-browser.storage.local.get("user_joined").then((result) => {
-  const {user_joined} = result;
-  document.getElementById("joined").toggleAttribute("hidden", !user_joined);
-  document.getElementById("leaving").toggleAttribute("hidden", user_joined);
-});
-
 const cancel = document.getElementById("cancel");
 const confirm = document.getElementById("confirmQuit");
 cancel.addEventListener("click", () => {
@@ -14,10 +8,12 @@ cancel.addEventListener("click", () => {
 confirm.addEventListener("click", () => {
   // Send message to uninstall addon;
   browser.runtime.sendMessage({msg: "user_permission", user_joined: false});
-  window.close();
 });
 
-browser.pageMonitor.onPlatformResult.addListener(async (platform) => {
-  document.body.classList.add(platform);
+browser.runtime.onMessage.addListener((data) => {
+  if (data.msg === "platform") {
+    document.body.classList.add(data.platform);
+  }
 });
-browser.pageMonitor.testPlatform();
+
+browser.runtime.sendMessage({msg: "test-platform"});
