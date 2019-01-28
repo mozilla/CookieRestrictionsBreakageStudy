@@ -36,11 +36,7 @@ class Feature {
         // Actually uninstall addon. User has confirmed.
         browser.management.uninstallSelf();
       } else if (data.msg === "window_closed") {
-        browser.storage.local.get("user_joined").then(({user_joined}) => {
-          if (!user_joined) {
-            browser.management.uninstallSelf();
-          }
-        });
+        browser.management.uninstallSelf();
       } else if (data.msg === "test-platform") {
         browser.pageMonitor.testPlatform();
       }
