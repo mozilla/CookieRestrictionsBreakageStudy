@@ -45,6 +45,16 @@ notification[value="cookie-restrictions-breakage-thanks"] .messageText {
   font-size: 13px;
 }
 
+notification[value="cookie-restrictions-breakage"] .messageImage,
+notification[value="cookie-restrictions-breakage-report-url"]  .messageImage,
+notification[value="cookie-restrictions-breakage-not-fixed"] .messageImage,
+notification[value="cookie-restrictions-breakage-not-sent"] .messageImage,
+notification[value="cookie-restrictions-breakage-thanks"] .messageImage {
+  width: 25px;
+  height: 25px;
+  margin-right: 10px;
+}
+
 notification[value="cookie-restrictions-breakage"] .messageDetails,
 notification[value="cookie-restrictions-breakage-report-url"]  .messageDetails,
 notification[value="cookie-restrictions-breakage-not-fixed"] .messageDetails,

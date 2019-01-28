@@ -222,7 +222,7 @@ this.popupNotification = class extends ExtensionAPI {
     return {
       popupNotification: {
         show(location) {
-          popupNotificationEventEmitter.emitShow(location, self.extension.getURL("../../icons/study-icon.svg"));
+          popupNotificationEventEmitter.emitShow(location, self.extension.getURL("../../icons/firefox-silhouette.svg"));
         },
         close() {
           popupNotificationEventEmitter.emitClose();
