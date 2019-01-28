@@ -33,9 +33,11 @@ for (const anchor of anchors) {
   anchor.addEventListener("click", joinedStudy);
 }
 
-// Send message when window closes, so we know to uninstall addon skeleton if user has not agreed.
+// Send message when window closes, so we know to uninstall addon skeleton
+// if user has not agreed.
 window.onunload = () => {
-  // Check user_joined and send message only on undefined.
+  // Check user_joined and send message only if the user has
+  // not joined the study yet.
   browser.storage.local.get("user_joined").then(({user_joined}) => {
     if (user_joined === undefined) {
       browser.runtime.sendMessage({msg: "window_closed"});
