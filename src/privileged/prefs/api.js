@@ -2,7 +2,7 @@
 
 /* global ExtensionAPI */
 
-ChromeUtils.import("resource://gre/modules/Services.jsm");
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm");
 
 const cleanupPrefs = new Set();
 

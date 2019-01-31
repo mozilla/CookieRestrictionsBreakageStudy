@@ -1,18 +1,14 @@
 "use strict";
 
 /* global ExtensionAPI */
-
-ChromeUtils.import("resource://gre/modules/Console.jsm");
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
-ChromeUtils.import("resource://gre/modules/ExtensionCommon.jsm");
-ChromeUtils.import("resource://gre/modules/ExtensionUtils.jsm");
-ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-
-/* eslint-disable-next-line */
+/* eslint-disable no-var */
+var {ExtensionCommon} = ChromeUtils.import("resource://gre/modules/ExtensionCommon.jsm", {});
+var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm", {});
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm", {});
 var {EventManager, EventEmitter} = ExtensionCommon;
-/* eslint-disable-next-line no-var */
-var {Management: {global: {tabTracker}}} = ChromeUtils.import("resource://gre/modules/Extension.jsm", {});
+var {Management} = ChromeUtils.import("resource://gre/modules/Extension.jsm", null);
+var tabTracker = Management.global.tabTracker;
+/* eslint-enable no-var */
 
 function loadStyles(resourceURI, sheet) {
   const styleSheetService = Cc["@mozilla.org/content/style-sheet-service;1"]

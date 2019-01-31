@@ -4,8 +4,9 @@
  * Ignoring private windows.
  */
 
-/* globals Services, PrivateBrowsingUtils */
-ChromeUtils.import("resource://gre/modules/PrivateBrowsingUtils.jsm");
+/* globals Services */
+/* eslint-disable-next-line no-var */
+var {PrivateBrowsingUtils} = ChromeUtils.import("resource://gre/modules/PrivateBrowsingUtils.jsm", null);
 
 this.EveryWindow = {
   _callbacks: new Map(),

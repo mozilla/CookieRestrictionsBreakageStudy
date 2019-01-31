@@ -1,15 +1,14 @@
 "use strict";
 
-/* global AddonManager, ExtensionAPI, ExtensionCommon, ExtensionUtils, XPCOMUtils, Services */
-ChromeUtils.import("resource://gre/modules/Services.jsm");
-ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm");
+/* global AddonManager, ExtensionAPI, ExtensionCommon, ExtensionUtils, Services */
 ChromeUtils.defineModuleGetter(this, "AddonManager", "resource://gre/modules/AddonManager.jsm");
-ChromeUtils.import("resource://gre/modules/AppConstants.jsm");
-
-/* eslint-disable-next-line no-var */
+/* eslint-disable no-var */
+var {AppConstants} = ChromeUtils.import("resource://gre/modules/AppConstants.jsm", {});
+var {Services} = ChromeUtils.import("resource://gre/modules/Services.jsm", {});
 var {EventManager, EventEmitter} = ExtensionCommon;
-/* eslint-disable-next-line no-var */
-var {Management: {global: {tabTracker}}} = ChromeUtils.import("resource://gre/modules/Extension.jsm", {});
+var {Management} = ChromeUtils.import("resource://gre/modules/Extension.jsm", null);
+var tabTracker = Management.global.tabTracker;
+/* eslint-enable no-var */
 
 ChromeUtils.defineModuleGetter(
   this,
