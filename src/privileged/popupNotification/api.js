@@ -48,6 +48,11 @@ function getMostRecentBrowserWindow() {
     allowPopups: false,
   });
 }
+function setTimerToHideNotification(recentWindow, notification) {
+  recentWindow.setTimeout(() => {
+    notification.close();
+  }, 10000);
+}
 
 class PopupNotificationEventEmitter extends EventEmitter {
   emitClose() {
@@ -64,7 +69,7 @@ class PopupNotificationEventEmitter extends EventEmitter {
 
     const userWillSubmit = () => {
       self.emit("page-fixed", tabId, location);
-      notificationBox.appendNotification(
+      const notification = notificationBox.appendNotification(
         "Thanks for helping us improve Firefox.", // message
         "cookie-restrictions-breakage-thanks", // value
         iconURL, // icon
@@ -79,11 +84,12 @@ class PopupNotificationEventEmitter extends EventEmitter {
         ],
         null,
       );
+      setTimerToHideNotification(recentWindow, notification);
     };
 
     const userWillNotSubmit = () => {
       self.emit("page-fixed", tabId, "");
-      notificationBox.appendNotification(
+      const notification = notificationBox.appendNotification(
         "Domain not sent. We respect your privacy!", // message
         "cookie-restrictions-breakage-not-sent", // value
         iconURL, // icon
@@ -98,6 +104,7 @@ class PopupNotificationEventEmitter extends EventEmitter {
         ],
         (e) => { self.emit("page-fixed", tabId, ""); },
       );
+      setTimerToHideNotification(recentWindow, notification);
     };
 
     const pageWasFixedCB = () => {
@@ -125,7 +132,7 @@ class PopupNotificationEventEmitter extends EventEmitter {
 
     const pageNotFixedCB = () => {
       self.emit("page-not-fixed", tabId);
-      notificationBox.appendNotification(
+      const notification = notificationBox.appendNotification(
         `Sorry we couldn't fix ${location}. This means Firefox privacy settings likely didn't cause the problem.`, // message
         "cookie-restrictions-breakage-not-fixed", // value
         iconURL, // icon
@@ -140,6 +147,7 @@ class PopupNotificationEventEmitter extends EventEmitter {
         ],
         null,
       );
+      setTimerToHideNotification(recentWindow, notification);
     };
 
     const label = `Firefox tried to fix the site and reloaded the page. Is ${location} working properly now?`;
