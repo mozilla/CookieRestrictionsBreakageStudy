@@ -38,7 +38,15 @@ class PageMonitorEventEmitter extends EventEmitter {
   }
   emitErrorDetected(error, tabId) {
     const recentWindow = getMostRecentBrowserWindow();
-    const hasException = Services.perms.testExactPermissionFromPrincipal(recentWindow.gBrowser.contentPrincipal, "trackingprotection") === Services.perms.ALLOW_ACTION;
+    let uri;
+    try {
+      uri = Services.io.newURI("https://" + recentWindow.gBrowser.selectedBrowser.currentURI.hostPort);
+    } catch (e) {
+      // Getting the hostPort for about: and file: URIs fails, but TP doesn't work with
+      // these URIs anyway
+      uri = null;
+    }
+    const hasException = Services.perms.testExactPermission(uri, "trackingprotection") === Services.perms.ALLOW_ACTION;
     this.emit("page-error-detected", error, tabId, hasException);
   }
   emitExceptionSuccessfullyAdded(tabId) {
@@ -138,11 +146,20 @@ this.pageMonitor = class extends ExtensionAPI {
         async addException(currentOrigin) {
           const recentWindow = getMostRecentBrowserWindow();
           const tabId = tabTracker.getBrowserTabId(recentWindow.gBrowser.selectedBrowser);
-          const hasException = Services.perms.testExactPermissionFromPrincipal(recentWindow.gBrowser.contentPrincipal, "trackingprotection") === Services.perms.ALLOW_ACTION;
+          const uriString = "https://" + recentWindow.gBrowser.selectedBrowser.currentURI.hostPort;
+          let uri;
+          try {
+            uri = Services.io.newURI("https://" + recentWindow.gBrowser.selectedBrowser.currentURI.hostPort);
+          } catch (e) {
+            // Getting the hostPort for about: and file: URIs fails, but TP doesn't work with
+            // these URIs anyway
+            uri = null;
+          }
+          const hasException = Services.perms.testExactPermission(uri, "trackingprotection") === Services.perms.ALLOW_ACTION;
           if (!hasException) {
             const addExceptionButton = recentWindow.document.getElementById("tracking-action-unblock");
             addExceptionButton.doCommand();
-            this.extensionSetExceptions.push(currentOrigin);
+            this.extensionSetExceptions.push(uriString);
             pageMonitorEventEmitter.emitExceptionSuccessfullyAdded(tabId);
           }
         },
@@ -155,7 +172,15 @@ this.pageMonitor = class extends ExtensionAPI {
 
         testPermission() {
           const recentWindow = getMostRecentBrowserWindow();
-          const hasException = Services.perms.testExactPermissionFromPrincipal(recentWindow.gBrowser.contentPrincipal, "trackingprotection") === Services.perms.ALLOW_ACTION;
+          let uri;
+          try {
+            uri = Services.io.newURI("https://" + recentWindow.gBrowser.selectedBrowser.currentURI.hostPort);
+          } catch (e) {
+            // Getting the hostPort for about: and file: URIs fails, but TP doesn't work with
+            // these URIs anyway
+            uri = null;
+          }
+          const hasException = Services.perms.testExactPermission(uri, "trackingprotection") === Services.perms.ALLOW_ACTION;
           pageMonitorEventEmitter.emitHasException(hasException);
         },
 

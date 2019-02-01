@@ -293,7 +293,7 @@ class Feature {
     };
 
     tabInfo.compatModeWasJustEntered = true;
-    browser.pageMonitor.addException(tabInfo.currentOrigin);
+    browser.pageMonitor.addException();
     browser.tabs.reload(tabId);
   }
 
