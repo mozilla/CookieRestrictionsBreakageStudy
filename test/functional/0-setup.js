@@ -6,7 +6,12 @@ process.on("unhandledRejection", r => console.error(r)); // eslint-disable-line 
 const {assert} = require("chai");
 const utils = require("./utils");
 
-const allPrefs = [];
+const allPrefs = [
+  "privacy.trackingprotection.enabled",
+  "network.cookie.cookieBehavior",
+  "urlclassifier.trackingTable",
+  "browser.contentblocking.ui.enabled",
+];
 
 async function checkPrefs(driver, prefs) {
   for (const pref of allPrefs) {
@@ -23,7 +28,7 @@ async function checkPrefs(driver, prefs) {
 describe("setup and teardown", function() {
   // This gives Firefox time to start, and us a bit longer during some of the tests.
   this.timeout(15000);
-
+  const SETUP_DELAY = 500;
   let driver;
 
   // runs ONCE
@@ -38,18 +43,21 @@ describe("setup and teardown", function() {
   });
 
   describe("sets up the correct prefs, depending on the variation", function() {
-    const SETUP_DELAY = 500;
     let addonId;
 
     describe("sets the correct prefs for variation Control", () => {
       before(async () => {
         await utils.setPreference(driver, "extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName", "Control");
         addonId = await utils.setupWebdriver.installAddon(driver);
+        await utils.joinStudy(driver);
         await driver.sleep(SETUP_DELAY);
       });
 
       it("has the correct prefs after install", async () => {
-        await checkPrefs(driver, {});
+        await checkPrefs(driver, {
+          "network.cookie.cookieBehavior": 0, // Testing on Nightly the default is not 0
+          "browser.contentblocking.ui.enabled": false,
+        });
       });
 
       it("has the correct prefs after uninstall", async () => {
@@ -66,12 +74,15 @@ describe("setup and teardown", function() {
       before(async () => {
         await utils.setPreference(driver, "extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName", "ThirdPartyTrackingBasic");
         addonId = await utils.setupWebdriver.installAddon(driver);
+        await utils.joinStudy(driver);
         await driver.sleep(SETUP_DELAY);
       });
 
       it("has the correct prefs after install", async () => {
         await checkPrefs(driver, {
           "network.cookie.cookieBehavior": 4,
+          "urlclassifier.trackingTable": "test-track-simple,base-track-digest256",
+          "browser.contentblocking.ui.enabled": false,
         });
       });
 
@@ -89,12 +100,41 @@ describe("setup and teardown", function() {
       before(async () => {
         await utils.setPreference(driver, "extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName", "ThirdPartyTrackingStrict");
         addonId = await utils.setupWebdriver.installAddon(driver);
+        await utils.joinStudy(driver);
         await driver.sleep(SETUP_DELAY);
       });
 
       it("has the correct prefs after install", async () => {
         await checkPrefs(driver, {
-          "network.cookie.cookieBehavior": 3,
+          "network.cookie.cookieBehavior": 4,
+          "urlclassifier.trackingTable": "test-track-simple,base-track-digest256,content-track-digest256",
+          "browser.contentblocking.ui.enabled": false,
+        });
+      });
+
+      it("has the correct prefs after uninstall", async () => {
+        await utils.setupWebdriver.uninstallAddon(driver, addonId);
+        await checkPrefs(driver, {});
+      });
+
+      after(async () => {
+        await utils.clearPreference(driver, "extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName");
+      });
+    });
+
+    describe("sets the correct prefs for variation AllThirdPartyCookies", () => {
+      before(async () => {
+        await utils.setPreference(driver, "extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName", "AllThirdPartyCookies");
+        addonId = await utils.setupWebdriver.installAddon(driver);
+        await utils.joinStudy(driver);
+        await driver.sleep(SETUP_DELAY);
+      });
+
+      it("has the correct prefs after install", async () => {
+        await checkPrefs(driver, {
+          "network.cookie.cookieBehavior": 1,
+          "urlclassifier.trackingTable": "test-track-simple,base-track-digest256",
+          "browser.contentblocking.ui.enabled": false,
         });
       });
 

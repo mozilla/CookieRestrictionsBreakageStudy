@@ -67,7 +67,7 @@
     "prewatch": "npm run bundle-utils",
     "sign": "echo 'TBD, see: https://bugzilla.mozilla.org/show_bug.cgi?id=1407757'",
     "start": "web-ext run --no-reload",
-    "test": "FIREFOX_BINARY=${FIREFOX_BINARY:-Nightly} ADDON_ZIP=./dist/mozilla_cookie_restrictions_user_study-1.0.5.zip mocha test/functional/ --bail",
+    "test": "FIREFOX_BINARY=${FIREFOX_BINARY:-Nightly} ADDON_ZIP=./dist/firefox_privacy_study-1.0.0.zip mocha test/functional/ --bail",
     "watch": "web-ext run"
   }
 }

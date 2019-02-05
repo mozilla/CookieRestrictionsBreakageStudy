@@ -144,7 +144,7 @@ class Feature {
 
       await this.addMainTelemetryData(tabInfo, data, userid);
 
-      // compatModeWasJustEntered - show the banner as a response to clicking the icon.
+      // compatModeWasJustEntered - show the banner as a response to reporting the page.
       if (tabInfo && tabInfo.compatModeWasJustEntered) {
         // Clear the old timer if we report a second site within the 15 min.
         if (tabInfo.bannerTimer) {
