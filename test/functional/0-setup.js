@@ -11,6 +11,7 @@ const allPrefs = [
   "network.cookie.cookieBehavior",
   "urlclassifier.trackingTable",
   "browser.contentblocking.ui.enabled",
+  "browser.contentblocking.category",
 ];
 
 async function checkPrefs(driver, prefs) {
@@ -57,12 +58,15 @@ describe("setup and teardown", function() {
         await checkPrefs(driver, {
           "network.cookie.cookieBehavior": 0, // Testing on Nightly the default is not 0
           "browser.contentblocking.ui.enabled": false,
+          "browser.contentblocking.category": "custom",
         });
       });
 
       it("has the correct prefs after uninstall", async () => {
         await utils.setupWebdriver.uninstallAddon(driver, addonId);
-        await checkPrefs(driver, {});
+        await checkPrefs(driver, {
+          "browser.contentblocking.category": "standard", // Note, there is no default value for this pref
+        });
       });
 
       after(async () => {
@@ -83,12 +87,15 @@ describe("setup and teardown", function() {
           "network.cookie.cookieBehavior": 4,
           "urlclassifier.trackingTable": "test-track-simple,base-track-digest256",
           "browser.contentblocking.ui.enabled": false,
+          "browser.contentblocking.category": "custom",
         });
       });
 
       it("has the correct prefs after uninstall", async () => {
         await utils.setupWebdriver.uninstallAddon(driver, addonId);
-        await checkPrefs(driver, {});
+        await checkPrefs(driver, {
+          "browser.contentblocking.category": "standard", // Note, there is no default value for this pref
+        });
       });
 
       after(async () => {
@@ -109,12 +116,15 @@ describe("setup and teardown", function() {
           "network.cookie.cookieBehavior": 4,
           "urlclassifier.trackingTable": "test-track-simple,base-track-digest256,content-track-digest256",
           "browser.contentblocking.ui.enabled": false,
+          "browser.contentblocking.category": "custom",
         });
       });
 
       it("has the correct prefs after uninstall", async () => {
         await utils.setupWebdriver.uninstallAddon(driver, addonId);
-        await checkPrefs(driver, {});
+        await checkPrefs(driver, {
+          "browser.contentblocking.category": "standard", // Note, there is no default value for this pref
+        });
       });
 
       after(async () => {
@@ -135,12 +145,15 @@ describe("setup and teardown", function() {
           "network.cookie.cookieBehavior": 1,
           "urlclassifier.trackingTable": "test-track-simple,base-track-digest256",
           "browser.contentblocking.ui.enabled": false,
+          "browser.contentblocking.category": "custom",
         });
       });
 
       it("has the correct prefs after uninstall", async () => {
         await utils.setupWebdriver.uninstallAddon(driver, addonId);
-        await checkPrefs(driver, {});
+        await checkPrefs(driver, {
+          "browser.contentblocking.category": "standard", // Note, there is no default value for this pref
+        });
       });
 
       after(async () => {
