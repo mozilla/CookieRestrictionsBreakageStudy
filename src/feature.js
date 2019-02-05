@@ -24,14 +24,13 @@ class Feature {
     });
 
     // On receiving an action from the onboarding page, we begin, or end the study.
-    browser.runtime.onMessage.addListener((data) => {
+    browser.runtime.onMessage.addListener(async (data) => {
       if (data.msg === "user_permission" && data.user_joined) {
         browser.storage.local.set({user_joined: data.user_joined});
         this.sendTelemetry({"action": "info_page_user_enrolled"});
         this.beginStudy(studyInfo);
       } else if (data.msg === "user_permission" && !data.user_joined) {
-        this.sendTelemetry({"action": "info_page_user_unerolled"});
-
+        await this.sendTelemetry({"action": "info_page_user_unerolled"});
         // Actually uninstall addon. User has confirmed.
         browser.management.uninstallSelf();
       } else if (data.msg === "window_closed") {
