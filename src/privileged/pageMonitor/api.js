@@ -39,14 +39,15 @@ class PageMonitorEventEmitter extends EventEmitter {
   emitErrorDetected(error, tabId) {
     const recentWindow = getMostRecentBrowserWindow();
     let uri;
+    let hasException = false;
     try {
       uri = Services.io.newURI("https://" + recentWindow.gBrowser.selectedBrowser.currentURI.hostPort);
+      hasException = Services.perms.testExactPermission(uri, "trackingprotection") === Services.perms.ALLOW_ACTION;
     } catch (e) {
       // Getting the hostPort for about: and file: URIs fails, but TP doesn't work with
       // these URIs anyway
       uri = null;
     }
-    const hasException = Services.perms.testExactPermission(uri, "trackingprotection") === Services.perms.ALLOW_ACTION;
     this.emit("page-error-detected", error, tabId, hasException);
   }
   emitExceptionSuccessfullyAdded(tabId) {
@@ -148,14 +149,15 @@ this.pageMonitor = class extends ExtensionAPI {
           const tabId = tabTracker.getBrowserTabId(recentWindow.gBrowser.selectedBrowser);
           const uriString = "https://" + recentWindow.gBrowser.selectedBrowser.currentURI.hostPort;
           let uri;
+          let hasException = false;
           try {
             uri = Services.io.newURI("https://" + recentWindow.gBrowser.selectedBrowser.currentURI.hostPort);
+            hasException = Services.perms.testExactPermission(uri, "trackingprotection") === Services.perms.ALLOW_ACTION;
           } catch (e) {
             // Getting the hostPort for about: and file: URIs fails, but TP doesn't work with
             // these URIs anyway
             uri = null;
           }
-          const hasException = Services.perms.testExactPermission(uri, "trackingprotection") === Services.perms.ALLOW_ACTION;
           if (!hasException) {
             const addExceptionButton = recentWindow.document.getElementById("tracking-action-unblock");
             addExceptionButton.doCommand();
@@ -173,14 +175,15 @@ this.pageMonitor = class extends ExtensionAPI {
         testPermission() {
           const recentWindow = getMostRecentBrowserWindow();
           let uri;
+          let hasException = false;
           try {
             uri = Services.io.newURI("https://" + recentWindow.gBrowser.selectedBrowser.currentURI.hostPort);
+            hasException = Services.perms.testExactPermission(uri, "trackingprotection") === Services.perms.ALLOW_ACTION;
           } catch (e) {
             // Getting the hostPort for about: and file: URIs fails, but TP doesn't work with
             // these URIs anyway
             uri = null;
           }
-          const hasException = Services.perms.testExactPermission(uri, "trackingprotection") === Services.perms.ALLOW_ACTION;
           pageMonitorEventEmitter.emitHasException(hasException);
         },
 

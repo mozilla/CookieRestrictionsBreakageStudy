@@ -1,8 +1,3 @@
-browser.windows.getCurrent().then((windowInfo) => {
-  document.body.classList.toggle("basic", !windowInfo.incognito);
-  document.body.classList.toggle("private", windowInfo.incognito);
-});
-
 const getCurrentWindowActiveTab = () => {
   return browser.tabs.query({currentWindow: true, active: true});
 };
@@ -33,4 +28,10 @@ browser.runtime.onMessage.addListener((data) => {
   }
 });
 
-browser.runtime.sendMessage({msg: "test-permission"});
+browser.windows.getCurrent().then((windowInfo) => {
+  document.body.classList.toggle("basic", !windowInfo.incognito);
+  document.body.classList.toggle("private", windowInfo.incognito);
+  if (!window.incognito) {
+    browser.runtime.sendMessage({msg: "test-permission"});
+  }
+});
