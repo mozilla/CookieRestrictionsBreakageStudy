@@ -49,7 +49,18 @@ class Feature {
 
   async beginStudy(studyInfo) {
     browser.browserAction.onClicked.removeListener(this.openOnboardingTab);
-    browser.browserAction.setPopup({popup: "../popup/compatMode.html"});
+    browser.browserAction.setPopup({popup: ""});
+
+    browser.browserAction.onClicked.addListener((e) => {
+      // Don't show the popup on about: file: and other invalid urls.
+      if (!e.url.startsWith("http")) {
+        return;
+      }
+      // We must set and reset popup each time, otherwise it will override the onClick event.
+      browser.browserAction.setPopup({popup: "../popup/compatMode.html"});
+      browser.browserAction.openPopup();
+      browser.browserAction.setPopup({popup: ""});
+    });
     let { variation } = studyInfo;
     this.onCompatMode = this.onCompatMode.bind(this);
     browser.runtime.onMessage.addListener((data) => {
