@@ -73,12 +73,7 @@ class Feature {
     }
     this.userid = userid;
 
-    variation = VARIATIONS[variation.name];
-
-    for (const pref in variation.prefs) {
-      browser.prefs.registerPrefCleanup(pref);
-
-      const value = variation.prefs[pref];
+    function setPrefAccordingToType(pref, value) {
       if (typeof value === "boolean") {
         browser.prefs.setBoolPref(pref, value);
       } else if (typeof value === "string") {
@@ -86,6 +81,18 @@ class Feature {
       } else if (typeof value === "number") {
         browser.prefs.setIntPref(pref, value);
       }
+    }
+
+    variation = VARIATIONS[variation.name];
+
+    for (const pref in variation.prefs) {
+      browser.prefs.registerPrefCleanup(pref);
+      setPrefAccordingToType(pref, variation.prefs[pref]);
+    }
+
+    for (const nonDefaultPref of variation.ndprefs) {
+      browser.prefs.registerPrefCleanup([nonDefaultPref.pref, nonDefaultPref.reset_to]);
+      setPrefAccordingToType(nonDefaultPref.pref, nonDefaultPref.value);
     }
 
     // Get the current state of the exceptions list and pass to chrome code to keep both in sync,

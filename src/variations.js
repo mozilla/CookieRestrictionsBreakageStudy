@@ -8,6 +8,13 @@ window.VARIATIONS = {
       "urlclassifier.trackingTable": "test-track-simple,base-track-digest256",
       "browser.contentblocking.ui.enabled": false, // Turn off UI tour
     },
+    ndprefs: [
+      {
+        pref: "browser.contentblocking.category",
+        value: "custom",
+        reset_to: "standard",
+      },
+    ],
   },
 
   "ThirdPartyTrackingBasic": {
@@ -19,6 +26,13 @@ window.VARIATIONS = {
       "urlclassifier.trackingTable": "test-track-simple,base-track-digest256",
       "browser.contentblocking.ui.enabled": false, // Turn off UI tour
     },
+    ndprefs: [
+      {
+        pref: "browser.contentblocking.category",
+        value: "custom",
+        reset_to: "standard",
+      },
+    ],
   },
 
   "ThirdPartyTrackingStrict": {
@@ -30,6 +44,13 @@ window.VARIATIONS = {
       "urlclassifier.trackingTable": "test-track-simple,base-track-digest256,content-track-digest256",
       "browser.contentblocking.ui.enabled": false, // Turn off UI tour
     },
+    ndprefs: [
+      {
+        pref: "browser.contentblocking.category",
+        value: "custom",
+        reset_to: "standard",
+      },
+    ],
   },
 
   "AllThirdPartyCookies": {
@@ -41,5 +62,12 @@ window.VARIATIONS = {
       "urlclassifier.trackingTable": "test-track-simple,base-track-digest256",
       "browser.contentblocking.ui.enabled": false, // Turn off UI tour
     },
+    ndprefs: [
+      {
+        pref: "browser.contentblocking.category",
+        value: "custom",
+        reset_to: "standard",
+      },
+    ],
   },
 };

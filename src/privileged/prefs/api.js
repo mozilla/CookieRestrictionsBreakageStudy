@@ -28,7 +28,20 @@ this.prefs = class extends ExtensionAPI {
   // See for progress: https://github.com/mozilla/shield-studies-addon-utils/issues/246
   onShutdown(shutdownReason) {
     for (let pref of cleanupPrefs) {
-      Services.prefs.clearUserPref(pref);
+      // Set a pref back to it's original value, if different from the default.
+      if (Array.isArray(pref)) {
+        const key = pref[0];
+        const value = pref[1];
+        if (typeof value === "boolean") {
+          Services.prefs.setBoolPref(key, value);
+        } else if (typeof value === "string") {
+          Services.prefs.setStringPref(key, value);
+        } else if (typeof value === "number") {
+          Services.prefs.setIntPref(key, value);
+        }
+      } else {
+        Services.prefs.clearUserPref(pref);
+      }
     }
   }
 };

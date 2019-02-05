@@ -10,8 +10,8 @@
         "async": true,
         "parameters": [
           {
-            "name": "prefName",
-            "type": "string"
+            "name": "pref",
+            "type": "any"
           }
         ]
       },
