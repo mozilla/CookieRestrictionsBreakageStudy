@@ -25,7 +25,7 @@ const joinedStudy = () => {
   browser.browserAction.openPopup();
   // Popup reverts back to default, only show this special
   // popup on the info page click events.
-  browser.browserAction.setPopup({popup: "../popup/compatMode.html"});
+  browser.browserAction.setPopup({popup: ""});
 };
 
 joinButton.addEventListener("click", joinedStudy);
