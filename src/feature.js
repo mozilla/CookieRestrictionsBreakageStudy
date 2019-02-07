@@ -20,6 +20,7 @@ class Feature {
       if (data.msg === "user_permission" && data.user_joined) {
         browser.storage.local.set({user_joined: data.user_joined});
         this.sendTelemetry({"action": "info_page_user_enrolled"});
+        browser.browserAction.onClicked.removeListener(this.openOnboardingTab);
         this.beginStudy(studyInfo);
       } else if (data.msg === "user_permission" && !data.user_joined) {
         this.sendTelemetry({"action": "info_page_user_unerolled"});
@@ -33,8 +34,7 @@ class Feature {
       }
     });
 
-    const userPreviouslyJoined = await browser.storage.local.get("user_joined").user_joined;
-    if (userPreviouslyJoined) {
+    if (!studyInfo.isFirstRun) {
       this.beginStudy(studyInfo);
     } else {
       // Open onboarding page, if user does not agree to join, then do not begin study.
@@ -48,9 +48,7 @@ class Feature {
   }
 
   async beginStudy(studyInfo) {
-    browser.browserAction.onClicked.removeListener(this.openOnboardingTab);
     browser.browserAction.setPopup({popup: ""});
-
     browser.browserAction.onClicked.addListener((e) => {
       // Don't show the popup on about: file: and other invalid urls.
       if (!e.url.startsWith("http")) {
