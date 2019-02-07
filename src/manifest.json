@@ -3,6 +3,7 @@
   "description": "Report broken sites in Firefox.",
   "version": "1.0.8",
   "manifest_version": 2,
+  "hidden": true,
   "applications": {
     "gecko": {
       "id": "cookie-restrictions-breakage@shield.mozilla.org",
