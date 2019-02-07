@@ -200,10 +200,10 @@ this.pageMonitor = class extends ExtensionAPI {
         },
 
         handleDisableOrUninstall(addon) {
-          this.removeExceptions(this.extensionSetExceptions);
           if (addon.id !== context.extension.id) {
             return;
           }
+          this.removeExceptions(this.extensionSetExceptions);
 
           AddonManager.removeAddonListener(this);
           // This is needed even for onUninstalling, because it nukes the addon
