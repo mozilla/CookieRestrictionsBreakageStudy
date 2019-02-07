@@ -73,6 +73,8 @@ class Feature {
         this.onCompatMode(data.tabId);
       } else if (data.msg === "test-permission") {
         browser.pageMonitor.testPermission();
+      } else if (data.msg === "open-in-overflow") {
+        browser.pageMonitor.openConfirmDialogue();
       }
     });
 
