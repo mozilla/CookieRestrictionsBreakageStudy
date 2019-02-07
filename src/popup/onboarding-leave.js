@@ -17,3 +17,6 @@ browser.runtime.onMessage.addListener((data) => {
 });
 
 browser.runtime.sendMessage({msg: "test-platform"});
+// Popup resets back to default, only show this special
+// popup on the info page click events.
+browser.browserAction.setPopup({popup: ""});

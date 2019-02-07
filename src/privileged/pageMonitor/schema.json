@@ -32,6 +32,13 @@
         "description": "Check the plaform the user is on.",
         "async": true,
         "parameters": []
+      },
+      {
+        "name": "openConfirmDialogue",
+        "type": "function",
+        "description": "open the confirm dialogue on the onboarding page.",
+        "async": true,
+        "parameters": []
       }
     ],
     "events": [

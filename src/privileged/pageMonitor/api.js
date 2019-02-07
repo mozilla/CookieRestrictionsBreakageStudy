@@ -191,6 +191,20 @@ this.pageMonitor = class extends ExtensionAPI {
           pageMonitorEventEmitter.emitPlatform(AppConstants.platform);
         },
 
+        openConfirmDialogue() {
+          const recentWindow = getMostRecentBrowserWindow();
+          const icon = recentWindow.document.getElementById("cookie-restrictions-breakage_shield_mozilla_org-browser-action");
+          if (icon.parentElement.id === "widget-overflow-fixed-list") {
+            const overflowMenu = recentWindow.document.getElementById("widget-overflow");
+            overflowMenu.addEventListener("ViewShown", () => {
+              icon.click();
+            }, {once: true});
+            recentWindow.document.getElementById("nav-bar-overflow-button").click();
+          } else {
+            icon.click();
+          }
+        },
+
         onUninstalling(addon) {
           this.handleDisableOrUninstall(addon);
         },

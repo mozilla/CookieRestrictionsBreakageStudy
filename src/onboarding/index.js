@@ -17,15 +17,16 @@ const joinedStudy = () => {
     content.classList.add("joined");
     joinButton.textContent = "Leave Study";
     browser.runtime.sendMessage({msg: "user_permission", user_joined: true});
+    browser.browserAction.openPopup();
+    // Popup reverts back to default, only show this special
+    // popup on the info page click events.
+    browser.browserAction.setPopup({popup: ""});
   } else {
     browser.browserAction.setPopup({popup: "../popup/onboarding-leave.html"});
     // No need to change the button nor copy back to default,
     // if the user actually leaves, the tab will close upon uninstall.
+    browser.runtime.sendMessage({msg: "open-in-overflow"});
   }
-  browser.browserAction.openPopup();
-  // Popup reverts back to default, only show this special
-  // popup on the info page click events.
-  browser.browserAction.setPopup({popup: ""});
 };
 
 joinButton.addEventListener("click", joinedStudy);
