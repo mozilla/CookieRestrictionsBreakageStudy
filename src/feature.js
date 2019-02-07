@@ -34,9 +34,16 @@ class Feature {
       }
     });
 
-    if (!studyInfo.isFirstRun) {
-      this.beginStudy(studyInfo);
-    } else {
+    browser.storage.local.get("user_joined").then(({user_joined}) => {
+      if (!studyInfo.isFirstRun && user_joined) {
+        this.beginStudy(studyInfo);
+      } else if (!studyInfo.isFirstRun && !user_joined) {
+        // The user must have closed the browser in a funny way last time,
+        // and we did not uninstall, uninstall now.
+        browser.management.uninstallSelf();
+      }
+    });
+    if (studyInfo.isFirstRun) {
       // Open onboarding page, if user does not agree to join, then do not begin study.
       (this.openOnboardingTab = () => {
         browser.tabs.create({
