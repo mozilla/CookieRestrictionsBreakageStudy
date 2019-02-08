@@ -10,10 +10,6 @@
       "strict_min_version": "62.0"
     }
   },
-  "icons": {
-    "48": "icons/study-icon.svg",
-    "96": "icons/study-icon.svg"
-  },
   "browser_action": {
     "browser_style": true,
     "default_title": "Firefox Privacy Study",
