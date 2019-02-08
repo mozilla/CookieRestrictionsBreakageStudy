@@ -1,7 +1,7 @@
 {
   "name": "cookie-restrictions-breakage",
   "description": "Shield Study for testing breakage caused by Cookie Restrictions",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "author": "Mozilla",
   "bugs": {
     "url": "https://github.com/mozilla/CookieRestrictionsBreakageStudy/issues"
@@ -67,7 +67,7 @@
     "prewatch": "npm run bundle-utils",
     "sign": "echo 'TBD, see: https://bugzilla.mozilla.org/show_bug.cgi?id=1407757'",
     "start": "web-ext run --no-reload",
-    "test": "FIREFOX_BINARY=${FIREFOX_BINARY:-Nightly} ADDON_ZIP=./dist/firefox_privacy_study-1.0.8.zip mocha test/functional/ --bail",
+    "test": "FIREFOX_BINARY=${FIREFOX_BINARY:-Nightly} ADDON_ZIP=./dist/firefox_privacy_study-1.0.9.zip mocha test/functional/ --bail",
     "watch": "web-ext run"
   }
 }
