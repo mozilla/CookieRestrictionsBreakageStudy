@@ -1,7 +1,7 @@
 {
   "name": "Firefox Privacy Study",
   "description": "Report broken sites in Firefox.",
-  "version": "1.0.9",
+  "version": "1.0.12",
   "manifest_version": 2,
   "hidden": true,
   "applications": {

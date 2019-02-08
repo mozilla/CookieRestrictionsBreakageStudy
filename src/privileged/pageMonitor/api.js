@@ -69,6 +69,7 @@ this.pageMonitor = class extends ExtensionAPI {
   }
 
   onShutdown(shutdownReason) {
+    this.removeExceptions();
     EveryWindow.unregisterCallback("set-content-listeners");
     for (const win of [...BrowserWindowTracker.orderedWindows]) {
       const mm = win.getGroupMessageManager("browsers");
@@ -78,6 +79,7 @@ this.pageMonitor = class extends ExtensionAPI {
   }
 
   getAPI(context) {
+    const self = this;
     const pageMonitorEventEmitter = new PageMonitorEventEmitter();
     /* global EveryWindow */
     Services.scriptloader.loadSubScript(
@@ -137,7 +139,8 @@ this.pageMonitor = class extends ExtensionAPI {
         },
 
         async init(extensionSetExceptions) {
-          this.extensionSetExceptions = extensionSetExceptions;
+          self.extensionSetExceptions = extensionSetExceptions;
+          self.removeExceptions = this.removeExceptions;
           EveryWindow.registerCallback("set-content-listeners", this.setListeners.bind(this), this.unmount.bind(this));
 
           // Listen for addon disabling or uninstall.
@@ -161,13 +164,13 @@ this.pageMonitor = class extends ExtensionAPI {
           if (!hasException) {
             const addExceptionButton = recentWindow.document.getElementById("tracking-action-unblock");
             addExceptionButton.doCommand();
-            this.extensionSetExceptions.push(uriString);
+            self.extensionSetExceptions.push(uriString);
             pageMonitorEventEmitter.emitExceptionSuccessfullyAdded(tabId);
           }
         },
 
-        removeExceptions(domains) {
-          for (const domain of domains) {
+        removeExceptions() {
+          for (const domain of self.extensionSetExceptions) {
             Services.perms.remove(Services.io.newURI(domain), "trackingprotection");
           }
         },
@@ -217,7 +220,6 @@ this.pageMonitor = class extends ExtensionAPI {
           if (addon.id !== context.extension.id) {
             return;
           }
-          this.removeExceptions(this.extensionSetExceptions);
 
           AddonManager.removeAddonListener(this);
           // This is needed even for onUninstalling, because it nukes the addon
