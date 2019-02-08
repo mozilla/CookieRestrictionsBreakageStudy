@@ -35,3 +35,6 @@ browser.windows.getCurrent().then((windowInfo) => {
     browser.runtime.sendMessage({msg: "test-permission"});
   }
 });
+
+// Popup resets back to default
+browser.browserAction.setPopup({popup: ""});

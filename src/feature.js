@@ -64,7 +64,6 @@ class Feature {
       // We must set and reset popup each time, otherwise it will override the onClick event.
       browser.browserAction.setPopup({popup: "../popup/compatMode.html"});
       browser.browserAction.openPopup();
-      browser.browserAction.setPopup({popup: ""});
     });
     let { variation } = studyInfo;
     this.onCompatMode = this.onCompatMode.bind(this);
