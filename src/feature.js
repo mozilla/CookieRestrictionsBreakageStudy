@@ -144,7 +144,9 @@ class Feature {
 
       // payloadWaitingForSurvey means user has entered compat mode on this tab, but not answered the survey. Send telemetry action=SURVEY_IGNORED.
       if (tabInfo.payloadWaitingForSurvey) {
-        tabInfo.payloadWaitingForSurvey.action = SURVEY_IGNORED;
+        if (tabInfo.telemetryPayload.action !== SURVEY_PAGE_FIXED) {
+          tabInfo.payloadWaitingForSurvey.action = SURVEY_IGNORED;
+        }
         this.submitPayloadWaitingForSurvey(tabInfo);
       }
       TabRecords.deleteTabEntry(tabId);
@@ -221,6 +223,19 @@ class Feature {
 
     // Watch for the user pressing the "Yes this page was fixed"
     // button and record the answer.
+    browser.popupNotification.onReportInitialFixed.addListener(
+      (tabId, location) => {
+        const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
+        if (!tabInfo || !tabInfo.payloadWaitingForSurvey) {
+          return;
+        }
+        // the user has answered yes, but we don't send yet. We will wait to give them a chance
+        // to send us the URL. Set the action now so that if something happens it will get sent.
+        tabInfo.telemetryPayload.action = SURVEY_PAGE_FIXED;
+      },
+    );
+
+    // Watch for the user pressing the "Yes this page was fixed", plus answering the second banner.
     browser.popupNotification.onReportPageFixed.addListener(
       (tabId, location) => {
         const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
@@ -235,6 +250,7 @@ class Feature {
         // This will trigger twice, this is due to sending a message when the user answers and also
         // sending a message when it is ignored. The "ignored" event will fire no matter what happens.
         // we only want the "ignored" event if the first event does not happen.
+        // The second time payloadWaitingForSurvey will have been deleted.
         if (tabInfo.payloadWaitingForSurvey) {
           this.submitPayloadWaitingForSurvey(tabInfo);
         }

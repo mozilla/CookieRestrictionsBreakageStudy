@@ -23,9 +23,17 @@
     ],
     "events": [
       {
-        "name": "onReportPageFixed",
+        "name": "onReportInitialFixed",
         "type": "function",
         "description": "The user clicked 'yes', the page has been fixed.",
+        "parameters": [
+          {"type": "integer", "name": "tabId", "minimum": 0}
+        ]
+      },
+      {
+        "name": "onReportPageFixed",
+        "type": "function",
+        "description": "The user clicked 'yes', the page has been fixed, and interacted with the nex banner",
         "parameters": [
           {"type": "integer", "name": "tabId", "minimum": 0},
           {"type": "string", "name": "location"}

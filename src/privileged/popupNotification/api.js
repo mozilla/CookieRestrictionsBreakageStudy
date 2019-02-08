@@ -108,6 +108,7 @@ class PopupNotificationEventEmitter extends EventEmitter {
     };
 
     const pageWasFixedCB = () => {
+      self.emit("initial-fixed", tabId);
       notificationBox.appendNotification(
         `Submit ${location} to Firefox? This will help us learn more about what broke.`, // message
         "cookie-restrictions-breakage-report-url", // value
@@ -231,6 +232,25 @@ this.popupNotification = class extends ExtensionAPI {
         close() {
           popupNotificationEventEmitter.emitClose();
         },
+        onReportInitialFixed: new EventManager(
+          context,
+          "popupNotification.onReportInitialFixed",
+          fire => {
+            const listener = (value, tabId) => {
+              fire.async(tabId);
+            };
+            popupNotificationEventEmitter.on(
+              "initial-fixed",
+              listener,
+            );
+            return () => {
+              popupNotificationEventEmitter.off(
+                "initial-fixed",
+                listener,
+              );
+            };
+          },
+        ).api(),
         onReportPageFixed: new EventManager(
           context,
           "popupNotification.onReportPageFixed",
