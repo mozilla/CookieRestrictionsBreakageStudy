@@ -195,7 +195,11 @@ this.pageMonitor = class extends ExtensionAPI {
         },
 
         openConfirmDialogue() {
-          const recentWindow = getMostRecentBrowserWindow();
+          // Include private windows in this particular window selection so the user can
+          // unenroll from a private tab.
+          const recentWindow = BrowserWindowTracker.getTopWindow({
+            allowPopups: false,
+          });
           const icon = recentWindow.document.getElementById("cookie-restrictions-breakage_shield_mozilla_org-browser-action");
           if (icon.parentElement.id === "widget-overflow-fixed-list" || icon.parentElement.id === "widget-overflow-list") {
             const overflowMenu = recentWindow.document.getElementById("widget-overflow");

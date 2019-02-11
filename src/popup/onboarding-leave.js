@@ -1,8 +1,6 @@
 const cancel = document.getElementById("cancel");
 const confirm = document.getElementById("confirmQuit");
 cancel.addEventListener("click", () => {
-  // User cancelled, put storage permission back.
-  browser.storage.local.set({user_joined: true});
   window.close();
 });
 confirm.addEventListener("click", () => {
