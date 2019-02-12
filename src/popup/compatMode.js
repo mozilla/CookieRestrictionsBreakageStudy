@@ -13,7 +13,11 @@ button.addEventListener("click", (e) => {
 
 const anchors = document.querySelectorAll(".learn-more");
 for (const anchor of anchors) {
-  anchor.href = browser.runtime.getURL("./onboarding/index.html");
+  anchor.onclick = () => {
+    browser.tabs.create({
+      url: browser.runtime.getURL("./onboarding/index.html"),
+    }).then(window.close());
+  };
 }
 
 getCurrentWindowActiveTab().then((tabList) => {
