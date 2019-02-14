@@ -142,7 +142,7 @@ this.pageMonitor = class extends ExtensionAPI {
           self.extensionSetExceptions = extensionSetExceptions;
           self.removeExceptions = this.removeExceptions;
           EveryWindow.registerCallback("set-content-listeners", this.setListeners.bind(this), this.unmount.bind(this));
-
+          this.reAddExceptions();
           // Listen for addon disabling or uninstall.
           AddonManager.addAddonListener(this);
         },
@@ -172,6 +172,12 @@ this.pageMonitor = class extends ExtensionAPI {
         removeExceptions() {
           for (const domain of self.extensionSetExceptions) {
             Services.perms.remove(Services.io.newURI(domain), "trackingprotection");
+          }
+        },
+
+        reAddExceptions() {
+          for (const domain of self.extensionSetExceptions) {
+            Services.perms.add(Services.io.newURI(domain), "trackingprotection", Services.perms.ALLOW_ACTION);
           }
         },
 
