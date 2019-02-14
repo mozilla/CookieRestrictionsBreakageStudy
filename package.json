@@ -1,7 +1,7 @@
 {
   "name": "cookie-restrictions-breakage",
   "description": "Shield Study for testing breakage caused by Cookie Restrictions",
-  "version": "1.0.13",
+  "version": "1.0.18",
   "author": "Mozilla",
   "bugs": {
     "url": "https://github.com/mozilla/CookieRestrictionsBreakageStudy/issues"
