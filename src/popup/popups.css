@@ -80,6 +80,10 @@ ul {
   margin-bottom: -3px;
 }
 
+.learn-more:hover {
+  text-decoration: underline;
+}
+
 .basic #privateBrowsing {
   display: none;
 }
