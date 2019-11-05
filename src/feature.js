@@ -1,144 +1,393 @@
-/* eslint no-unused-vars: ["error", { "varsIgnorePattern": "(feature)" }]*/
+/* global TabRecords, VARIATIONS, Services */
 
-/**  Example Feature module for a Shield Study.
- *
- *  UI:
- *  - during INSTALL only, show a notification bar with 2 buttons:
- *    - "Thanks".  Accepts the study (optional)
- *    - "I don't want this".  Uninstalls the study.
- *
- *  Firefox code:
- *  - Implements the 'introduction' to the 'button choice' study, via notification bar.
- *
- *  Demonstrates `studyUtils` API:
- *
- *  - `telemetry` to instrument "shown", "accept", and "leave-study" events.
- *  - `endStudy` to send a custom study ending.
- *
- **/
+// Constants for the action telemetry probe.
+const SURVEY_CLOSED = "survey_closed";
+const SURVEY_PAGE_FIXED = "survey_response_fixed";
+const SURVEY_PAGE_NOT_FIXED = "survey_response_not_fixed";
+const SURVEY_IGNORED = "survey_ignored";
+const ENTER_COMPAT_MODE = "enter_compatibility_mode";
+
 class Feature {
   constructor() {}
-  /** A Demonstration feature.
-   *
-   *  - variation: study info about particular client study variation
-   *  - reason: string of background.js install/startup/shutdown reason
-   *
-   */
-  configure(studyInfo) {
-    const feature = this;
-    const { variation, isFirstRun } = studyInfo;
 
-    // Initiate our browser action
-    new BrowserActionButtonChoiceFeature(variation);
+  async configure(studyInfo) {
+    browser.pageMonitor.onPlatformResult.addListener((platform) => {
+      browser.runtime.sendMessage({msg: "platform", platform});
+    });
 
-    // perform something only during first run
-    if (isFirstRun) {
-      browser.introductionNotificationBar.onIntroductionShown.addListener(
-        () => {
-          console.log("onIntroductionShown");
+    // On receiving an action from the onboarding page, we begin, or end the study.
+    browser.runtime.onMessage.addListener(async (data) => {
+      if (data.msg === "user_permission" && data.user_joined) {
+        browser.storage.local.set({user_joined: data.user_joined});
+        this.sendTelemetry({"action": "info_page_user_enrolled"});
+        browser.browserAction.onClicked.removeListener(this.openOnboardingTab);
+        this.beginStudy(studyInfo);
+      } else if (data.msg === "user_permission" && !data.user_joined) {
+        await this.sendTelemetry({"action": "info_page_user_unerolled"});
 
-          feature.sendTelemetry({
-            event: "onIntroductionShown",
-          });
-        },
-      );
+        // Actually uninstall addon. User has confirmed.
+        browser.management.uninstallSelf();
+      } else if (data.msg === "window_closed") {
+        browser.management.uninstallSelf();
+      } else if (data.msg === "test-platform") {
+        browser.pageMonitor.testPlatform();
+      }
+    });
 
-      browser.introductionNotificationBar.onIntroductionAccept.addListener(
-        () => {
-          console.log("onIntroductionAccept");
-          feature.sendTelemetry({
-            event: "onIntroductionAccept",
-          });
-        },
-      );
-
-      browser.introductionNotificationBar.onIntroductionLeaveStudy.addListener(
-        () => {
-          console.log("onIntroductionLeaveStudy");
-          feature.sendTelemetry({
-            event: "onIntroductionLeaveStudy",
-          });
-          browser.study.endStudy("introduction-leave-study");
-        },
-      );
-
-      browser.introductionNotificationBar.show(variation.name);
+    browser.storage.local.get("user_joined").then(({user_joined}) => {
+      if (!studyInfo.isFirstRun && user_joined) {
+        this.beginStudy(studyInfo);
+      } else if (!studyInfo.isFirstRun && !user_joined) {
+        // The user must have closed the browser in a funny way last time,
+        // and we did not uninstall, uninstall now.
+        browser.management.uninstallSelf();
+      }
+    });
+    if (studyInfo.isFirstRun) {
+      // Open onboarding page, if user does not agree to join, then do not begin study.
+      (this.openOnboardingTab = () => {
+        browser.tabs.create({
+          url: browser.runtime.getURL("./onboarding/index.html"),
+        });
+      })();
+      browser.browserAction.onClicked.addListener(this.openOnboardingTab);
     }
   }
 
-  /* good practice to have the literal 'sending' be wrapped up */
-  sendTelemetry(stringStringMap) {
-    browser.study.sendTelemetry(stringStringMap);
-  }
+  async beginStudy(studyInfo) {
+    browser.browserAction.setPopup({popup: ""});
+    browser.browserAction.onClicked.addListener((e) => {
+      // Don't show the popup on about: file: and other invalid urls.
+      if (!e.url.startsWith("http")) {
+        return;
+      }
+      // We must set and reset popup each time, otherwise it will override the onClick event.
+      browser.browserAction.setPopup({popup: "../popup/compatMode.html"});
+      browser.browserAction.openPopup();
+    });
+    let { variation } = studyInfo;
+    this.onCompatMode = this.onCompatMode.bind(this);
+    browser.runtime.onMessage.addListener((data) => {
+      if (data.msg === "compat_mode") {
+        this.onCompatMode(data.tabId);
+      } else if (data.msg === "test-permission") {
+        browser.pageMonitor.testPermission();
+      } else if (data.msg === "open-in-overflow") {
+        browser.pageMonitor.openConfirmDialogue();
+      }
+    });
 
-  /**
-   * Called at end of study, and if the user disables the study or it gets uninstalled by other means.
-   */
-  async cleanup() {}
+    browser.pageMonitor.onHasExceptionResults.addListener((hasException) => {
+      browser.runtime.sendMessage({msg: "hasException", hasException});
+    });
 
-  /**
-   * Example of a utility function
-   *
-   * @param variation
-   * @returns {string}
-   */
-  static iconPath(variation) {
-    return `icons/${variation.name}.svg`;
-  }
-}
+    // The userid will be used to create a unique hash
+    // for the etld + userid combination.
+    let { userid } = await browser.storage.local.get("userid");
+    if (!userid) {
+      userid = this.generateUUID();
+      await browser.storage.local.set({userid});
+    }
+    this.userid = userid;
 
-class BrowserActionButtonChoiceFeature {
-  /**
-   * - set image, text, click handler (telemetry)
-   */
-  constructor(variation) {
-    console.log(
-      "Initializing BrowserActionButtonChoiceFeature:",
-      variation.name,
+    function setPrefAccordingToType(pref, value) {
+      if (typeof value === "boolean") {
+        browser.prefs.setBoolPref(pref, value);
+      } else if (typeof value === "string") {
+        browser.prefs.setStringPref(pref, value);
+      } else if (typeof value === "number") {
+        browser.prefs.setIntPref(pref, value);
+      }
+    }
+
+    variation = VARIATIONS[variation.name];
+
+    for (const pref in variation.prefs) {
+      browser.prefs.registerPrefCleanup(pref);
+      setPrefAccordingToType(pref, variation.prefs[pref]);
+    }
+
+    for (const nonDefaultPref of variation.ndprefs) {
+      browser.prefs.registerPrefCleanup([nonDefaultPref.pref, nonDefaultPref.reset_to]);
+      setPrefAccordingToType(nonDefaultPref.pref, nonDefaultPref.value);
+    }
+
+    // Get the current state of the exceptions list and pass to chrome code to keep both in sync,
+    // init as an array if it doesn't exist.
+    let {extensionSetExceptions} = await browser.storage.local.get("extensionSetExceptions");
+    if (!extensionSetExceptions) {
+      extensionSetExceptions = [];
+    }
+    await browser.storage.local.set({extensionSetExceptions});
+
+    // Initialize listeners in privileged code.
+    browser.pageMonitor.init(extensionSetExceptions);
+
+    // We receive most of the critical site information in beforeunload
+    // and send it either on unload or on tab close.
+    browser.pageMonitor.onPageBeforeUnload.addListener(async (tabId, data) => {
+      if (tabId < 0 || !data.etld) {
+        return;
+      }
+
+      const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
+      await this.addMainTelemetryData(tabInfo, data, userid);
+    });
+
+    // When a tab is removed, make sure to submit telemetry for the
+    // last page and delete the tab entry.
+    browser.tabs.onRemoved.addListener(tabId => {
+      const tabInfo = TabRecords.getTabInfo(tabId);
+      if (!tabInfo) {
+        return;
+      }
+
+      // payloadWaitingForSurvey means user has entered compat mode on this tab, but not answered the survey. Send telemetry action=SURVEY_IGNORED.
+      if (tabInfo.payloadWaitingForSurvey) {
+        if (tabInfo.telemetryPayload.action !== SURVEY_PAGE_FIXED) {
+          tabInfo.payloadWaitingForSurvey.action = SURVEY_IGNORED;
+        }
+        this.submitPayloadWaitingForSurvey(tabInfo);
+      }
+      TabRecords.deleteTabEntry(tabId);
+    });
+
+    // Listen for the page to load to show the banner
+    browser.pageMonitor.onPageDOMContentLoaded.addListener(async (tabId, data) => {
+      const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
+
+      tabInfo.currentOrigin = data.origin;
+
+      // Increment external and internal navigations between reporting broken and answering the survey.
+      if (tabInfo.currentOriginReported &&
+          tabInfo.currentOrigin !== tabInfo.currentOriginReported) {
+        tabInfo.payloadWaitingForSurvey.navigated_external += 1;
+      } else if (tabInfo.currentOriginReported &&
+                 tabInfo.currentOrigin === tabInfo.currentOriginReported &&
+                 !tabInfo.compatModeWasJustEntered) {
+        tabInfo.payloadWaitingForSurvey.navigated_internal += 1;
+      }
+
+      await this.addMainTelemetryData(tabInfo, data, userid);
+
+      // compatModeWasJustEntered - show the banner as a response to reporting the page.
+      if (tabInfo && tabInfo.compatModeWasJustEntered) {
+        // Clear the old timer if we report a second site within the 15 min.
+        if (tabInfo.bannerTimer) {
+          clearTimeout(tabInfo.bannerTimer);
+          tabInfo.bannerTimer = null;
+        }
+        await this.addMainTelemetryData(tabInfo, data, userid);
+        tabInfo.compatModeWasJustEntered = false;
+        tabInfo.waitingForReturn = false;
+        browser.popupNotification.show(tabInfo.currentOrigin);
+
+      // If user has left the reported domain.
+      } else if (tabInfo.currentOriginReported &&
+          tabInfo.currentOrigin !== tabInfo.currentOriginReported &&
+          !tabInfo.waitingForReturn) {
+        // If the user does not return within 15 min, clear the data, the user has ignored the banner.
+        tabInfo.bannerTimer = setTimeout(function() {
+          tabInfo.payloadWaitingForSurvey = null;
+          tabInfo.currentOriginReported = null;
+          tabInfo.waitingForReturn = null;
+          tabInfo.bannerTimer = null;
+        }, 900000); // 900000 = 15 min
+        browser.popupNotification.close();
+        tabInfo.waitingForReturn = true;
+
+      // If user has returned in time.
+      } else if (tabInfo &&
+                 tabInfo.currentOrigin === tabInfo.currentOriginReported &&
+                 tabInfo.payloadWaitingForSurvey &&
+                 tabInfo.waitingForReturn &&
+                 !tabInfo.compatModeWasJustEntered) {
+        tabInfo.waitingForReturn = false;
+        clearTimeout(tabInfo.bannerTimer);
+        // Show the banner because we have returned to the reported site within 15 min.
+        browser.popupNotification.show(tabInfo.currentOrigin);
+      }
+    });
+
+    // Watch for the user pressing the "x" to close the banner.
+    browser.popupNotification.onReportClosed.addListener(
+      (tabId) => {
+        const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
+        if (!tabInfo || !tabInfo.payloadWaitingForSurvey) {
+          return;
+        }
+        tabInfo.telemetryPayload.action = SURVEY_CLOSED;
+        this.submitPayloadWaitingForSurvey(tabInfo);
+      },
     );
-    this.timesClickedInSession = 0;
 
-    // modify BrowserAction (button) ui for this particular {variation}
-    console.log("path:", `icons/${variation.name}.svg`);
-    // TODO: Running into an error "values is undefined" here
-    browser.browserAction.setIcon({ path: Feature.iconPath(variation) });
-    browser.browserAction.setTitle({ title: variation.name });
-    browser.browserAction.onClicked.addListener(() => this.handleButtonClick());
-    console.log("initialized");
+    // Watch for the user pressing the "Yes this page was fixed"
+    // button and record the answer.
+    browser.popupNotification.onReportInitialFixed.addListener(
+      (tabId, location) => {
+        const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
+        if (!tabInfo || !tabInfo.payloadWaitingForSurvey) {
+          return;
+        }
+        // the user has answered yes, but we don't send yet. We will wait to give them a chance
+        // to send us the URL. Set the action now so that if something happens it will get sent.
+        tabInfo.telemetryPayload.action = SURVEY_PAGE_FIXED;
+      },
+    );
+
+    // Watch for the user pressing the "Yes this page was fixed", plus answering the second banner.
+    browser.popupNotification.onReportPageFixed.addListener(
+      (tabId, location) => {
+        const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
+        if (!tabInfo || !tabInfo.payloadWaitingForSurvey) {
+          return;
+        }
+
+        // Location is either an empty string or a URL if the user has given permission.
+        tabInfo.telemetryPayload.plain_text_url = location;
+        tabInfo.telemetryPayload.action = SURVEY_PAGE_FIXED;
+
+        // This will trigger twice, this is due to sending a message when the user answers and also
+        // sending a message when it is ignored. The "ignored" event will fire no matter what happens.
+        // we only want the "ignored" event if the first event does not happen.
+        // The second time payloadWaitingForSurvey will have been deleted.
+        if (tabInfo.payloadWaitingForSurvey) {
+          this.submitPayloadWaitingForSurvey(tabInfo);
+        }
+      },
+    );
+
+    // Watch for the user pressing the "No this page was not fixed"
+    // button and record the answer.
+    browser.popupNotification.onReportPageNotFixed.addListener(
+      (tabId) => {
+        const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
+        if (!tabInfo || !tabInfo.payloadWaitingForSurvey) {
+          return;
+        }
+        tabInfo.telemetryPayload.action = SURVEY_PAGE_NOT_FIXED;
+        this.submitPayloadWaitingForSurvey(tabInfo);
+      },
+    );
+
+    browser.pageMonitor.onErrorDetected.addListener(
+      (error, tabId, hasException) => {
+        this.recordPageError(error, tabId, hasException);
+      }
+    );
+
+    browser.pageMonitor.onExceptionAdded.addListener(
+      (tabId) => {
+        this.recordExceptionAdded(tabId);
+      }
+    );
   }
 
-  /** handleButtonClick
-   *
-   * - instrument browserAction button clicks
-   * - change label
+  recordPageError(error, tabId, hasException) {
+    const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
+    // If an exception is set for this page, even if not from us,
+    // it is equivalent to compat mode being on, so treat it as on.
+    if (hasException) {
+      if (`compat_on_num_${error}` in tabInfo.telemetryPayload) {
+        tabInfo.telemetryPayload[`compat_on_num_${error}`] += 1;
+      } else {
+        tabInfo.telemetryPayload.compat_on_num_other_error += 1;
+      }
+    } else {
+      if (`compat_off_num_${error}` in tabInfo.telemetryPayload) {
+        tabInfo.telemetryPayload[`compat_off_num_${error}`] += 1;
+      } else {
+        tabInfo.telemetryPayload.compat_off_num_other_error += 1;
+      }
+    }
+  }
+
+  async recordExceptionAdded(tabId) {
+    const tabInfo = TabRecords.getTabInfo(tabId);
+    const {extensionSetExceptions} = await browser.storage.local.get("extensionSetExceptions");
+    extensionSetExceptions.push(tabInfo.currentOrigin);
+    await browser.storage.local.set({extensionSetExceptions});
+  }
+
+  onCompatMode(tabId) {
+    const tabInfo = TabRecords.getOrInsertTabInfo(tabId);
+    this.sendTelemetry({...tabInfo.telemetryPayload, action: ENTER_COMPAT_MODE});
+    tabInfo.currentOriginReported = tabInfo.currentOrigin;
+
+    // Only keep a record of the particular info we want.
+    tabInfo.payloadWaitingForSurvey = {
+      navigated_external: 0,
+      navigated_internal: 0,
+      compat_off_num_EvalError: tabInfo.telemetryPayload.compat_off_num_EvalError,
+      compat_off_num_InternalError: tabInfo.telemetryPayload.compat_off_num_InternalError,
+      compat_off_num_RangeError: tabInfo.telemetryPayload.compat_off_num_RangeError,
+      compat_off_num_ReferenceError: tabInfo.telemetryPayload.compat_off_num_ReferenceError,
+      compat_off_num_SyntaxError: tabInfo.telemetryPayload.compat_off_num_SyntaxError,
+      compat_off_num_TypeError: tabInfo.telemetryPayload.compat_off_num_TypeError,
+      compat_off_num_URIError: tabInfo.telemetryPayload.compat_off_num_URIError,
+      compat_off_num_SecurityError: tabInfo.telemetryPayload.compat_off_num_SecurityError,
+      compat_off_num_other_error: tabInfo.telemetryPayload.compat_off_num_other_error,
+      compat_etld: tabInfo.telemetryPayload.etld,
+      embedded_social_script: tabInfo.telemetryPayload.embedded_social_script,
+      login_form_on_page: tabInfo.telemetryPayload.login_form_on_page,
+    };
+
+    tabInfo.compatModeWasJustEntered = true;
+    browser.pageMonitor.addException();
+    browser.tabs.reload(tabId);
+  }
+
+  submitPayloadWaitingForSurvey(tabInfo) {
+    this.sendTelemetry({...tabInfo.telemetryPayload, ...tabInfo.payloadWaitingForSurvey});
+    tabInfo.payloadWaitingForSurvey = null;
+  }
+
+  async addMainTelemetryData(tabInfo, data, userid) {
+    const hash = await this.SHA256(userid + data.etld);
+    tabInfo.telemetryPayload.etld = hash;
+
+    tabInfo.telemetryPayload.embedded_social_script = data.embedded_social_script;
+    tabInfo.telemetryPayload.login_form_on_page = data.login_form_on_page;
+  }
+
+  // Adapted from https://gist.github.com/jed/982883
+  generateUUID() {
+    const randomNumbers = window.crypto.getRandomValues(new Uint8Array(32)).values();
+    return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, a =>
+      (a ^ randomNumbers.next().value & 0b1111 >> a / 4).toString(16)
+    );
+  }
+
+  SHA256(message) {
+    // encode as UTF-8
+    const msgBuffer = new TextEncoder("utf-8").encode(message);
+    // hash the message
+    return crypto.subtle.digest("SHA-256", msgBuffer).then((hash) => {
+      // convert ArrayBuffer to Array
+      const hashArray = Array.from(new Uint8Array(hash));
+      // convert bytes to hex string
+      const hashHex = hashArray.map(b => ("00" + b.toString(16)).slice(-2)).join("");
+      return hashHex;
+    });
+  }
+
+  /**
+   * Takes a flat JSON object, converts all values to strings and
+   * submits it to Shield telemetry.
    */
-  handleButtonClick() {
-    console.log("handleButtonClick");
-    // note: doesn't persist across a session, unless you use localStorage or similar.
-    this.timesClickedInSession += 1;
-    console.log("got a click", this.timesClickedInSession);
-    browser.browserAction.setBadgeText({
-      text: this.timesClickedInSession.toString(),
-    });
+  async sendTelemetry(payload) {
+    const stringToStringMap = {};
+    // Report these prefs with each telemetry ping.
+    payload.privacy_trackingprotection_enabled = await browser.prefs.getBoolPref("privacy.trackingprotection.enabled");
+    payload.network_cookie_cookieBehavior = await browser.prefs.getIntPref("network.cookie.cookieBehavior");
+    payload.urlclassifier_trackingTable = await browser.prefs.getStringPref("urlclassifier.trackingTable");
 
-    // telemetry: FIRST CLICK
-    if (this.timesClickedInSession === 1) {
-      browser.study.sendTelemetry({ event: "button-first-click-in-session" });
+    // Shield Telemetry deals with flat string-string mappings.
+    for (const key of Object.keys(payload)) {
+      stringToStringMap[key] = payload[key].toString();
     }
 
-    // telemetry EVERY CLICK
-    browser.study.sendTelemetry({
-      event: "button-click",
-      timesClickedInSession: "" + this.timesClickedInSession,
-    });
-
-    // webExtension-initiated ending for "used-often"
-    //
-    // - 3 timesClickedInSession in a session ends the study.
-    // - see `../Config.jsm` for what happens during this ending.
-    if (this.timesClickedInSession >= 3) {
-      browser.study.endStudy("used-often");
-    }
+    browser.study.sendTelemetry(stringToStringMap);
   }
 }
 

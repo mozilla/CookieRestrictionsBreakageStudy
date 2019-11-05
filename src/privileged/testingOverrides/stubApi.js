@@ -1,12 +1,9 @@
 /* eslint-disable */
 
-ChromeUtils.import("resource://gre/modules/ExtensionCommon.jsm");
-ChromeUtils.import("resource://gre/modules/ExtensionUtils.jsm");
-
-// eslint-disable-next-line no-undef
-const { EventManager } = ExtensionCommon;
-// eslint-disable-next-line no-undef
-const { EventEmitter } = ExtensionUtils;
+var {ExtensionCommon} = ChromeUtils.import("resource://gre/modules/ExtensionCommon.jsm");
+var {ExtensionUtils} = ChromeUtils.import("resource://gre/modules/ExtensionUtils.jsm");
+var {EventManager} = ExtensionCommon;
+var {EventEmitter} = ExtensionUtils;
 
 this.testingOverrides = class extends ExtensionAPI {
   getAPI(context) {

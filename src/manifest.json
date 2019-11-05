@@ -1,22 +1,35 @@
 {
-  "name": "Button Icon Preference - Shield Study Example",
-  "description": "__MSG_extensionDescription__",
-  "version": "2.0.0",
+  "name": "Firefox Privacy Study",
+  "description": "Report broken sites in Firefox.",
+  "version": "1.0.18",
   "manifest_version": 2,
+  "hidden": true,
   "applications": {
     "gecko": {
-      "id": "button-icon-preference@shield.mozilla.org",
-      "strict_min_version": "61.0a1"
+      "id": "cookie-restrictions-breakage@shield.mozilla.org",
+      "strict_min_version": "62.0"
     }
   },
-  "default_locale": "en-US",
+  "browser_action": {
+    "browser_style": true,
+    "default_title": "Firefox Privacy Study",
+    "theme_icons": [{
+      "light": "icons/study-icon-48.png",
+      "dark": "icons/study-icon-dark-48.png",
+      "size": 48
+    }, {
+      "light": "icons/study-icon-96.png",
+      "dark": "icons/study-icon-dark-96.png",
+      "size": 96
+    }]
+  },
   "experiment_apis": {
-    "introductionNotificationBar": {
-      "schema": "./privileged/introductionNotificationBar/schema.json",
+    "popupNotification": {
+      "schema": "./privileged/popupNotification/schema.json",
       "parent": {
         "scopes": ["addon_parent"],
-        "script": "./privileged/introductionNotificationBar/api.js",
-        "paths": [["introductionNotificationBar"]]
+        "script": "./privileged/popupNotification/api.js",
+        "paths": [["popupNotification"]]
       }
     },
     "study": {
@@ -34,18 +47,29 @@
         "script": "./privileged/testingOverrides/api.js",
         "paths": [["testingOverrides"]]
       }
+    },
+    "prefs": {
+      "schema": "./privileged/prefs/schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "script": "./privileged/prefs/api.js",
+        "paths": [["prefs"]]
+      }
+    },
+    "pageMonitor": {
+      "schema": "./privileged/pageMonitor/schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "script": "./privileged/pageMonitor/api.js",
+        "paths": [["pageMonitor"]]
+      }
     }
   },
-  "permissions": ["management", "storage", "alarms"],
+  "web_accessible_resources": [
+    "privileged/pageMonitor/framescript.js"
+  ],
+  "permissions": ["management", "storage", "alarms", "webNavigation", "tabs"],
   "background": {
-    "scripts": ["studySetup.js", "feature.js", "background.js"]
-  },
-  "icons": {
-    "48": "icons/shield-icon.svg"
-  },
-  "browser_action": {
-    "browser_style": true,
-    "default_icon": "icons/isolatedcorndog.svg",
-    "default_title": "__MSG_buttonTitle__"
+    "scripts": ["variations.js", "studySetup.js", "feature.js", "background.js", "tabs.js"]
   }
 }

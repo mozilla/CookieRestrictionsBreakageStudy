@@ -1,0 +1,60 @@
+[
+  {
+    "namespace": "popupNotification",
+    "description":
+      "Can be used to show a notification to users",
+    "functions": [
+      {
+        "name": "show",
+        "type": "function",
+        "description": "Show the notification to the user.",
+        "async": true,
+        "parameters": [
+          {"type": "string", "name": "location"}
+        ]
+      },
+      {
+        "name": "close",
+        "type": "function",
+        "description": "Close the notification.",
+        "async": true,
+        "parameters": []
+      }
+    ],
+    "events": [
+      {
+        "name": "onReportInitialFixed",
+        "type": "function",
+        "description": "The user clicked 'yes', the page has been fixed.",
+        "parameters": [
+          {"type": "integer", "name": "tabId", "minimum": 0}
+        ]
+      },
+      {
+        "name": "onReportPageFixed",
+        "type": "function",
+        "description": "The user clicked 'yes', the page has been fixed, and interacted with the nex banner",
+        "parameters": [
+          {"type": "integer", "name": "tabId", "minimum": 0},
+          {"type": "string", "name": "location"}
+        ]
+      },
+      {
+        "name": "onReportPageNotFixed",
+        "type": "function",
+        "description": "The user clicked 'no', this page was not fixed.",
+        "parameters": [
+          {"type": "integer", "name": "tabId", "minimum": 0}
+        ]
+      },
+      {
+        "name": "onReportClosed",
+        "type": "function",
+        "description": "The user clicked 'x', and closed the banner without answering.",
+        "parameters": [
+          {"type": "integer", "name": "tabId", "minimum": 0}
+        ]
+      }
+    ]
+  }
+]

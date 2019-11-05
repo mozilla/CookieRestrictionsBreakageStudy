@@ -4,6 +4,10 @@
 // We use it by requiring it.
 require("geckodriver");
 
+const firefox = require("selenium-webdriver/firefox");
+const Context = firefox.Context;
+const SETUP_DELAY = 500;
+
 // Preferences set during testing
 const FIREFOX_PREFERENCES = {
   // Ensure e10s is turned on.
@@ -20,8 +24,7 @@ const FIREFOX_PREFERENCES = {
   "general.warnOnAboutConfig": false,
 
   // Force variation for testing
-  "extensions.button-icon-preference_shield_mozilla_org.test.variationName":
-    "kittens",
+  // "extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName": "0",
 
   // Enable verbose shield study utils logging
   "shieldStudy.logLevel": "All",
@@ -44,6 +47,61 @@ const {
 const { telemetry } = require("shield-studies-addon-utils/testUtils/telemetry");
 const { ui } = require("shield-studies-addon-utils/testUtils/ui");
 
+async function setPreference(driver, name, value) {
+  if (typeof value === "string") {
+    value = `"${value}"`;
+  }
+
+  driver.setContext(Context.CHROME);
+  await driver.executeScript(`
+    var Preferences = ChromeUtils.import("resource://gre/modules/Preferences.jsm", {}).Preferences;
+    Preferences.set("${name}", ${value});
+  `);
+}
+
+async function getPreference(driver, name) {
+  driver.setContext(Context.CHROME);
+  const value = await driver.executeScript(`
+    var Preferences = ChromeUtils.import("resource://gre/modules/Preferences.jsm", {}).Preferences;
+    return Preferences.get("${name}");
+  `);
+  return value;
+}
+
+async function clearPreference(driver, name) {
+  driver.setContext(Context.CHROME);
+  await driver.executeScript(`Services.prefs.clearUserPref("${name}");`);
+}
+
+function prefHasUserValue(driver, name) {
+  driver.setContext(Context.CHROME);
+  return driver.executeScript(`return Services.prefs.prefHasUserValue("${name}");`);
+}
+
+async function openNewTab(driver) {
+  driver.setContext(Context.CHROME);
+  await driver.executeScript(`
+    gBrowser.selectedTab = gBrowser.addTab("about:blank", {triggeringPrincipal: Services.scriptSecurityManager.createNullPrincipal({})});
+  `);
+}
+
+async function removeCurrentTab(driver) {
+  driver.setContext(Context.CHROME);
+  await driver.executeScript(`
+    gBrowser.removeTab(gBrowser.selectedTab);
+  `);
+}
+
+async function joinStudy(driver) {
+  await driver.sleep(SETUP_DELAY);
+  driver.setContext(Context.CHROME);
+  const tabs = await driver.getAllWindowHandles();
+  driver.setContext(Context.CONTENT);
+  driver.switchTo().window(tabs[1]);
+  await driver.sleep(SETUP_DELAY);
+  await driver.executeScript(`document.querySelector("#joinStudy").click()`);
+}
+
 // What we expose to our add-on-specific tests
 module.exports = {
   FIREFOX_PREFERENCES,
@@ -52,4 +110,11 @@ module.exports = {
   setupWebdriver,
   telemetry,
   ui,
+  setPreference,
+  getPreference,
+  clearPreference,
+  prefHasUserValue,
+  openNewTab,
+  removeCurrentTab,
+  joinStudy,
 };

@@ -27,19 +27,18 @@ module.exports = {
     ecmaVersion: 8,
     sourceType: "module",
     ecmaFeatures: {
-      jsx: false,
-      experimentalObjectRestSpread: true,
+      "experimentalObjectRestSpread": true,
     },
   },
   plugins: ["json", "mozilla"],
   root: true,
   rules: {
     "babel/new-cap": "off",
-    "mozilla/no-aArgs": "warn",
+    "mozilla/no-aArgs": "off",
     "mozilla/balanced-listeners": "off",
     "comma-dangle": ["error", "always-multiline"],
-    eqeqeq: "error",
-    indent: ["warn", 2, { SwitchCase: 1 }],
+    "eqeqeq": "error",
+    "indent": ["warn", 2, { SwitchCase: 1 }],
     "max-len": [
       "warn",
       {
@@ -57,7 +56,8 @@ module.exports = {
     "no-var": "error",
     "prefer-const": "warn",
     "prefer-spread": "error",
-    semi: ["error", "always"],
-    "valid-jsdoc": "warn",
+    "semi": ["error", "always"],
+    "valid-jsdoc": "off",
+    "no-lonely-if": "off",
   },
 };

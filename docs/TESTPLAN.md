@@ -21,93 +21,94 @@
 
 ### Preparations
 
-* Download a Release version of Firefox
+* Download a Nightly version of Firefox
+* After 2018-09-04, use Beta instead
 
 ### Install the add-on and enroll in the study
 
 * (Create profile: <https://developer.mozilla.org/Firefox/Multiple_profiles>, or via some other method)
-* Navigate to _about:config_ and set the following preferences. (If a preference does not exist, create it be right-clicking in the white area and selecting New -> String)
+* Navigate to _about:config_ and set the following preferences. (If a preference does not exist, create it by right-clicking in the white area and selecting New -> String)
 * Set `shieldStudy.logLevel` to `All`. This permits shield-add-on log output in browser console.
-* Set `extensions.button-icon-preference_shield_mozilla_org.test.variationName` to `kittens` (or any other study variation/branch to test specifically)
+* Set `extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName` to `ThirdPartyTrackingBasic` (or any other study variation/branch to test specifically)
 * Go to [this study's tracking bug](tbd: replace with your study's launch bug link in bugzilla) and install the latest add-on zip file
+
+### Test Beta or other versions of Firefox
+
+npm will launch the add-on in Nightly by default, but you may want to test it in Beta.
+
+Using `npm start` you may pass in the path or short name of the Firefox release you want to test with the `--firefox` option:
+
+```shell
+npm start -- --firefox=beta --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=ThirdPartyTrackingBasic
+```
+
+See https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Getting_started_with_web-ext#Testing_in_different_versions_of_Firefox for more information.
+
+### Variations
+
+There are a 2 variations to study features and heuristics:
+
+  * `Control`
+  * `ThirdPartyTrackingBasic`
+  * `ThirdPartyTrackingStrict`
+  * `AllThirdPartyCookies`
+
+You can run a specific variation like so:
+
+```shell
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=ThirdPartyTrackingBasic
+```
 
 ## Expected User Experience / Functionality
 
-Users see:
+In all variations:
 
-* an icon in the browser address bar (webExtension BrowserAction) with one of 3 images (Cat, Dog, Lizard)
+ * TBD
 
-Clicking on the button:
+    
+### Control
+In a Control [variation](#variations):
 
-* changes the badge
-* sends telemetry
+  * There are no differences for Control branches from the behaviours described for all variations
 
-ONCE ONLY users see:
+```shell
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=Control
+```
 
-* a notification bar, introducing the featur
-* allowing them to opt out
+### Third Party Tracking Basic
+In a Third Party Tracking Basic[variation](#variations):
 
-Icon will be the same every run.
+* TBD
 
-If the user clicks on the badge more than 3 times, it ends the study.
+ ```shell
+ npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=ThirdPartyTrackingBasic
+ ```
 
-### Do these tests
+### Third Party Tracking Strict
+In a Third Party Tracking Strict [variation](#variations):
 
-1. UI APPEARANCE. OBSERVE a notification bar with these traits:
+   * TBD
 
-   * Icon is 'heartbeat'
-   * Text is one of 8 selected "questions", such as: "Do you like Firefox?". These are listed in [/addon/Config.jsm](/addon/Config.jsm) as the variable `weightedVariations`.
-   * clickable buttons with labels 'yes | not sure | no' OR 'no | not sure | yes' (50/50 chance of each)
-   * an `x` button at the right that closes the notice.
+```shell
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=ThirdPartyTrackingStrict
+```
 
-   Test fails IF:
+### All Third Party Cookies
+In a All Third Party Cookies [variation](#variations):
 
-   * there is no bar.
-   * elements are not correct or are not displaye
+  * TBD
 
-2. UI functionality: VOTE
+```shell
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=AllThirdPartyCookies
+```
 
-   Expect: Click on a 'vote' button (any of: `yes | not sure | no`) has all these effects
+### Testing Guide
 
-   * notice closes
-   * add-on uninstalls
-   * no additional tabs open
-   * telemetry pings are 'correct' with this SPECIFIC `study_state` as the ending
+In combination with the above instructions, add the pref `shieldStudy.logLevel=all` to the command to see extra logging. The logging will show the contents of the Telemetry ping, and the variation.
 
-     * ending is `voted`
-     * 'vote' is correct.
-
-3. UI functionality: 'X' button
-
-   Click on the 'x' button.
-
-   * notice closes
-   * add-on uninstalls
-   * no additional tabs open
-   * telemetry pings are 'correct' with this SPECIFIC ending
-
-     * ending is `notification-x`
-
-4. UI functionality 'close window'
-
-   1. Open a 2nd Firefox window.
-   2. Close the initial window.
-
-   Then observe:
-
-   * notice closes
-   * add-on uninstalls
-   * no additional tabs open
-   * telemetry pings are 'correct' with this SPECIFIC ending
-
-     * ending is `window-or-fx-closed`
-
-5. UI functionality 'too-popular'
-
-   * Click on the web extension's icon three times
-   * Verify that the study ends
-   * Verify that sent Telemetry is correct
-   * Verify that the user is sent to the URL specified in `addon/Config.jsm` under `endings -> too-popular`.
+```shell
+npm start -- -f Nightly --pref=extensions.cookie-restrictions-breakage_shield_mozilla_org.test.variationName=Control --pref=shieldStudy.logLevel=all
+```
 
 ### Design
 

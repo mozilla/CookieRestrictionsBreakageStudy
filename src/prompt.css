@@ -1,0 +1,84 @@
+notification[value="cookie-restrictions-breakage"],
+notification[value="cookie-restrictions-breakage-report-url"],
+notification[value="cookie-restrictions-breakage-not-fixed"],
+notification[value="cookie-restrictions-breakage-not-sent"],
+notification[value="cookie-restrictions-breakage-thanks"] {
+  height: 60px;
+  background-color: #FFF !important;
+}
+
+notification[value="cookie-restrictions-breakage"] .notification-button,
+notification[value="cookie-restrictions-breakage-report-url"] .notification-button,
+notification[value="cookie-restrictions-breakage-not-fixed"] .notification-button,
+notification[value="cookie-restrictions-breakage-not-sent"] .notification-button,
+notification[value="cookie-restrictions-breakage-thanks"] .notification-button {
+  border: 0 !important;
+  border-radius: 0px !important;
+  height: 32px;
+  width: 80px;
+  background: rgba(12, 12, 13, 0.1) !important;
+}
+
+notification[value="cookie-restrictions-breakage"] .notification-button:hover,
+notification[value="cookie-restrictions-breakage-report-url"] .notification-button:hover,
+notification[value="cookie-restrictions-breakage-not-fixed"] .notification-button:hover,
+notification[value="cookie-restrictions-breakage-not-sent"] .notification-button:hover,
+notification[value="cookie-restrictions-breakage-thanks"] .notification-button:hover {
+  background: rgba(12, 12, 13, 0.2) !important;
+}
+
+notification[value="cookie-restrictions-breakage"] .notification-button:active,
+notification[value="cookie-restrictions-breakage-report-url"] .notification-button:active,
+notification[value="cookie-restrictions-breakage-not-fixed"] .notification-button:active,
+notification[value="cookie-restrictions-breakage-not-sent"] .notification-button:active,
+notification[value="cookie-restrictions-breakage-thanks"] .notification-button:active {
+  background: rgba(12, 12, 13, 0.4) !important;
+  color: black !important;
+}
+
+notification[value="cookie-restrictions-breakage"] .messageText,
+notification[value="cookie-restrictions-breakage-report-url"] .messageText,
+notification[value="cookie-restrictions-breakage-not-fixed"] .messageText,
+notification[value="cookie-restrictions-breakage-not-sent"] .messageText,
+notification[value="cookie-restrictions-breakage-thanks"] .messageText {
+  max-width: 500px;
+  font-size: 13px;
+}
+
+notification[value="cookie-restrictions-breakage"] .messageImage,
+notification[value="cookie-restrictions-breakage-report-url"]  .messageImage,
+notification[value="cookie-restrictions-breakage-not-fixed"] .messageImage,
+notification[value="cookie-restrictions-breakage-not-sent"] .messageImage,
+notification[value="cookie-restrictions-breakage-thanks"] .messageImage {
+  width: 30px !important;
+  height: 30px !important;
+  margin-right: 2px;
+}
+
+notification[value="cookie-restrictions-breakage"] .messageDetails,
+notification[value="cookie-restrictions-breakage-report-url"]  .messageDetails,
+notification[value="cookie-restrictions-breakage-not-fixed"] .messageDetails,
+notification[value="cookie-restrictions-breakage-not-sent"] .messageDetails,
+notification[value="cookie-restrictions-breakage-thanks"] .messageDetails {
+  margin: 0 210px;
+}
+
+@media (max-width: 1000px) {
+  notification[value="cookie-restrictions-breakage"] .messageDetails,
+  notification[value="cookie-restrictions-breakage-report-url"]  .messageDetails,
+  notification[value="cookie-restrictions-breakage-not-fixed"] .messageDetails,
+  notification[value="cookie-restrictions-breakage-not-sent"] .messageDetails,
+  notification[value="cookie-restrictions-breakage-thanks"] .messageDetails {
+    margin: 0 80px;
+  }
+}
+
+@media (min-width: 1800px) {
+  notification[value="cookie-restrictions-breakage"] .messageDetails,
+  notification[value="cookie-restrictions-breakage-report-url"]  .messageDetails,
+  notification[value="cookie-restrictions-breakage-not-fixed"] .messageDetails,
+  notification[value="cookie-restrictions-breakage-not-sent"] .messageDetails,
+  notification[value="cookie-restrictions-breakage-thanks"] .messageDetails {
+    margin: 0 400px;
+  }
+}
